@@ -56,3 +56,4 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Ruha Server running on http://localhost:${PORT}`);
 });
+process.exit(1);
