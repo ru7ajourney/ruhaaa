@@ -1,0 +1,341 @@
+/* src/pages/Register.css */
+
+.register-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+/* Header */
+.register-header {
+  background: var(--color-secondary);
+  color: white;
+  padding: 48px 0;
+}
+
+.register-header h1 {
+  font-size: 2rem;
+  margin: 12px 0 8px;
+}
+
+.register-header p {
+  color: rgba(255,255,255,0.7);
+}
+
+.back-link-light {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.9rem;
+  display: inline-block;
+  margin-bottom: 8px;
+  transition: var(--transition);
+}
+
+.back-link-light:hover {
+  color: white;
+}
+
+/* Body */
+.register-body {
+  padding: 40px 0 80px;
+}
+
+.register-form {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+/* Sections */
+.register-section {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  margin-bottom: 20px;
+  border: 1px solid var(--color-border);
+}
+
+.register-section:first-child {
+  margin-top: 24px;
+}
+
+.register-section-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+/* Selected Trip Card */
+.selected-trip-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.selected-trip-card img {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.selected-trip-card h4 {
+  font-size: 1rem;
+  color: var(--color-secondary);
+  margin-bottom: 4px;
+}
+
+.selected-trip-card p {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+}
+
+.change-trip-btn {
+  margin-right: auto;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: var(--transition);
+}
+
+.change-trip-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+/* Form Row */
+.form-row-register {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* Yes/No Questions */
+.questions-note {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.yes-no-question {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.yes-no-question:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.question-text {
+  font-size: 0.98rem;
+  color: var(--color-text);
+  margin-bottom: 14px;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.yes-no-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.yn-btn {
+  padding: 10px 28px;
+  border-radius: var(--radius-sm);
+  font-size: 0.95rem;
+  font-weight: 600;
+  font-family: var(--font-arabic);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition);
+}
+
+.yn-yes {
+  background: #f0faf0;
+  color: #2d7a2d;
+  border-color: #c3e6cb;
+}
+
+.yn-yes.active,
+.yn-yes:hover {
+  background: #2d7a2d;
+  color: white;
+  border-color: #2d7a2d;
+}
+
+.yn-no {
+  background: #fff5f5;
+  color: #c53030;
+  border-color: #fcc;
+}
+
+.yn-no.active,
+.yn-no:hover {
+  background: #c53030;
+  color: white;
+  border-color: #c53030;
+}
+
+/* Char Count */
+.char-hint {
+  font-weight: 400;
+  font-size: 0.82rem;
+  color: var(--color-text-light);
+  margin-right: 6px;
+}
+
+.char-count {
+  text-align: left;
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+/* Submit */
+.register-submit-btn {
+  width: 100%;
+  padding: 16px;
+  font-size: 1.1rem;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.register-note {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  opacity: 0.75;
+  line-height: 1.8;
+  margin-top: 20px;
+  margin-bottom: 32px;
+  padding: 12px 16px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-sm);
+}
+
+/* ==============================
+   Policies Checkbox
+   ============================== */
+
+.policies-agree-section {
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.policies-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  line-height: 1.6;
+}
+
+.policies-checkbox {
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary);
+}
+
+.policies-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-arabic);
+  font-size: inherit;
+  font-weight: 700;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: var(--transition);
+}
+
+.policies-link:hover {
+  color: var(--color-primary-dark);
+}
+
+.policies-warning {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: #c53030;
+  padding-right: 32px;
+}
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.btn-disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Success Page */
+.register-success {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+  padding: 24px;
+}
+
+.success-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 60px 40px;
+  text-align: center;
+  max-width: 480px;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-border);
+}
+
+.success-icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+}
+
+.success-card h2 {
+  font-size: 1.6rem;
+  color: var(--color-secondary);
+  margin-bottom: 16px;
+}
+
+.success-card p {
+  color: var(--color-text-light);
+  line-height: 1.8;
+  margin-bottom: 28px;
+}
+
+@media (max-width: 768px) {
+  .form-row-register {
+    grid-template-columns: 1fr;
+  }
+
+  .selected-trip-card {
+    flex-wrap: wrap;
+  }
+
+  .change-trip-btn {
+    margin-right: 0;
+  }
+}

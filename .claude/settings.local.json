@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd /d C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\backend && npm run dev\" -WindowStyle Normal -PassThru | Select-Object Id)",
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd /d C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\frontend && npm run dev\" -WindowStyle Normal -PassThru | Select-Object Id)"
+    ]
+  }
+}

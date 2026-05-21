@@ -1,0 +1,97 @@
+/* src/pages/About.css */
+
+.about-header {
+  background: var(--color-secondary);
+  color: white;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.about-header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+.about-header p { color: rgba(255,255,255,0.7); }
+
+.about-content {
+  padding: 60px 0 80px;
+}
+
+.about-story {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.about-story-text h2 {
+  font-size: 1.8rem;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+}
+
+.about-story-text p {
+  color: var(--color-text);
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.about-story-img img {
+  width: 100%;
+  height: 450px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.about-what { margin-bottom: 60px; }
+.about-what h2 {
+  font-size: 1.8rem;
+  color: var(--color-secondary);
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.what-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.what-card {
+  background: var(--color-white);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 28px 20px;
+  text-align: center;
+  transition: var(--transition);
+}
+
+.what-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary);
+}
+
+.what-icon { font-size: 2rem; display: block; margin-bottom: 12px; }
+.what-card h3 { font-size: 1rem; color: var(--color-secondary); margin-bottom: 8px; }
+.what-card p { font-size: 0.88rem; color: var(--color-text-light); line-height: 1.6; }
+
+.about-cta {
+  text-align: center;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-lg);
+  padding: 60px;
+}
+
+.about-cta h2 { font-size: 2rem; color: var(--color-secondary); margin-bottom: 12px; }
+.about-cta p { color: var(--color-text-light); margin-bottom: 28px; }
+
+@media (max-width: 1024px) {
+  .what-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .about-story { grid-template-columns: 1fr; gap: 32px; }
+  .about-story-img { order: -1; }
+  .about-story-img img { height: 280px; }
+  .what-grid { grid-template-columns: 1fr 1fr; }
+  .about-cta { padding: 40px 24px; }
+}

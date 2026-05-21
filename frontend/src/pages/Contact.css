@@ -1,0 +1,228 @@
+/* ==============================
+   Contact Page
+   ============================== */
+
+.contact-page {
+  position: relative;
+  overflow: hidden;
+  min-height: 80vh;
+  background: linear-gradient(150deg, #faf8f5 0%, #f0ebe3 45%, #e8f4f0 100%);
+}
+
+/* ── خلفية متحركة ─────────────────────────────── */
+.contact-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.3;
+}
+
+.blob-1 {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, #c8622a55, transparent 70%);
+  top: -120px;
+  right: -120px;
+}
+
+.blob-2 {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, #2c4a3e44, transparent 70%);
+  bottom: 80px;
+  left: -100px;
+}
+
+.blob-3 {
+  width: 360px;
+  height: 360px;
+  background: radial-gradient(circle, #e8a87c55, transparent 70%);
+  top: 45%;
+  left: 45%;
+  transform: translate(-50%, -50%);
+}
+
+.floating-icon {
+  position: absolute;
+  animation: floatUpDown ease-in-out infinite;
+  opacity: 0.5;
+  user-select: none;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.08));
+}
+
+@keyframes floatUpDown {
+  0%   { transform: translateY(0px)   rotate(0deg);  }
+  25%  { transform: translateY(-20px) rotate(5deg);  }
+  50%  { transform: translateY(-10px) rotate(-3deg); }
+  75%  { transform: translateY(-24px) rotate(4deg);  }
+  100% { transform: translateY(0px)   rotate(0deg);  }
+}
+
+/* ── الهيدر ─────────────────────────────────── */
+.contact-header {
+  position: relative;
+  z-index: 1;
+  background: var(--color-secondary);
+  color: white;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.contact-header h1 { font-size: 2.5rem; margin-bottom: 10px; }
+.contact-header p  { color: rgba(255,255,255,0.75); font-size: 1.1rem; }
+
+/* ── المحتوى ─────────────────────────────────── */
+.contact-body {
+  position: relative;
+  z-index: 1;
+  padding: 64px 0 56px;
+}
+
+/* ── الاقتباس ───────────────────────────────── */
+.contact-quote {
+  text-align: center;
+  margin-bottom: 36px;
+}
+
+.contact-quote p {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  line-height: 1.8;
+  display: inline;
+}
+
+.quote-mark {
+  font-size: 3.5rem;
+  color: var(--color-accent);
+  font-family: serif;
+  line-height: 0;
+  vertical-align: -0.45em;
+  opacity: 0.8;
+}
+
+.quote-mark--end {
+  margin-right: 4px;
+}
+
+/* ── المقدمة ─────────────────────────────────── */
+.contact-intro {
+  text-align: center;
+  color: var(--color-text-light);
+  font-size: 1.05rem;
+  max-width: 540px;
+  margin: 0 auto 52px;
+  line-height: 2;
+}
+
+/* ── الكروت ─────────────────────────────────── */
+.contact-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.contact-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 26px 28px;
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1.5px solid var(--color-border);
+  transition: var(--transition);
+  text-decoration: none;
+  color: var(--color-text);
+  box-shadow: var(--shadow-sm);
+}
+
+.contact-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.97);
+}
+
+/* أيقونة الكارت */
+.contact-card-icon {
+  flex-shrink: 0;
+  width: 54px;
+  height: 54px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.contact-card-icon svg {
+  width: 26px;
+  height: 26px;
+}
+
+.contact-card--whatsapp  .contact-card-icon { background: #e6f9ef; color: #25d366; }
+.contact-card--instagram .contact-card-icon { background: #fce4ec; color: #e1306c; }
+.contact-card--tiktok    .contact-card-icon { background: #f0f0f0; color: #010101; }
+.contact-card--email     .contact-card-icon { background: var(--color-primary-light); color: var(--color-primary); }
+
+.contact-card--whatsapp:hover  { border-color: #25d366; box-shadow: 0 10px 36px rgba(37,211,102,0.16); }
+.contact-card--instagram:hover { border-color: #e1306c; box-shadow: 0 10px 36px rgba(225,48,108,0.16); }
+.contact-card--tiktok:hover    { border-color: #69c9d0; box-shadow: 0 10px 36px rgba(105,201,208,0.16); }
+.contact-card--email:hover     { border-color: var(--color-primary); box-shadow: 0 10px 36px rgba(200,98,42,0.16); }
+
+.contact-card-body h3 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin-bottom: 4px;
+}
+
+.contact-card-body p {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.contact-card-body span {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+}
+
+/* ── الملاحظة ─────────────────────────────── */
+.contact-note {
+  text-align: center;
+  margin-top: 48px;
+}
+
+.contact-note p {
+  display: inline-block;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 12px 28px;
+  border-radius: 100px;
+  border: 1.5px solid var(--color-accent);
+}
+
+/* ── Responsive ─────────────────────────────── */
+@media (max-width: 768px) {
+  .contact-cards {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+  }
+
+  .contact-header h1 { font-size: 1.8rem; }
+  .contact-quote p   { font-size: 1.1rem; }
+  .floating-icon     { opacity: 0.3; }
+}

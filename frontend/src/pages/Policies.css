@@ -1,0 +1,140 @@
+/* src/pages/Policies.css */
+
+.policies-page {
+  min-height: 100vh;
+}
+
+.policies-header {
+  background: var(--color-secondary);
+  color: white;
+  padding: 60px 0;
+  text-align: center;
+}
+
+.policies-header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 8px;
+}
+
+.policies-header p {
+  color: rgba(255,255,255,0.6);
+  font-size: 0.9rem;
+}
+
+.policies-body {
+  padding: 48px 0 80px;
+  max-width: 820px;
+}
+
+.policies-intro {
+  background: var(--color-primary-light);
+  border-right: 4px solid var(--color-primary);
+  padding: 24px 28px;
+  border-radius: var(--radius-sm);
+  margin-top: 20px;
+  margin-bottom: 40px;
+}
+
+.policies-intro p {
+  color: var(--color-text);
+  line-height: 2;
+  font-size: 0.97rem;
+  letter-spacing: 0.01em;
+}
+
+.policies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* بطاقة كل قسم */
+.policy-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.policy-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 24px;
+  background: #f8f7f5;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.policy-card-icon {
+  font-size: 1.4rem;
+}
+
+.policy-card-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.policy-card-num {
+  background: var(--color-primary);
+  color: white;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.policy-card-points {
+  list-style: none;
+  padding: 16px 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.policy-card-points li {
+  display: flex;
+  gap: 10px;
+  font-size: 0.92rem;
+  color: var(--color-text);
+  line-height: 1.7;
+}
+
+.point-dash {
+  color: var(--color-primary);
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* الختام */
+.policies-closing {
+  margin-top: 40px;
+  margin-bottom: 60px;
+  padding: 24px;
+  background: var(--color-secondary);
+  border-radius: var(--radius-md);
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+}
+
+.policies-closing p {
+  line-height: 1.8;
+  font-size: 0.92rem;
+  margin-bottom: 8px;
+}
+
+.policies-closing p:last-child {
+  margin-bottom: 0;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.85rem;
+}

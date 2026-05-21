@@ -1,0 +1,266 @@
+/* src/pages/TripDetail.css */
+
+/* Hero */
+.trip-detail-hero {
+  position: relative;
+  height: 450px;
+  overflow: hidden;
+}
+
+.trip-detail-hero img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.trip-detail-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%);
+}
+
+.trip-detail-hero-content {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  padding-bottom: 40px;
+  color: white;
+}
+
+.back-link {
+  display: inline-block;
+  color: rgba(255,255,255,0.8);
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+  transition: var(--transition);
+}
+
+.back-link:hover {
+  color: white;
+}
+
+.trip-detail-hero-content h1 {
+  font-size: 2.2rem;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.trip-detail-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 1rem;
+  color: rgba(255,255,255,0.9);
+}
+
+/* Body */
+.trip-detail-body {
+  padding: 48px 0 80px;
+}
+
+.trip-detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 48px;
+  align-items: start;
+}
+
+.detail-section {
+  margin-bottom: 48px;
+}
+
+.detail-section h2 {
+  font-size: 1.4rem;
+  color: var(--color-secondary);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-border);
+}
+
+.trip-full-desc {
+  color: var(--color-text);
+  line-height: 1.9;
+  white-space: pre-line;
+}
+
+/* البرنامج اليومي */
+.program-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.program-day {
+  display: flex;
+  gap: 20px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.program-day:last-child {
+  border-bottom: none;
+}
+
+.day-number {
+  flex-shrink: 0;
+  width: 70px;
+  height: 40px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.day-content h4 {
+  font-size: 1rem;
+  color: var(--color-secondary);
+  margin-bottom: 6px;
+}
+
+.day-content p {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+/* يشمل / لا يشمل */
+.includes-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.includes-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.includes-col li {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  padding: 8px 12px;
+  background: var(--color-bg);
+  border-radius: var(--radius-sm);
+}
+
+.includes-title {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #155724;
+}
+
+.excludes-title {
+  font-size: 1rem;
+  margin-bottom: 12px;
+  color: #721c24;
+}
+
+/* Sidebar */
+.booking-card {
+  background: var(--color-white);
+  border-radius: var(--radius-md);
+  padding: 28px;
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: 90px;
+}
+
+.booking-price {
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.big-price {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-primary);
+}
+
+.price-unit {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  display: block;
+  margin-top: 4px;
+}
+
+.booking-dates h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 12px;
+}
+
+.date-item {
+  background: var(--color-bg);
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.date-range {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.spots-left {
+  font-size: 0.8rem;
+  color: var(--color-primary);
+  margin-top: 4px;
+}
+
+.no-dates {
+  color: var(--color-text-light);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 16px;
+}
+
+.booking-btn {
+  width: 100%;
+  justify-content: center;
+  margin-top: 20px;
+  font-size: 1rem;
+  padding: 14px;
+}
+
+.booking-note {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  margin-top: 10px;
+}
+
+@media (max-width: 1024px) {
+  .trip-detail-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-card {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .trip-detail-hero {
+    height: 320px;
+  }
+
+  .trip-detail-hero-content h1 {
+    font-size: 1.6rem;
+  }
+
+  .includes-section {
+    grid-template-columns: 1fr;
+  }
+}

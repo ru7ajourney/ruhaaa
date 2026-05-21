@@ -1,0 +1,500 @@
+// src/pages/Register.jsx
+// صفحة التسجيل في رحلة
+
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate, Link } from "react-router-dom";
+import { tripsAPI, applicationsAPI } from "../api";
+import { ARAB_COUNTRIES, OTHER_OPTION } from "../data/arabCountries";
+import PoliciesModal from "../components/PoliciesModal";
+import "./Register.css";
+
+const EMPTY_FORM = {
+  fullName: "",
+  country: "",
+  city: "",
+  customCity: "",    // إذا اختار "أخرى" من المدن
+  customCountry: "", // إذا اختار خارج الوطن العربي
+  phone: "",
+  email: "",
+  agreeVolunteering: null,
+  hasEnglish: null,
+  readyForDeposit: null,
+  aboutMe: "",
+};
+
+const Register = () => {
+  const [searchParams] = useSearchParams();
+  const tripId = searchParams.get("trip"); // ID الرحلة من الرابط
+  const navigate = useNavigate();
+
+  const [trip, setTrip] = useState(null);
+  const [trips, setTrips] = useState([]); // قائمة الرحلات للاختيار
+  const [form, setForm] = useState({ ...EMPTY_FORM, tripId: tripId || "" });
+  const [selectedCountryData, setSelectedCountryData] = useState(null);
+  const [agreedToPolicies, setAgreedToPolicies] = useState(false);
+  const [showPolicies, setShowPolicies] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [fetchLoading, setFetchLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+
+  // جلب الرحلات المتاحة
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { data: allTrips } = await tripsAPI.getAll();
+        setTrips(allTrips);
+
+        // إذا في tripId في الرابط، جلب تفاصيل الرحلة
+        if (tripId) {
+          const foundTrip = allTrips.find((t) => t._id === tripId);
+          if (foundTrip) setTrip(foundTrip);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setFetchLoading(false);
+      }
+    };
+    fetchData();
+  }, [tripId]);
+
+  // عند تغيير البلد — حدّث قائمة المدن
+  const handleCountryChange = (e) => {
+    const value = e.target.value;
+    setForm((prev) => ({ ...prev, country: value, city: "", customCity: "", customCountry: "" }));
+
+    if (value === OTHER_OPTION) {
+      setSelectedCountryData(null);
+    } else {
+      const found = ARAB_COUNTRIES.find((c) => c.name === value);
+      setSelectedCountryData(found || null);
+    }
+  };
+
+  // عند تغيير أي حقل عادي
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // أسئلة نعم / لا
+  const handleYesNo = (field, value) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  // إرسال الفورم
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+
+    // تحقق من الموافقة على السياسات
+    if (!agreedToPolicies) {
+      setError("يجب الموافقة على سياسات وشروط رُحى للمتابعة");
+      return;
+    }
+
+    // تحقق من أسئلة نعم/لا
+    if (form.agreeVolunteering === null || form.hasEnglish === null || form.readyForDeposit === null) {
+      setError("يرجى الإجابة على جميع أسئلة نعم / لا");
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const selectedTripId = form.tripId || tripId;
+
+      // حدد البلد والمدينة النهائية
+      const finalCountry =
+        form.country === OTHER_OPTION ? form.customCountry : form.country;
+      const finalCity =
+        form.city === "أخرى" ? form.customCity : form.city;
+
+      await applicationsAPI.submit({
+        tripId: selectedTripId,
+        fullName: form.fullName,
+        country: finalCountry,
+        city: finalCity,
+        phone: form.phone,
+        email: form.email,
+        agreeVolunteering: form.agreeVolunteering,
+        hasEnglish: form.hasEnglish,
+        readyForDeposit: form.readyForDeposit,
+        aboutMe: form.aboutMe,
+      });
+
+      setSubmitted(true);
+    } catch (err) {
+      setError(err.response?.data?.message || "حدث خطأ أثناء إرسال الطلب");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ==============================
+  // صفحة النجاح بعد الإرسال
+  // ==============================
+  if (submitted) {
+    return (
+      <div className="register-success">
+        <div className="success-card">
+          <div className="success-icon">🎉</div>
+          <h2>تم إرسال طلبك بنجاح!</h2>
+          <p>
+            شكراً لاهتمامك برحلاتنا. سيتواصل معك فريق رُحى قريباً على رقم
+            هاتفك أو إيميلك لتأكيد التفاصيل.
+          </p>
+          <Link to="/trips" className="btn btn-primary">
+            العودة للرحلات
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (fetchLoading) {
+    return (
+      <div className="page-loading">
+        <div className="spinner" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="register-page">
+      {/* Header */}
+      <div className="register-header">
+        <div className="container">
+          <Link to={trip ? `/trips/${trip.slug}` : "/trips"} className="back-link-light">
+            ← العودة
+          </Link>
+          <h1>سجّل في رحلة رُحى</h1>
+          <p>أكمل بياناتك وسنتواصل معك في أقرب وقت</p>
+        </div>
+      </div>
+
+      <div className="container register-body">
+        <form onSubmit={handleSubmit} className="register-form">
+
+          {/* ==============================
+              اختيار الرحلة
+              ============================== */}
+          <div className="register-section">
+            <h3 className="register-section-title">✈️ الرحلة</h3>
+
+            {trip ? (
+              // رحلة محددة مسبقاً
+              <div className="selected-trip-card">
+                <img
+                  src={trip.coverImage || "https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=200"}
+                  alt={trip.title}
+                />
+                <div>
+                  <h4>{trip.title}</h4>
+                  <p>📍 {trip.destination} &nbsp;|&nbsp; 🗓 {trip.duration} أيام &nbsp;|&nbsp; 💰 {trip.price} {trip.currency}</p>
+                </div>
+                <Link to="/trips" className="change-trip-btn">تغيير</Link>
+              </div>
+            ) : (
+              // اختيار الرحلة
+              <div className="form-group">
+                <label className="form-label">اختر الرحلة *</label>
+                <select
+                  name="tripId"
+                  className="form-input"
+                  value={form.tripId}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">-- اختر الرحلة --</option>
+                  {trips.map((t) => (
+                    <option key={t._id} value={t._id}>
+                      {t.title} — {t.destination}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+          </div>
+
+          {/* ==============================
+              البيانات الشخصية
+              ============================== */}
+          <div className="register-section">
+            <h3 className="register-section-title">👤 بياناتك الشخصية</h3>
+
+            {/* الاسم */}
+            <div className="form-group">
+              <label className="form-label">الاسم الكامل *</label>
+              <input
+                name="fullName"
+                className="form-input"
+                value={form.fullName}
+                onChange={handleChange}
+                placeholder="مثال: محمد أحمد الخالد"
+                required
+              />
+            </div>
+
+            {/* البلد */}
+            <div className="form-row-register">
+              <div className="form-group">
+                <label className="form-label">البلد *</label>
+                <select
+                  name="country"
+                  className="form-input"
+                  value={form.country}
+                  onChange={handleCountryChange}
+                  required
+                >
+                  <option value="">-- اختر بلدك --</option>
+                  {ARAB_COUNTRIES.map((c) => (
+                    <option key={c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
+                  <option value={OTHER_OPTION}>{OTHER_OPTION}</option>
+                </select>
+              </div>
+
+              {/* المدينة */}
+              <div className="form-group">
+                <label className="form-label">المدينة *</label>
+                {form.country === OTHER_OPTION ? (
+                  // خارج الوطن العربي — كتابة يدوية
+                  <input
+                    name="customCountry"
+                    className="form-input"
+                    value={form.customCountry}
+                    onChange={handleChange}
+                    placeholder="اكتب بلدك ومدينتك"
+                    required
+                  />
+                ) : selectedCountryData ? (
+                  // دولة عربية — قائمة مدن
+                  <>
+                    <select
+                      name="city"
+                      className="form-input"
+                      value={form.city}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">-- اختر مدينتك --</option>
+                      {selectedCountryData.cities.map((city) => (
+                        <option key={city} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                    </select>
+                    {/* إذا اختار "أخرى" من المدن */}
+                    {form.city === "أخرى" && (
+                      <input
+                        name="customCity"
+                        className="form-input"
+                        value={form.customCity}
+                        onChange={handleChange}
+                        placeholder="اكتب مدينتك"
+                        required
+                        style={{ marginTop: 8 }}
+                      />
+                    )}
+                  </>
+                ) : (
+                  <input
+                    className="form-input"
+                    disabled
+                    placeholder="اختر البلد أولاً"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* الهاتف والإيميل */}
+            <div className="form-row-register">
+              <div className="form-group">
+                <label className="form-label">رقم الهاتف (واتساب) *</label>
+                <input
+                  name="phone"
+                  className="form-input"
+                  value={form.phone}
+                  onChange={handleChange}
+                  placeholder="+970 59 000 0000"
+                  required
+                  style={{ direction: "ltr", textAlign: "right" }}
+                />
+              </div>
+              <div className="form-group">
+                <label className="form-label">البريد الإلكتروني *</label>
+                <input
+                  name="email"
+                  type="email"
+                  className="form-input"
+                  value={form.email}
+                  onChange={handleChange}
+                  placeholder="example@email.com"
+                  required
+                  style={{ direction: "ltr", textAlign: "right" }}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* ==============================
+              أسئلة نعم / لا
+              ============================== */}
+          <div className="register-section">
+            <h3 className="register-section-title">❓ أسئلة سريعة</h3>
+            <p className="questions-note">أجب بصدق — هذا يساعدنا نرتب التجربة المناسبة لك</p>
+
+            {/* السؤال 1 */}
+            <div className="yes-no-question">
+              <p className="question-text">
+                هل أنت موافق على التطوع والالتزام به حسب قوانين المضيف (الهوست)؟
+              </p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`yn-btn ${form.agreeVolunteering === true ? "yn-yes active" : "yn-yes"}`}
+                  onClick={() => handleYesNo("agreeVolunteering", true)}
+                >
+                  ✅ نعم
+                </button>
+                <button
+                  type="button"
+                  className={`yn-btn ${form.agreeVolunteering === false ? "yn-no active" : "yn-no"}`}
+                  onClick={() => handleYesNo("agreeVolunteering", false)}
+                >
+                  ❌ لا
+                </button>
+              </div>
+            </div>
+
+            {/* السؤال 2 */}
+            <div className="yes-no-question">
+              <p className="question-text">
+                هل عندك مستوى إنجليزي متوسط على الأقل للتواصل مع المضيف؟
+              </p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`yn-btn ${form.hasEnglish === true ? "yn-yes active" : "yn-yes"}`}
+                  onClick={() => handleYesNo("hasEnglish", true)}
+                >
+                  ✅ نعم
+                </button>
+                <button
+                  type="button"
+                  className={`yn-btn ${form.hasEnglish === false ? "yn-no active" : "yn-no"}`}
+                  onClick={() => handleYesNo("hasEnglish", false)}
+                >
+                  ❌ لا
+                </button>
+              </div>
+            </div>
+
+            {/* السؤال 3 */}
+            <div className="yes-no-question">
+              <p className="question-text">
+                في أغلب الأحيان يُطلب دفع عربون لتأكيد مكانك — هل أنت مستعد لذلك؟
+              </p>
+              <div className="yes-no-buttons">
+                <button
+                  type="button"
+                  className={`yn-btn ${form.readyForDeposit === true ? "yn-yes active" : "yn-yes"}`}
+                  onClick={() => handleYesNo("readyForDeposit", true)}
+                >
+                  ✅ نعم
+                </button>
+                <button
+                  type="button"
+                  className={`yn-btn ${form.readyForDeposit === false ? "yn-no active" : "yn-no"}`}
+                  onClick={() => handleYesNo("readyForDeposit", false)}
+                >
+                  ❌ لا
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ==============================
+              التعريف بالنفس
+              ============================== */}
+          <div className="register-section">
+            <h3 className="register-section-title">💬 عرّف عن نفسك</h3>
+            <div className="form-group">
+              <label className="form-label">
+                من أنت؟ ولماذا تريد هذه التجربة؟ *
+                <span className="char-hint"> (حتى 1000 حرف)</span>
+              </label>
+              <textarea
+                name="aboutMe"
+                className="form-input form-textarea"
+                value={form.aboutMe}
+                onChange={handleChange}
+                rows={5}
+                maxLength={1000}
+                placeholder="مثال: أنا طالب جامعي عمري 22 سنة، أهتم بالثقافة والسفر. سمعت عن رُحى من صديق وأحببت فكرة التطوع في الخارج لأنه..."
+                required
+              />
+              <div className="char-count">{form.aboutMe.length} / 1000</div>
+            </div>
+          </div>
+
+          {/* ==============================
+              الموافقة على السياسات
+              ============================== */}
+          <div className="policies-agree-section">
+            <label className="policies-checkbox-label">
+              <input
+                type="checkbox"
+                checked={agreedToPolicies}
+                onChange={(e) => setAgreedToPolicies(e.target.checked)}
+                className="policies-checkbox"
+              />
+              <span>
+                قرأت وأوافق على{" "}
+                <button
+                  type="button"
+                  className="policies-link"
+                  onClick={() => setShowPolicies(true)}
+                >
+                  سياسات وشروط رُحى
+                </button>
+              </span>
+            </label>
+            {!agreedToPolicies && (
+              <p className="policies-warning">
+                ⚠️ يجب الموافقة على الشروط قبل إرسال الطلب
+              </p>
+            )}
+          </div>
+
+          {/* خطأ */}
+          {error && <div className="error-msg">{error}</div>}
+
+          {/* زر الإرسال */}
+          <button
+            type="submit"
+            className={`btn btn-primary register-submit-btn ${!agreedToPolicies ? "btn-disabled" : ""}`}
+            disabled={loading || !agreedToPolicies}
+          >
+            {loading ? "جاري الإرسال..." : "📩 إرسال الطلب"}
+          </button>
+
+          {/* مودال السياسات */}
+          {showPolicies && (
+            <PoliciesModal onClose={() => setShowPolicies(false)} />
+          )}
+
+          <p className="register-note">
+            بإرسال هذا الطلب أنت لا تدفع أي شيء الآن — سيتواصل معك فريق رُحى لتأكيد تفاصيل الرحلة.
+          </p>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
