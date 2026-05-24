@@ -7,6 +7,7 @@ import { tripsAPI, applicationsAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
 import { ARAB_COUNTRIES, OTHER_OPTION } from "../data/arabCountries";
 import PoliciesModal from "../components/PoliciesModal";
+import AuthModal from "../components/AuthModal";
 import PageHero from "../components/PageHero";
 import "./Register.css";
 
@@ -38,7 +39,7 @@ const Register = () => {
   const [searchParams] = useSearchParams();
   const tripId = searchParams.get("trip");
   const navigate = useNavigate();
-  const { user: loggedInUser } = useUserAuth();
+  const { user: loggedInUser, loading: authLoading } = useUserAuth();
 
   const [trip, setTrip] = useState(null);
   const [trips, setTrips] = useState([]); // قائمة الرحلات للاختيار
@@ -50,6 +51,13 @@ const Register = () => {
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  // عند تسجيل الدخول عبر المودال — اmlأ الإيميل تلقائياً
+  useEffect(() => {
+    if (loggedInUser?.email) {
+      setForm((prev) => ({ ...prev, email: loggedInUser.email }));
+    }
+  }, [loggedInUser]);
 
   // جلب الرحلات المتاحة
   useEffect(() => {
@@ -175,7 +183,7 @@ const Register = () => {
     );
   }
 
-  if (fetchLoading) {
+  if (fetchLoading || authLoading) {
     return (
       <div className="page-loading">
         <div className="spinner" />
@@ -185,6 +193,8 @@ const Register = () => {
 
   return (
     <div className="register-page">
+      {/* مودال تسجيل الدخول — يظهر إذا الزائر غير مسجّل */}
+      {!loggedInUser && <AuthModal />}
       <PageHero title="سجّل في رحلة رُحى" subtitle="أكمل بياناتك وسنتواصل معك في أقرب وقت" icon="📝">
         <Link to={trip ? `/trips/${trip.slug}` : "/trips"} className="back-link-light">
           ← العودة

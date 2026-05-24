@@ -16,11 +16,16 @@ const protect = async (req, res, next) => {
       // استخرج التوكن من "Bearer TOKEN"
       token = req.headers.authorization.split(" ")[1];
 
-      // تحقق من صحة التوكن
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      // تحقق من صحة التوكن — يستخدم سر مخصص للأدمن فقط
+      const decoded = jwt.verify(token, process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET);
 
       // أضف بيانات الآدمن للـ request (بدون كلمة المرور)
       req.admin = await Admin.findById(decoded.id).select("-password");
+
+      // تحقق من أن التوكن يعود لأدمن حقيقي وليس يوزر عادي
+      if (!req.admin) {
+        return res.status(401).json({ message: "غير مصرح - ليس آدمن" });
+      }
 
       next(); // تابع للمسار التالي
     } catch (error) {
