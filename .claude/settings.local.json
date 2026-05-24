@@ -29,7 +29,21 @@
       "Bash(python -c \"import json, sys; data = json.load\\(sys.stdin\\); print\\(json.dumps\\(data[0], indent=2, ensure_ascii=False\\) if data else 'empty'\\)\")",
       "Bash(npm run *)",
       "Bash(git commit *)",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(curl -s -i \"https://ruhaaa-backend.onrender.com/api/trips/featured\")",
+      "Bash(curl -s \"https://ruhaaa.vercel.app/\")",
+      "Bash(curl -s \"https://ruhaaa-backend.onrender.com/api/trips\")",
+      "Bash(curl -s \"https://ruhaaa-backend.onrender.com/api/trips/featured\")",
+      "Bash(curl -s \"https://ruhaaa-backend.onrender.com/api/gallery\")",
+      "Bash(curl -s \"https://ruhaaa-backend.onrender.com/api/gallery/featured\")",
+      "Bash(curl -s \"https://ruhaaa.vercel.app/assets/index-BJbrUV6e.js\")",
+      "Bash(curl -s \"https://ruhaaa.vercel.app/api/trips/featured\")",
+      "Bash(curl -s -i -H \"Origin: https://ruhaaa.vercel.app\" \"https://ruhaaa-backend.onrender.com/api/trips/featured\")",
+      "Bash(curl -s \"https://ruhaaa.vercel.app/assets/index-BJbrUV6e.js\" -o /tmp/deployed.js)",
+      "Read(//tmp/**)",
+      "Bash(grep -oE 'create\\\\\\([^\\)]{0,200}\\\\\\)' /tmp/deployed.js)",
+      "Bash(grep -oE 'Array\\\\.isArray\\\\\\([^\\)]{1,30}\\\\\\)' /tmp/deployed.js)",
+      "Bash(grep -oE 'Array\\\\.isArray\\\\\\([^\\)]{1,30}\\\\\\)' frontend/dist/assets/index-Cu5QBtgh.js)"
     ]
   }
 }
