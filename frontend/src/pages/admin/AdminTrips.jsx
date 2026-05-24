@@ -1,6 +1,4 @@
 // src/pages/admin/AdminTrips.jsx
-// إدارة الرحلات وطلبات التسجيل
-
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI } from "../../api";
@@ -9,12 +7,12 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import "./AdminStyles.css";
 
 const STATUS_MAP = {
-  pending:         { label: "قيد المراجعة",         color: "#f59e0b", bg: "#fffbeb" },
-  reviewed:        { label: "تمت المراجعة",         color: "#3b82f6", bg: "#eff6ff" },
-  accepted:        { label: "تم القبول",             color: "#16a34a", bg: "#f0fdf4" },
-  rejected:        { label: "تم الرفض",              color: "#dc2626", bg: "#fef2f2" },
-  payment_pending: { label: "انتظار الدفع",          color: "#7c3aed", bg: "#ede9fe" },
-  confirmed:       { label: "مسجّل رسمياً",         color: "#065f46", bg: "#d1fae5" },
+  pending:         { label: "قيد المراجعة",     color: "#f59e0b", bg: "#fffbeb" },
+  reviewed:        { label: "تمت المراجعة",     color: "#3b82f6", bg: "#eff6ff" },
+  accepted:        { label: "تم القبول",         color: "#16a34a", bg: "#f0fdf4" },
+  rejected:        { label: "تم الرفض",          color: "#dc2626", bg: "#fef2f2" },
+  payment_pending: { label: "انتظار الدفع",      color: "#7c3aed", bg: "#ede9fe" },
+  confirmed:       { label: "مسجّل رسمياً",     color: "#065f46", bg: "#d1fae5" },
 };
 
 const APP_FOLDERS = [
@@ -27,11 +25,16 @@ const APP_FOLDERS = [
 
 const STATUSES_NEED_REASON = ["reviewed", "accepted", "rejected"];
 
+const fmtDate = (d) => {
+  const date = new Date(d);
+  return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
+};
+
 // ── Client Notes ──────────────────────────────────────────
 const ClientNotesSection = ({ app, onSave }) => {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(app.clientNotes || "");
-  const [saving, setSaving] = useState(false);
+  const [draft, setDraft]     = useState(app.clientNotes || "");
+  const [saving, setSaving]   = useState(false);
 
   useEffect(() => { setDraft(app.clientNotes || ""); setEditing(false); }, [app._id]);
 
@@ -58,9 +61,8 @@ const ClientNotesSection = ({ app, onSave }) => {
             className="status-reason-textarea"
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            placeholder="مثال: لديه حساسية من المكسرات — يُفضّل النشاطات الثقافية..."
-            rows={4}
-            autoFocus
+            placeholder="مثال: لديه حساسية من المكسرات..."
+            rows={4} autoFocus
           />
           <div className="status-reason-actions">
             <button className="btn-reason-confirm" style={{ background: "#0ea5e9" }} onClick={handleSave} disabled={saving}>
@@ -80,18 +82,118 @@ const ClientNotesSection = ({ app, onSave }) => {
   );
 };
 
+// ── Trip Detail Panel ─────────────────────────────────────
+const TripDetail = ({ trip, applications, onDelete }) => {
+  const tripApps = applications.filter(
+    (a) => (a.trip?._id || a.trip) === trip._id
+  );
+  const confirmedCount = tripApps.filter((a) => a.status === "confirmed").length;
+  const pendingCount   = tripApps.filter((a) => a.status === "pending").length;
+
+  return (
+    <div className="trip-detail-panel">
+      {/* Header */}
+      <div className="trip-detail-header">
+        <div>
+          <h2 className="trip-detail-title">{trip.title}</h2>
+          <div className="trip-detail-meta">
+            <span>📍 {trip.destination}</span>
+            <span>🗓 {trip.duration} أيام</span>
+            <span>💰 {trip.price} {trip.currency}</span>
+            <span className={`badge ${trip.isActive ? "badge-success" : "badge-inactive"}`}>
+              {trip.isActive ? "نشطة" : "مخفية"}
+            </span>
+            {trip.isFeatured && <span className="badge badge-primary">مميزة</span>}
+          </div>
+        </div>
+        <div className="trip-detail-actions">
+          <Link to={`/admin/trips/${trip._id}/stats`} className="btn-action" style={{ background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe" }}>
+            📊 إحصائيات
+          </Link>
+          <Link to={`/admin/trips/edit/${trip._id}`} className="btn-action btn-edit">
+            تعديل
+          </Link>
+          <button className="btn-action btn-delete" onClick={() => onDelete(trip._id)}>
+            حذف
+          </button>
+        </div>
+      </div>
+
+      {/* Quick stats */}
+      <div className="trip-detail-stats">
+        <div className="trip-ds-item">
+          <span className="trip-ds-num">{tripApps.length}</span>
+          <span className="trip-ds-label">إجمالي الطلبات</span>
+        </div>
+        <div className="trip-ds-item" style={{ color: pendingCount > 0 ? "#f59e0b" : undefined }}>
+          <span className="trip-ds-num">{pendingCount}</span>
+          <span className="trip-ds-label">طلبات جديدة</span>
+        </div>
+        <div className="trip-ds-item" style={{ color: "#065f46" }}>
+          <span className="trip-ds-num">{confirmedCount}</span>
+          <span className="trip-ds-label">مسجّلون رسمياً</span>
+        </div>
+      </div>
+
+      {/* Available Dates */}
+      {trip.availableDates?.length > 0 && (
+        <div className="trip-detail-section">
+          <div className="trip-detail-section-title">📅 التواريخ المتاحة</div>
+          <div className="trip-dates-list">
+            {trip.availableDates.map((d, i) => {
+              const taken    = d.spotsTaken || 0;
+              const total    = d.spotsTotal || 0;
+              const avail    = total - taken;
+              const pct      = total > 0 ? Math.round((taken / total) * 100) : 0;
+              const isPast   = new Date(d.endDate) < new Date();
+              const isFull   = avail <= 0;
+              return (
+                <div key={i} className={`trip-date-row ${isPast ? "trip-date-row--past" : ""} ${isFull ? "trip-date-row--full" : ""}`}>
+                  <div className="trip-date-range">
+                    <span className="trip-date-label">{fmtDate(d.startDate)} — {fmtDate(d.endDate)}</span>
+                    {isPast && <span className="trip-date-tag trip-date-tag--past">منتهي</span>}
+                    {isFull && !isPast && <span className="trip-date-tag trip-date-tag--full">مكتمل</span>}
+                  </div>
+                  <div className="trip-date-spots">
+                    <div className="trip-spots-bar">
+                      <div className="trip-spots-fill" style={{ width: `${pct}%`, background: isFull ? "#dc2626" : pct > 70 ? "#f59e0b" : "#16a34a" }} />
+                    </div>
+                    <span className="trip-spots-text">
+                      <strong style={{ color: isFull ? "#dc2626" : "#16a34a" }}>{avail}</strong>
+                      <span style={{ color: "#a0aec0" }}> / {total} متاح</span>
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Short description */}
+      {trip.shortDescription && (
+        <div className="trip-detail-section">
+          <div className="trip-detail-section-title">📝 وصف مختصر</div>
+          <p style={{ fontSize: "0.9rem", color: "#4a5568", lineHeight: 1.8, margin: 0 }}>{trip.shortDescription}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── Main Component ─────────────────────────────────────────
 const AdminTrips = () => {
   const { admin } = useAuth();
 
-  const [activeTab, setActiveTab] = useState("trips");
-  const [trips, setTrips]           = useState([]);
+  const [activeTab, setActiveTab]       = useState("trips");
+  const [trips, setTrips]               = useState([]);
   const [applications, setApplications] = useState([]);
   const [tripsLoading, setTripsLoading] = useState(true);
   const [appsLoading, setAppsLoading]   = useState(true);
+  const [selectedTrip, setSelectedTrip] = useState(null);
 
-  const [appFolder, setAppFolder]   = useState("pending");
-  const [selectedApp, setSelectedApp] = useState(null);
+  const [appFolder, setAppFolder]         = useState("pending");
+  const [selectedApp, setSelectedApp]     = useState(null);
   const [pendingStatus, setPendingStatus] = useState(null);
   const [statusReason, setStatusReason]   = useState("");
   const [historyModalOpen, setHistoryModalOpen] = useState(false);
@@ -108,16 +210,14 @@ const AdminTrips = () => {
       .finally(() => setAppsLoading(false));
   }, []);
 
-  useEffect(() => {
-    setPendingStatus(null);
-    setStatusReason("");
-  }, [selectedApp?._id]);
+  useEffect(() => { setPendingStatus(null); setStatusReason(""); }, [selectedApp?._id]);
 
   const handleDeleteTrip = async (id) => {
     if (!window.confirm("هل أنت متأكد من حذف هذه الرحلة؟")) return;
     try {
       await tripsAPI.delete(id);
       setTrips((prev) => prev.filter((t) => t._id !== id));
+      if (selectedTrip?._id === id) setSelectedTrip(null);
     } catch { alert("فشل حذف الرحلة"); }
   };
 
@@ -130,8 +230,7 @@ const AdminTrips = () => {
       await applicationsAPI.updateStatus(appId, payload);
 
       const newHistoryEntry = {
-        status: newStatus,
-        reason: notes || "",
+        status: newStatus, reason: notes || "",
         changedBy: admin?.username || admin?.name || "",
         changedAt: new Date().toISOString(),
       };
@@ -140,7 +239,7 @@ const AdminTrips = () => {
         ...(notes !== undefined && { adminNotes: notes }),
         history: [...(app.history || []), newHistoryEntry],
       };
-      setApplications((prev) => prev.map((a) => (a._id === appId ? { ...a, ...localUpdate } : a)));
+      setApplications((prev) => prev.map((a) => a._id === appId ? { ...a, ...localUpdate } : a));
       if (selectedApp?._id === appId) setSelectedApp((prev) => ({ ...prev, ...localUpdate }));
 
       if (oldStatus !== newStatus) {
@@ -179,12 +278,11 @@ const AdminTrips = () => {
     } catch { alert("فشل حذف الطلب"); }
   };
 
-  const pendingCount  = applications.filter((a) => a.status === "pending").length;
-  const filteredApps  = applications.filter((a) => a.status === appFolder);
+  const pendingCount = applications.filter((a) => a.status === "pending").length;
+  const filteredApps = applications.filter((a) => a.status === appFolder);
 
   return (
     <AdminLayout>
-      {/* Page Header */}
       <div className="admin-page-header">
         <h1 className="admin-page-title">الرحلات</h1>
       </div>
@@ -200,80 +298,77 @@ const AdminTrips = () => {
         </button>
       </div>
 
-      {/* ── Trips Tab ── */}
+      {/* ══ Trips Tab ══════════════════════════════════════════ */}
       {activeTab === "trips" && (
-        <div>
-          <div className="admin-section-header">
-            <h2>الرحلات ({trips.length})</h2>
-            <Link to="/admin/trips/new" className="btn btn-primary">+ أضف رحلة جديدة</Link>
+        <div className="trips-master-detail">
+
+          {/* List */}
+          <div className="trips-list-col">
+            <div className="trips-list-header">
+              <span>الرحلات ({trips.length})</span>
+              <Link to="/admin/trips/new" className="btn btn-primary" style={{ padding: "7px 16px", fontSize: "0.85rem" }}>
+                + جديدة
+              </Link>
+            </div>
+
+            {tripsLoading ? (
+              <div className="page-loading"><div className="spinner" /></div>
+            ) : trips.length === 0 ? (
+              <div className="admin-empty" style={{ padding: "40px 20px" }}>
+                <p>لا توجد رحلات.</p>
+              </div>
+            ) : (
+              <div className="trips-list">
+                {trips.map((trip) => {
+                  const tripPending = applications.filter(
+                    (a) => (a.trip?._id || a.trip) === trip._id && a.status === "pending"
+                  ).length;
+                  return (
+                    <button
+                      key={trip._id}
+                      className={`trip-list-item ${selectedTrip?._id === trip._id ? "trip-list-item--active" : ""}`}
+                      onClick={() => setSelectedTrip((prev) => prev?._id === trip._id ? null : trip)}
+                    >
+                      <div className="trip-list-item-main">
+                        <span className="trip-list-item-title">{trip.title}</span>
+                        <span className="trip-list-item-dest">📍 {trip.destination}</span>
+                      </div>
+                      <div className="trip-list-item-badges">
+                        <span className={`trip-list-badge ${trip.isActive ? "trip-list-badge--active" : "trip-list-badge--hidden"}`}>
+                          {trip.isActive ? "نشطة" : "مخفية"}
+                        </span>
+                        {tripPending > 0 && (
+                          <span className="trip-list-badge trip-list-badge--pending">{tripPending} جديد</span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          {tripsLoading ? (
-            <div className="page-loading"><div className="spinner" /></div>
-          ) : trips.length === 0 ? (
-            <div className="admin-empty">
-              <p>لا توجد رحلات بعد.</p>
-              <Link to="/admin/trips/new" className="btn btn-primary">أضف أول رحلة</Link>
-            </div>
-          ) : (
-            <div className="admin-table-wrapper">
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>الرحلة</th>
-                    <th>الوجهة</th>
-                    <th>المدة</th>
-                    <th>السعر</th>
-                    <th>الأماكن</th>
-                    <th>الحالة</th>
-                    <th>الإجراءات</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {trips.map((trip) => {
-                    const available = (trip.totalSpots || 0) - (trip.bookedSpots || 0);
-                    return (
-                      <tr key={trip._id}>
-                        <td>
-                          <div className="trip-table-title">{trip.title}</div>
-                          {trip.isFeatured && <span className="badge badge-primary">مميزة</span>}
-                        </td>
-                        <td>{trip.destination}</td>
-                        <td>{trip.duration} أيام</td>
-                        <td>{trip.price} {trip.currency}</td>
-                        <td>
-                          <span style={{ color: available <= 2 ? "#dc2626" : "#16a34a", fontWeight: 700 }}>
-                            {available}
-                          </span>
-                          <span style={{ color: "#a0aec0", fontSize: "0.85rem" }}> / {trip.totalSpots}</span>
-                        </td>
-                        <td>
-                          <span className={`badge ${trip.isActive ? "badge-success" : "badge-inactive"}`}>
-                            {trip.isActive ? "نشطة" : "مخفية"}
-                          </span>
-                        </td>
-                        <td>
-                          <div className="table-actions">
-                            <Link to={`/admin/trips/${trip._id}/stats`} className="btn-action" style={{ background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe" }}>
-                              📊 إحصائيات
-                            </Link>
-                            <Link to={`/admin/trips/edit/${trip._id}`} className="btn-action btn-edit">تعديل</Link>
-                            <button className="btn-action btn-delete" onClick={() => handleDeleteTrip(trip._id)}>حذف</button>
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
+
+          {/* Detail */}
+          <div className="trips-detail-col">
+            {!selectedTrip ? (
+              <div className="trips-detail-empty">
+                <div className="trips-detail-empty-icon">✈️</div>
+                <p>اختر رحلة من القائمة لعرض تفاصيلها</p>
+              </div>
+            ) : (
+              <TripDetail
+                trip={selectedTrip}
+                applications={applications}
+                onDelete={handleDeleteTrip}
+              />
+            )}
+          </div>
         </div>
       )}
 
-      {/* ── Applications Tab ── */}
+      {/* ══ Applications Tab ═══════════════════════════════════ */}
       {activeTab === "applications" && (
         <div>
-          {/* Folders */}
           <div className="app-folders">
             {APP_FOLDERS.map((folder) => {
               const count = applications.filter((a) => a.status === folder.key).length;
@@ -293,13 +388,11 @@ const AdminTrips = () => {
           </div>
 
           <div className="applications-layout">
-            {/* List */}
             <div className="applications-list">
               <div className="admin-section-header">
                 <h2>
                   {APP_FOLDERS.find((f) => f.key === appFolder)?.emoji}{" "}
-                  {APP_FOLDERS.find((f) => f.key === appFolder)?.label}
-                  {" "}({filteredApps.length})
+                  {APP_FOLDERS.find((f) => f.key === appFolder)?.label} ({filteredApps.length})
                 </h2>
               </div>
               {appsLoading ? (
@@ -321,9 +414,7 @@ const AdminTrips = () => {
                             <div className="app-name">{app.fullName}</div>
                             <div className="app-trip">{app.tripTitle}</div>
                           </div>
-                          <span className="app-status-badge" style={{ color: s.color, background: s.bg }}>
-                            {s.label}
-                          </span>
+                          <span className="app-status-badge" style={{ color: s.color, background: s.bg }}>{s.label}</span>
                         </div>
                         <div className="app-card-bottom">
                           <span>📍 {app.country} - {app.city}</span>
@@ -336,7 +427,6 @@ const AdminTrips = () => {
               )}
             </div>
 
-            {/* Detail Panel */}
             <div className="app-detail-panel">
               {!selectedApp ? (
                 <div className="app-detail-empty"><p>👈 اختر طلباً لعرض تفاصيله</p></div>
@@ -351,7 +441,6 @@ const AdminTrips = () => {
                     <div className="detail-label">الرحلة</div>
                     <div className="detail-value">{selectedApp.tripTitle}</div>
                   </div>
-
                   <div className="app-detail-section">
                     <div className="detail-label">التاريخ المفضّل</div>
                     <div className="detail-value">{selectedApp.preferredDate || "غير محدد"}</div>
@@ -360,9 +449,7 @@ const AdminTrips = () => {
                   <div className="app-detail-grid">
                     <div className="app-detail-section">
                       <div className="detail-label">الجنس</div>
-                      <div className="detail-value">
-                        {selectedApp.gender === "male" ? "ذكر" : selectedApp.gender === "female" ? "أنثى" : "—"}
-                      </div>
+                      <div className="detail-value">{selectedApp.gender === "male" ? "ذكر" : selectedApp.gender === "female" ? "أنثى" : "—"}</div>
                     </div>
                     <div className="app-detail-section">
                       <div className="detail-label">البلد والمدينة</div>
@@ -380,10 +467,7 @@ const AdminTrips = () => {
                       <div className="app-detail-section">
                         <div className="detail-label">الإنستغرام</div>
                         <div className="detail-value ltr">
-                          <a
-                            href={`https://instagram.com/${selectedApp.instagram.replace(/^@/, "")}`}
-                            target="_blank" rel="noreferrer" style={{ color: "#e1306c" }}
-                          >
+                          <a href={`https://instagram.com/${selectedApp.instagram.replace(/^@/, "")}`} target="_blank" rel="noreferrer" style={{ color: "#e1306c" }}>
                             {selectedApp.instagram.startsWith("@") ? selectedApp.instagram : `@${selectedApp.instagram}`}
                           </a>
                         </div>
@@ -436,7 +520,7 @@ const AdminTrips = () => {
                     <div className="status-buttons">
                       {Object.entries(STATUS_MAP).map(([key, val]) => {
                         const isConfirmedLocked = key === "confirmed" && selectedApp.status !== "accepted";
-                        const isPendingLocked   = key === "pending" && selectedApp.status !== "pending";
+                        const isPendingLocked   = key === "pending"   && selectedApp.status !== "pending";
                         return (
                           <button
                             key={key}
@@ -462,16 +546,10 @@ const AdminTrips = () => {
                           value={statusReason}
                           onChange={(e) => setStatusReason(e.target.value)}
                           placeholder="اكتب السبب هنا..."
-                          rows={3}
-                          autoFocus
+                          rows={3} autoFocus
                         />
                         <div className="status-reason-actions">
-                          <button
-                            className="btn-reason-confirm"
-                            style={{ background: pendingStatus.color }}
-                            onClick={handleConfirmWithReason}
-                            disabled={!statusReason.trim()}
-                          >
+                          <button className="btn-reason-confirm" style={{ background: pendingStatus.color }} onClick={handleConfirmWithReason} disabled={!statusReason.trim()}>
                             تأكيد النقل
                           </button>
                           <button className="btn btn-secondary" onClick={() => { setPendingStatus(null); setStatusReason(""); }}>
@@ -551,13 +629,9 @@ const AdminTrips = () => {
                         <span style={{ background: s.bg, color: s.color, padding: "3px 12px", borderRadius: "20px", fontSize: "13px", fontWeight: 700 }}>{s.label}</span>
                       </div>
                       <div style={{ fontSize: "12px", color: "#a0aec0", marginBottom: "4px", display: "flex", gap: "10px", alignItems: "center" }}>
-                        <span>
-                          {new Date(entry.changedAt).toLocaleString("ar-SA", { timeZone: "Asia/Riyadh", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                        </span>
+                        <span>{new Date(entry.changedAt).toLocaleString("ar-SA", { timeZone: "Asia/Riyadh", year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" })}</span>
                         {entry.changedBy && (
-                          <span style={{ background: "#f1f5f9", color: "#475569", padding: "1px 8px", borderRadius: "10px", fontSize: "11px", fontWeight: 600 }}>
-                            @{entry.changedBy}
-                          </span>
+                          <span style={{ background: "#f1f5f9", color: "#475569", padding: "1px 8px", borderRadius: "10px", fontSize: "11px", fontWeight: 600 }}>@{entry.changedBy}</span>
                         )}
                       </div>
                       {entry.reason && (
