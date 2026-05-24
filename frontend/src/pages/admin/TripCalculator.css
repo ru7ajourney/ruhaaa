@@ -763,7 +763,7 @@
 
 .calc-tax-inputs {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 0;
   border-bottom: 1.5px solid #e0e7ff;
 }
@@ -922,6 +922,16 @@
   font-weight: 800;
   color: #1e1b4b;
   font-family: monospace;
+}
+
+.calc-tax-ribbon-sub {
+  font-size: 0.7rem;
+  color: #818cf8;
+  font-weight: 400;
+}
+
+.calc-tax-ribbon-item--final .calc-tax-ribbon-sub {
+  color: #a5b4fc;
 }
 
 .calc-tax-ribbon-arrow {
@@ -1096,7 +1106,7 @@
 
 /* ── Tax Responsive ── */
 
-@media (max-width: 1100px) {
+@media (max-width: 900px) {
   .calc-tax-inputs {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -1106,10 +1116,7 @@
   }
 
   .calc-tax-input-group:nth-child(3) {
-    border-top: 1px solid #e0e7ff;
-  }
-
-  .calc-tax-input-group:nth-child(4) {
+    grid-column: span 2;
     border-top: 1px solid #e0e7ff;
     border-left: none;
   }
