@@ -69,8 +69,9 @@ const TripCalculator = () => {
 
   // ── Profit & Tax (Israeli framework) ──
   const [desiredProfit, setDesiredProfit] = useState("20");
-  const [profitTaxRate, setProfitTaxRate] = useState("23");   // مس הכנסה / ضريبة أرباح
+  const [profitTaxRate, setProfitTaxRate] = useState("23");   // מס הכנסה / ضريبة أرباح
   const [vatRate, setVatRate]             = useState("18");   // מע"מ
+  const [profitBase, setProfitBase]       = useState("per_person"); // "per_person" | "total"
 
   // ── Helpers ──
   const addItem    = (setter)           => setter((p) => [...p, emptyItem()]);
@@ -158,12 +159,26 @@ const TripCalculator = () => {
     const grossMarkupPct   = C > 0 ? (grossProfit / C) * 100 : 0;
     const totalMarkupPct   = C > 0 ? ((finalPrice - C) / C) * 100 : 0;
 
+    // Total-trip view (multiply per-person figures by n)
+    const n = calc.n || 1;
+    const totalNetProfit      = netProfit      * n;
+    const totalGrossProfit    = grossProfit    * n;
+    const totalProfitTaxAmt   = profitTaxAmount * n;
+    const totalVatAmount      = vatAmount      * n;
+    const totalFinalPrice     = finalPrice     * n;
+    const totalPriceExVat     = priceExVat     * n;
+    const totalCostBase       = C              * n;
+
     return {
       C, grossProfit, profitTaxAmount, netProfit,
       priceExVat, vatAmount, finalPrice,
       grossMarkupPct, totalMarkupPct,
+      // trip totals
+      n,
+      totalNetProfit, totalGrossProfit, totalProfitTaxAmt,
+      totalVatAmount, totalFinalPrice, totalPriceExVat, totalCostBase,
     };
-  }, [calc.actualCostPerPerson, desiredProfit, profitTaxRate, vatRate]);
+  }, [calc.actualCostPerPerson, calc.n, desiredProfit, profitTaxRate, vatRate]);
 
   // شرائح ضريبة الأرباح الإسرائيلية 2024
   const IL_BRACKETS = [
@@ -191,7 +206,7 @@ const TripCalculator = () => {
     setDays(""); setParticipants(""); setTargetPrice(""); setCurrency("USD");
     setGuideFlight(""); setGuideAllowance("");
     setTransFixed([]); setTransVariable([]); setPerPersonItems([]);
-    setDesiredProfit("20"); setProfitTaxRate("23"); setVatRate("18");
+    setDesiredProfit("20"); setProfitTaxRate("23"); setVatRate("18"); setProfitBase("per_person");
   };
 
   return (
@@ -526,9 +541,25 @@ const TripCalculator = () => {
               />
               <span className="calc-tax-pct-sign">%</span>
             </div>
+
+            {/* Base selector */}
+            <div className="calc-tax-base-row">
+              <span className="calc-tax-base-label">الحساب على أساس:</span>
+              <select
+                className="calc-tax-base-select"
+                value={profitBase}
+                onChange={(e) => setProfitBase(e.target.value)}
+              >
+                <option value="per_person">كل شخص على حدة</option>
+                <option value="total">التكلفة الكلية للرحلة</option>
+              </select>
+            </div>
+
             {taxCalc && (
               <p className="calc-tax-brackets-note">
-                = {sym}{fmt(taxCalc.netProfit)} صافٍ في جيبك لكل مشارك
+                {profitBase === "per_person"
+                  ? `= ${sym}${fmt(taxCalc.netProfit)} صافٍ لكل مشارك`
+                  : `= ${sym}${fmt(taxCalc.totalNetProfit)} صافٍ للرحلة كاملة (${taxCalc.n} مشارك)`}
               </p>
             )}
           </div>
@@ -589,103 +620,129 @@ const TripCalculator = () => {
           <div className="calc-tax-empty">
             أدخل التكاليف أولاً في الأقسام أعلاه لتفعيل هذا الحساب
           </div>
-        ) : (
-          <div className="calc-tax-results">
+        ) : (() => {
+          const isTotal = profitBase === "total";
+          const costVal      = isTotal ? taxCalc.totalCostBase   : taxCalc.C;
+          const grossVal     = isTotal ? taxCalc.totalGrossProfit : taxCalc.grossProfit;
+          const taxVal       = isTotal ? taxCalc.totalProfitTaxAmt : taxCalc.profitTaxAmount;
+          const netVal       = isTotal ? taxCalc.totalNetProfit   : taxCalc.netProfit;
+          const exVatVal     = isTotal ? taxCalc.totalPriceExVat  : taxCalc.priceExVat;
+          const vatVal       = isTotal ? taxCalc.totalVatAmount   : taxCalc.vatAmount;
+          const finalVal     = isTotal ? taxCalc.totalFinalPrice  : taxCalc.finalPrice;
+          const perLabel     = isTotal ? `للرحلة كاملة (${taxCalc.n} مشارك)` : "/ شخص";
 
-            {/* Flow ribbon: cost → +markup → +VAT → final */}
-            <div className="calc-tax-ribbon">
-              <div className="calc-tax-ribbon-item">
-                <span className="calc-tax-ribbon-label">التكلفة / شخص</span>
-                <span className="calc-tax-ribbon-value">{sym}{fmt(taxCalc.C)}</span>
+          return (
+            <div className="calc-tax-results">
+
+              {/* Mode pill */}
+              <div className="calc-tax-mode-pill">
+                {isTotal
+                  ? `📊 عرض الأرقام على أساس الرحلة كاملة — ${taxCalc.n} مشارك`
+                  : "👤 عرض الأرقام على أساس كل مشارك"}
+                {isTotal && taxCalc.n <= 0 && (
+                  <span className="calc-tax-mode-warn"> — أدخل عدد المشاركين أعلاه لحساب الإجمالي</span>
+                )}
               </div>
-              <span className="calc-tax-ribbon-arrow">←</span>
-              <div className="calc-tax-ribbon-item calc-tax-ribbon-item--gross">
-                <span className="calc-tax-ribbon-label">هامش إجمالي مطلوب</span>
-                <span className="calc-tax-ribbon-value">+{sym}{fmt(taxCalc.grossProfit)}</span>
-                <span className="calc-tax-ribbon-sub">+{fmt(taxCalc.grossMarkupPct)}% من التكلفة</span>
+
+              {/* Flow ribbon */}
+              <div className="calc-tax-ribbon">
+                <div className="calc-tax-ribbon-item">
+                  <span className="calc-tax-ribbon-label">التكلفة {perLabel}</span>
+                  <span className="calc-tax-ribbon-value">{sym}{fmt(costVal)}</span>
+                </div>
+                <span className="calc-tax-ribbon-arrow">←</span>
+                <div className="calc-tax-ribbon-item calc-tax-ribbon-item--gross">
+                  <span className="calc-tax-ribbon-label">هامش إجمالي مطلوب</span>
+                  <span className="calc-tax-ribbon-value">+{sym}{fmt(grossVal)}</span>
+                  <span className="calc-tax-ribbon-sub">+{fmt(taxCalc.grossMarkupPct)}% من التكلفة</span>
+                </div>
+                <span className="calc-tax-ribbon-arrow">←</span>
+                <div className="calc-tax-ribbon-item calc-tax-ribbon-item--vat">
+                  <span className="calc-tax-ribbon-label">ضريبة القيمة المضافة {vatRate}%</span>
+                  <span className="calc-tax-ribbon-value">+{sym}{fmt(vatVal)}</span>
+                  <span className="calc-tax-ribbon-sub">يدفعها الزبون</span>
+                </div>
+                <span className="calc-tax-ribbon-arrow">←</span>
+                <div className="calc-tax-ribbon-item calc-tax-ribbon-item--final">
+                  <span className="calc-tax-ribbon-label">
+                    {isTotal ? "إجمالي الإيراد النهائي" : "السعر النهائي / شخص"}
+                  </span>
+                  <span className="calc-tax-ribbon-value">{sym}{fmt(finalVal)}</span>
+                  <span className="calc-tax-ribbon-sub">شامل القيمة المضافة</span>
+                </div>
               </div>
-              <span className="calc-tax-ribbon-arrow">←</span>
-              <div className="calc-tax-ribbon-item calc-tax-ribbon-item--vat">
-                <span className="calc-tax-ribbon-label">ضريبة القيمة المضافة {vatRate}%</span>
-                <span className="calc-tax-ribbon-value">+{sym}{fmt(taxCalc.vatAmount)}</span>
-                <span className="calc-tax-ribbon-sub">يدفعها الزبون</span>
-              </div>
-              <span className="calc-tax-ribbon-arrow">←</span>
-              <div className="calc-tax-ribbon-item calc-tax-ribbon-item--final">
-                <span className="calc-tax-ribbon-label">السعر النهائي للزبون</span>
-                <span className="calc-tax-ribbon-value">{sym}{fmt(taxCalc.finalPrice)}</span>
-                <span className="calc-tax-ribbon-sub">شامل القيمة المضافة</span>
+
+              {/* Two-column breakdown */}
+              <div className="calc-tax-breakdown-grid">
+
+                <div className="calc-tax-breakdown-col">
+                  <div className="calc-tax-breakdown-title">توزيع الهامش الإجمالي</div>
+
+                  <div className="calc-tax-brow">
+                    <div className="calc-tax-brow-label">الهامش الإجمالي (قبل ضريبة الأرباح)</div>
+                    <div className="calc-tax-brow-val">{sym}{fmt(grossVal)}</div>
+                  </div>
+                  <div className="calc-tax-brow calc-tax-brow--deduct">
+                    <div className="calc-tax-brow-label">
+                      <span className="calc-tax-brow-dot" style={{ background: "#ef4444" }} />
+                      ضريبة الأرباح ({profitTaxRate}%)
+                    </div>
+                    <div className="calc-tax-brow-val calc-tax-deduct">− {sym}{fmt(taxVal)}</div>
+                  </div>
+                  <div className="calc-tax-brow calc-tax-brow--net">
+                    <div className="calc-tax-brow-label">
+                      <span className="calc-tax-brow-dot" style={{ background: "#16a34a" }} />
+                      صافي الربح (في جيبك)
+                    </div>
+                    <div className="calc-tax-brow-val calc-tax-net">{sym}{fmt(netVal)}</div>
+                  </div>
+
+                  <div className="calc-tax-profit-pct-badge">
+                    <span>التحقق: صافي الربح من التكلفة =</span>
+                    <strong>{((taxCalc.netProfit / taxCalc.C) * 100).toFixed(2)}%</strong>
+                  </div>
+                </div>
+
+                <div className="calc-tax-breakdown-col">
+                  <div className="calc-tax-breakdown-title">بناء السعر النهائي</div>
+
+                  <div className="calc-tax-price-stack">
+                    <div className="calc-tax-stack-row calc-tax-stack-row--cost">
+                      <span>التكلفة {perLabel}</span>
+                      <span>{sym}{fmt(costVal)}</span>
+                    </div>
+                    <div className="calc-tax-stack-row calc-tax-stack-row--markup">
+                      <span>الهامش الإجمالي (+{fmt(taxCalc.grossMarkupPct)}%)</span>
+                      <span>+{sym}{fmt(grossVal)}</span>
+                    </div>
+                    <div className="calc-tax-stack-row calc-tax-stack-row--exvat">
+                      <span>{isTotal ? "إجمالي قبل القيمة المضافة" : "السعر قبل القيمة المضافة"}</span>
+                      <span>{sym}{fmt(exVatVal)}</span>
+                    </div>
+                    <div className="calc-tax-stack-row calc-tax-stack-row--vat">
+                      <span>القيمة المضافة {vatRate}% (على الزبون)</span>
+                      <span>+{sym}{fmt(vatVal)}</span>
+                    </div>
+                    <div className="calc-tax-stack-row calc-tax-stack-row--final">
+                      <span>{isTotal ? "إجمالي الإيراد النهائي" : "السعر النهائي / شخص"}</span>
+                      <span>{sym}{fmt(finalVal)}</span>
+                    </div>
+                  </div>
+
+                  {isTotal && (
+                    <div className="calc-tax-per-person-note">
+                      السعر لكل مشارك = <strong>{sym}{fmt(taxCalc.finalPrice)}</strong>
+                    </div>
+                  )}
+
+                  <div className="calc-tax-total-markup">
+                    الزيادة الإجمالية على التكلفة الخام: <strong>+{fmt(taxCalc.totalMarkupPct)}%</strong>
+                  </div>
+                </div>
               </div>
             </div>
-
-            {/* Two-column detail */}
-            <div className="calc-tax-breakdown-grid">
-
-              {/* Left: how the gross margin splits */}
-              <div className="calc-tax-breakdown-col">
-                <div className="calc-tax-breakdown-title">توزيع الهامش الإجمالي</div>
-
-                <div className="calc-tax-brow">
-                  <div className="calc-tax-brow-label">الهامش الإجمالي (قبل ضريبة الأرباح)</div>
-                  <div className="calc-tax-brow-val">{sym}{fmt(taxCalc.grossProfit)}</div>
-                </div>
-
-                <div className="calc-tax-brow calc-tax-brow--deduct">
-                  <div className="calc-tax-brow-label">
-                    <span className="calc-tax-brow-dot" style={{ background: "#ef4444" }} />
-                    ضريبة الأرباح ({profitTaxRate}%)
-                  </div>
-                  <div className="calc-tax-brow-val calc-tax-deduct">− {sym}{fmt(taxCalc.profitTaxAmount)}</div>
-                </div>
-
-                <div className="calc-tax-brow calc-tax-brow--net">
-                  <div className="calc-tax-brow-label">
-                    <span className="calc-tax-brow-dot" style={{ background: "#16a34a" }} />
-                    صافي الربح (في جيبك)
-                  </div>
-                  <div className="calc-tax-brow-val calc-tax-net">{sym}{fmt(taxCalc.netProfit)}</div>
-                </div>
-
-                <div className="calc-tax-profit-pct-badge">
-                  <span>التحقق: صافي الربح من التكلفة =</span>
-                  <strong>{((taxCalc.netProfit / taxCalc.C) * 100).toFixed(2)}%</strong>
-                </div>
-              </div>
-
-              {/* Right: final price build-up */}
-              <div className="calc-tax-breakdown-col">
-                <div className="calc-tax-breakdown-title">بناء السعر النهائي</div>
-
-                <div className="calc-tax-price-stack">
-                  <div className="calc-tax-stack-row calc-tax-stack-row--cost">
-                    <span>التكلفة الصافية / شخص</span>
-                    <span>{sym}{fmt(taxCalc.C)}</span>
-                  </div>
-                  <div className="calc-tax-stack-row calc-tax-stack-row--markup">
-                    <span>الهامش الإجمالي (+{fmt(taxCalc.grossMarkupPct)}%)</span>
-                    <span>+{sym}{fmt(taxCalc.grossProfit)}</span>
-                  </div>
-                  <div className="calc-tax-stack-row calc-tax-stack-row--exvat">
-                    <span>السعر قبل القيمة المضافة</span>
-                    <span>{sym}{fmt(taxCalc.priceExVat)}</span>
-                  </div>
-                  <div className="calc-tax-stack-row calc-tax-stack-row--vat">
-                    <span>القيمة المضافة {vatRate}% (على الزبون)</span>
-                    <span>+{sym}{fmt(taxCalc.vatAmount)}</span>
-                  </div>
-                  <div className="calc-tax-stack-row calc-tax-stack-row--final">
-                    <span>السعر النهائي للزبون</span>
-                    <span>{sym}{fmt(taxCalc.finalPrice)}</span>
-                  </div>
-                </div>
-
-                <div className="calc-tax-total-markup">
-                  الزيادة الإجمالية على التكلفة الخام (شاملاً الضرائب): <strong>+{fmt(taxCalc.totalMarkupPct)}%</strong>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </AdminLayout>
   );

@@ -873,6 +873,73 @@
   line-height: 1.5;
 }
 
+/* ── Base selector ── */
+
+.calc-tax-base-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.calc-tax-base-label {
+  font-size: 0.78rem;
+  color: #6366f1;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.calc-tax-base-select {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-family: inherit;
+  color: #1e1b4b;
+  background: #fff;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.calc-tax-base-select:focus {
+  border-color: #6366f1;
+}
+
+/* ── Mode pill ── */
+
+.calc-tax-mode-pill {
+  padding: 10px 20px;
+  background: #eef2ff;
+  border-bottom: 1px solid #e0e7ff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4338ca;
+}
+
+.calc-tax-mode-warn {
+  color: #d97706;
+  font-weight: 400;
+}
+
+/* ── Per-person note (shown in total mode) ── */
+
+.calc-tax-per-person-note {
+  margin-top: 10px;
+  padding: 8px 14px;
+  background: #eef2ff;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: #4338ca;
+  text-align: center;
+}
+
+.calc-tax-per-person-note strong {
+  font-family: monospace;
+  font-size: 0.95rem;
+}
+
 /* ── Empty state ── */
 
 .calc-tax-empty {
