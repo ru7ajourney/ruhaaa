@@ -171,6 +171,11 @@ router.post("/", optionalUser, async (req, res) => {
       gender,
     } = req.body;
 
+    // تحقق إذا كان المستخدم محظوراً
+    if (req.user?.isBanned) {
+      return res.status(403).json({ message: "حسابك محظور من التسجيل في الرحلات. للاستفسار تواصل معنا." });
+    }
+
     // تحقق من وجود الرحلة
     const trip = await Trip.findById(tripId);
     if (!trip) {

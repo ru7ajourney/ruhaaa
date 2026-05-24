@@ -225,9 +225,6 @@ router.post("/login", async (req, res) => {
     if (!user.isVerified)
       return res.status(403).json({ message: "يجب تفعيل حسابك أولاً", needsVerification: true, email: user.email });
 
-    if (user.isBanned)
-      return res.status(403).json({ message: "تم تعليق هذا الحساب. للاستفسار تواصل معنا." });
-
     res.json({
       message: "تم تسجيل الدخول بنجاح",
       token: generateToken(user._id),
@@ -356,8 +353,6 @@ router.post("/google-auth", async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
-      if (user.isBanned)
-        return res.status(403).json({ message: "تم تعليق هذا الحساب. للاستفسار تواصل معنا." });
       // حدّث googleId إذا لم يكن مسجّلاً
       if (!user.googleId) {
         user.googleId = googleId;
