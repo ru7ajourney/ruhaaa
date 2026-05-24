@@ -18,15 +18,69 @@ const sendOtpEmail = async (email, otp, fullName) => {
     to: email,
     subject: `${otp} — كود تفعيل حسابك في رُحى`,
     html: `
-      <div dir="rtl" style="font-family:Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px;background:#faf8f5;border-radius:12px;">
-        <h2 style="color:#c8622a;margin-bottom:8px;">رُحى — سفر وتطوع</h2>
-        <p style="color:#2d2d2d;font-size:16px;">مرحباً ${fullName}،</p>
-        <p style="color:#555;font-size:15px;">كود تفعيل حسابك:</p>
-        <div style="background:#fff;border:2px solid #c8622a;border-radius:10px;padding:20px;text-align:center;margin:20px 0;">
-          <span style="font-size:36px;font-weight:800;letter-spacing:10px;color:#c8622a;">${otp}</span>
-        </div>
-        <p style="color:#888;font-size:13px;">صالح لمدة 10 دقائق. لا تشاركه مع أحد.</p>
-      </div>
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f0ede8;font-family:Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:40px 16px;">
+    <tr><td align="center">
+      <table width="100%" style="max-width:500px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+
+        <!-- Header -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#c8622a,#a04e20);padding:36px 40px;text-align:center;">
+            <p style="margin:0;font-size:32px;font-weight:800;color:#ffffff;letter-spacing:2px;">رُحى</p>
+            <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.75);letter-spacing:1px;">سفر وتطوع</p>
+          </td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td style="padding:40px 40px 32px;">
+            <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#2c4a3e;">مرحباً ${fullName} 👋</p>
+            <p style="margin:0 0 28px;font-size:15px;color:#666;line-height:1.7;">
+              شكراً لانضمامك إلى رُحى! أدخل الكود التالي لتفعيل حسابك:
+            </p>
+
+            <!-- OTP Box -->
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td align="center" style="background:#faf8f5;border:2px dashed #c8622a;border-radius:12px;padding:28px 20px;">
+                  <p style="margin:0 0 6px;font-size:12px;color:#999;letter-spacing:1px;">كود التفعيل</p>
+                  <p style="margin:0;font-size:42px;font-weight:800;color:#c8622a;letter-spacing:14px;">${otp}</p>
+                </td>
+              </tr>
+            </table>
+
+            <!-- Warning -->
+            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
+              <tr>
+                <td style="background:#fff8f0;border-right:4px solid #c8622a;border-radius:8px;padding:14px 16px;">
+                  <p style="margin:0;font-size:13px;color:#a04e20;line-height:1.6;">
+                    ⏱ الكود صالح لمدة <strong>10 دقائق</strong> فقط<br>
+                    🔒 لا تشاركه مع أي شخص
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td style="background:#faf8f5;padding:20px 40px;text-align:center;border-top:1px solid #ece8e1;">
+            <p style="margin:0;font-size:12px;color:#aaa;line-height:1.8;">
+              إذا لم تطلب هذا الكود، يمكنك تجاهل هذا الإيميل بأمان.<br>
+              © ${new Date().getFullYear()} رُحى — جميع الحقوق محفوظة
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>
     `,
   });
 };
