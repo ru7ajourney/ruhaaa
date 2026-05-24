@@ -679,3 +679,472 @@
     font-size: 2rem;
   }
 }
+
+/* ======================================================
+   Israeli Tax & Profit Card
+   ====================================================== */
+
+.calc-tax-card {
+  background: #fff;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 40px;
+}
+
+/* ── Header ── */
+
+.calc-tax-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 22px 28px;
+  background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
+  border-bottom: 1.5px solid #c7d2fe;
+  flex-wrap: wrap;
+}
+
+.calc-tax-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.calc-tax-flag {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.calc-tax-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #3730a3;
+  margin: 0 0 5px;
+}
+
+.calc-tax-subtitle {
+  font-size: 0.82rem;
+  color: #6366f1;
+  margin: 0;
+  line-height: 1.6;
+  max-width: 500px;
+}
+
+.calc-tax-cost-badge {
+  flex-shrink: 0;
+  background: #fff;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 12px;
+  padding: 10px 18px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.calc-tax-cost-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.calc-tax-cost-value {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #3730a3;
+  font-family: monospace;
+}
+
+/* ── Inputs ── */
+
+.calc-tax-inputs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-bottom: 1.5px solid #e0e7ff;
+}
+
+.calc-tax-input-group {
+  padding: 20px 22px;
+  border-left: 1px solid #e0e7ff;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calc-tax-input-group:last-child {
+  border-left: none;
+}
+
+.calc-tax-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #3730a3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.calc-tax-label-hint {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: #818cf8;
+}
+
+.calc-tax-pct-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #c7d2fe;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.calc-tax-pct-wrap:focus-within {
+  border-color: #6366f1;
+}
+
+.calc-tax-input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: monospace;
+  color: #1e1b4b;
+  background: transparent;
+}
+
+.calc-tax-pct-sign {
+  padding: 0 10px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #6366f1;
+  background: #eef2ff;
+  border-right: 1px solid #c7d2fe;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Bracket chips ── */
+
+.calc-tax-brackets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.calc-bracket-chip {
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1.5px solid #c7d2fe;
+  background: #fff;
+  color: #4338ca;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: monospace;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.calc-bracket-chip:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.calc-bracket-chip--active {
+  background: #4f46e5;
+  border-color: #4f46e5;
+  color: #fff;
+}
+
+.calc-tax-brackets-note {
+  font-size: 0.7rem;
+  color: #818cf8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Empty state ── */
+
+.calc-tax-empty {
+  padding: 40px 28px;
+  text-align: center;
+  color: #a5b4fc;
+  font-size: 0.9rem;
+}
+
+/* ── Results ── */
+
+.calc-tax-results {
+  padding: 0;
+}
+
+/* Summary Ribbon */
+
+.calc-tax-ribbon {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: #f8f7ff;
+  border-bottom: 1.5px solid #e0e7ff;
+  overflow-x: auto;
+}
+
+.calc-tax-ribbon-item {
+  flex: 1;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 120px;
+}
+
+.calc-tax-ribbon-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #818cf8;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  white-space: nowrap;
+}
+
+.calc-tax-ribbon-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #1e1b4b;
+  font-family: monospace;
+}
+
+.calc-tax-ribbon-arrow {
+  color: #c7d2fe;
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+
+.calc-tax-ribbon-item--gross .calc-tax-ribbon-value  { color: #d97706; }
+.calc-tax-ribbon-item--vat .calc-tax-ribbon-value    { color: #7c3aed; }
+.calc-tax-ribbon-item--final {
+  background: #4f46e5;
+  border-radius: 0;
+}
+.calc-tax-ribbon-item--final .calc-tax-ribbon-label  { color: #a5b4fc; }
+.calc-tax-ribbon-item--final .calc-tax-ribbon-value  { color: #fff; font-size: 1.15rem; }
+
+/* Detailed breakdown grid */
+
+.calc-tax-breakdown-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.calc-tax-breakdown-col {
+  padding: 24px 28px;
+  border-left: 1.5px solid #e0e7ff;
+}
+
+.calc-tax-breakdown-col:last-child {
+  border-left: none;
+}
+
+.calc-tax-breakdown-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #6366f1;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 16px;
+}
+
+/* Left col: profit decomposition */
+
+.calc-tax-brow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f1f0ff;
+  gap: 12px;
+}
+
+.calc-tax-brow:last-child {
+  border-bottom: none;
+}
+
+.calc-tax-brow-label {
+  font-size: 0.88rem;
+  color: var(--color-text, #374151);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.calc-tax-brow-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
+
+.calc-tax-brow-val {
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.calc-tax-deduct {
+  color: #dc2626;
+}
+
+.calc-tax-brow--net .calc-tax-brow-label {
+  font-weight: 700;
+}
+
+.calc-tax-net {
+  color: #16a34a;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.calc-tax-profit-pct-badge {
+  margin-top: 14px;
+  background: #f0fdf4;
+  border: 1.5px solid #86efac;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.85rem;
+  color: #166534;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.calc-tax-profit-pct-badge strong {
+  font-size: 1rem;
+  font-family: monospace;
+}
+
+/* Right col: price stack */
+
+.calc-tax-price-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1.5px solid #e0e7ff;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.calc-tax-stack-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  font-size: 0.88rem;
+  border-bottom: 1px solid #f1f0ff;
+  gap: 12px;
+}
+
+.calc-tax-stack-row:last-child {
+  border-bottom: none;
+}
+
+.calc-tax-stack-row span:last-child {
+  font-family: monospace;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.calc-tax-stack-row--cost   { background: #f8f9fa; color: var(--color-text, #374151); }
+.calc-tax-stack-row--markup { background: #fffbeb; color: #92400e; }
+.calc-tax-stack-row--exvat  { background: #f8f9fa; color: var(--color-text, #374151); font-weight: 600; }
+.calc-tax-stack-row--vat    { background: #f5f3ff; color: #5b21b6; }
+.calc-tax-stack-row--final  {
+  background: #4f46e5;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+.calc-tax-stack-row--final span:last-child {
+  font-size: 1.05rem;
+}
+
+.calc-tax-total-markup {
+  margin-top: 12px;
+  font-size: 0.82rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.calc-tax-total-markup strong {
+  color: var(--color-primary, #c8622a);
+  font-family: monospace;
+}
+
+/* ── Tax Responsive ── */
+
+@media (max-width: 1100px) {
+  .calc-tax-inputs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .calc-tax-input-group:nth-child(2) {
+    border-left: none;
+  }
+
+  .calc-tax-input-group:nth-child(3) {
+    border-top: 1px solid #e0e7ff;
+  }
+
+  .calc-tax-input-group:nth-child(4) {
+    border-top: 1px solid #e0e7ff;
+    border-left: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .calc-tax-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .calc-tax-breakdown-col {
+    border-left: none;
+    border-bottom: 1.5px solid #e0e7ff;
+  }
+
+  .calc-tax-breakdown-col:last-child {
+    border-bottom: none;
+  }
+
+  .calc-tax-ribbon-item--final {
+    min-width: 140px;
+  }
+}
+
+@media (max-width: 600px) {
+  .calc-tax-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .calc-tax-input-group {
+    border-left: none;
+    border-top: 1px solid #e0e7ff;
+  }
+
+  .calc-tax-header {
+    flex-direction: column;
+  }
+}
