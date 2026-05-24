@@ -35,11 +35,11 @@ const sendOtpEmail = async (email, otp, fullName) => {
       <tr>
         <td align="center" style="background:linear-gradient(145deg,#c8622a 0%,#a04e20 100%);padding:44px 40px 36px;">
           <p style="margin:0;font-family:'Aref Ruqaa',Georgia,serif;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">رُحى</p>
-          <p style="margin:8px 0 0;font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:3px;text-transform:uppercase;">سفر &nbsp;•&nbsp; تطوع &nbsp;•&nbsp; اكتشاف</p>
+          <p style="margin:8px 0 0;font-size:16px;color:rgba(255,255,255,0.75);letter-spacing:3px;">سفر &nbsp;•&nbsp; تطوع &nbsp;•&nbsp; اكتشاف</p>
           <table cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
             <tr>
-              <td style="background:rgba(255,255,255,0.15);border-radius:20px;padding:6px 20px;">
-                <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.9);">تفعيل الحساب</p>
+              <td style="background:rgba(255,255,255,0.15);border-radius:20px;padding:8px 24px;">
+                <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.95);">تفعيل الحساب</p>
               </td>
             </tr>
           </table>
@@ -71,7 +71,7 @@ const sendOtpEmail = async (email, otp, fullName) => {
       <!-- OTP BOX -->
       <tr>
         <td align="center" style="padding:32px 48px;">
-          <p style="margin:0 0 20px;font-size:14px;color:#999;text-align:center;letter-spacing:1px;">— كود التفعيل الخاص بك —</p>
+          <p style="margin:0 0 20px;font-size:16px;color:#999;text-align:center;letter-spacing:1px;">— كود التفعيل الخاص بك —</p>
           <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:linear-gradient(135deg,#fff8f4,#faf3ee);border:2px solid #e8b49a;border-radius:16px;">
             <tr>
               <td align="center" style="padding:32px 24px;">
@@ -101,8 +101,8 @@ const sendOtpEmail = async (email, otp, fullName) => {
       <!-- FOOTER -->
       <tr>
         <td align="center" style="background:#faf8f5;padding:24px 48px;border-top:1px solid #ece8e1;">
-          <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
-          <p style="margin:0;font-size:13px;color:#999;line-height:2;text-align:center;">
+          <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
+          <p style="margin:0;font-size:14px;color:#999;line-height:2.2;text-align:center;">
             إن لم تكن أنت من طلب هذا الكود، يمكنك تجاهل هذا البريد بأمان تام.<br>
             © ${year} رُحى &nbsp;·&nbsp; جميع الحقوق محفوظة
           </p>
