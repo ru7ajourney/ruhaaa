@@ -38,6 +38,30 @@ const PoliciesModal = ({ onClose }) => {
 
         {/* المحتوى */}
         <div className="modal-content">
+
+          {/* توضيح مهم */}
+          <div style={{
+            background: "#f0fdf4",
+            border: "1px solid #bbf7d0",
+            borderRadius: "10px",
+            padding: "16px 20px",
+            marginBottom: "24px",
+            display: "flex",
+            gap: "12px",
+            alignItems: "flex-start",
+          }}>
+            <span style={{ fontSize: "22px", lineHeight: 1 }}>💡</span>
+            <div>
+              <p style={{ margin: "0 0 6px", fontWeight: 700, color: "#15803d", fontSize: "15px" }}>
+                الموافقة على الشروط لا تعني الدفع الآن
+              </p>
+              <p style={{ margin: 0, color: "#166534", fontSize: "14px", lineHeight: 1.7 }}>
+                بإرسال طلبك والموافقة على هذه الشروط، لن يُطلب منك دفع أي مبلغ في الوقت الحالي.
+                التسجيل النهائي يتطلب موافقة من الطرفين — موافقة فريق رُحى على قبولك، وموافقتك أنت على تأكيد المشاركة — وعندها فقط يتم الحديث عن الدفع.
+              </p>
+            </div>
+          </div>
+
           {POLICIES.map((policy, index) => (
             <div key={policy.id} className="policy-block">
               {/* عنوان القسم */}

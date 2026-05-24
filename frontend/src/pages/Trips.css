@@ -1,21 +1,5 @@
 /* src/pages/Trips.css */
 
-.trips-header {
-    background: var(--color-secondary);
-    color: var(--color-white);
-    padding: 60px 0;
-    text-align: center;
-}
-
-    .trips-header h1 {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-    }
-
-    .trips-header p {
-        color: rgba(255,255,255,0.75);
-        font-size: 1.1rem;
-    }
 
 .trips-content {
     padding: 48px 0 120px;

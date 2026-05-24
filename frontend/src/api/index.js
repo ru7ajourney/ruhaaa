@@ -11,14 +11,22 @@ const api = axios.create({
   },
 });
 
-// ==============================
-// Interceptor: أضف التوكن تلقائياً لكل طلب محمي
-// ==============================
+// Interceptor للأدمن فقط
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("ruha_token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+// instance منفصل للمستخدم العادي — يستخدم user token فقط
+const userApi = axios.create({
+  baseURL: "/api",
+  headers: { "Content-Type": "application/json" },
+});
+
+userApi.interceptors.request.use((config) => {
+  const token = localStorage.getItem("ruha_user_token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
@@ -48,14 +56,62 @@ export const authAPI = {
 };
 
 // ==============================
+// Gallery API
+// ==============================
+export const galleryAPI = {
+  getAll:      ()          => api.get("/gallery"),
+  getFeatured: ()          => api.get("/gallery/featured"),
+  create:      (data)      => api.post("/gallery", data),
+  upload:      (formData)  => api.post("/gallery/upload", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  }),
+  update:      (id, data)  => api.patch(`/gallery/${id}`, data),
+  delete:      (id)        => api.delete(`/gallery/${id}`),
+};
+
+// ==============================
 // Applications API
 // ==============================
 export const applicationsAPI = {
-  submit: (data) => api.post("/applications", data),
+  submit: (data) => userApi.post("/applications", data),
   getAll: (params) => api.get("/applications", { params }),
   getById: (id) => api.get(`/applications/${id}`),
   updateStatus: (id, data) => api.put(`/applications/${id}`, data),
+  confirmDeposit: (id) => api.post(`/applications/${id}/confirm-deposit`),
   delete: (id) => api.delete(`/applications/${id}`),
+};
+
+// ==============================
+// Subscribers API
+// ==============================
+export const subscribersAPI = {
+  getAll:       (q, country, gender) => api.get("/subscribers", { params: { ...(q && { q }), ...(country && { country }), ...(gender && { gender }) } }),
+  getCountries: ()                   => api.get("/subscribers/countries"),
+  delete:       (id)                 => api.delete(`/subscribers/${id}`),
+};
+
+// ==============================
+// Policy Versions API
+// ==============================
+export const policyVersionsAPI = {
+  getAll:   ()         => api.get("/policy-versions"),
+  getById:  (id)       => api.get(`/policy-versions/${id}`),
+  save:     (policies) => api.post("/policy-versions", { policies }),
+  delete:   (id)       => api.delete(`/policy-versions/${id}`),
+};
+
+// ==============================
+// User API
+// ==============================
+export const userAPI = {
+  register: (data) => userApi.post("/users/register", data),
+  login: (data) => userApi.post("/users/login", data),
+  getMe: () => userApi.get("/users/me"),
+  getMyApplications: () => userApi.get("/users/my-applications"),
+  payDeposit: (id, data) => userApi.post(`/users/applications/${id}/pay`, data),
+  googleAuth: (credential) => userApi.post("/users/google-auth", { credential }),
+  createPaypalOrder: (id, data) => userApi.post(`/users/applications/${id}/create-paypal-order`, data),
+  capturePaypalOrder: (id, data) => userApi.post(`/users/applications/${id}/capture-paypal-order`, data),
 };
 
 export default api;

@@ -6,11 +6,35 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { tripsAPI } from "../api";
 import "./TripDetail.css";
 
+
+const ProgramAccordion = ({ program, open, onToggle }) => {
+  return (
+    <section className="detail-section">
+      <div className={`program-accordion-header${open ? " program-accordion-open" : ""}`} onClick={onToggle}>
+        <h2>البرنامج اليومي</h2>
+        <span className={`day-arrow${open ? " day-arrow-open" : ""}`}>▼</span>
+      </div>
+      <div className={`program-list${open ? " program-list-open" : ""}`}>
+        {program.map((day) => (
+          <div key={day._id} className="program-day">
+            <div className="day-number">يوم {day.day}</div>
+            <div className="day-content">
+              <h4>{day.title}</h4>
+              <p>{day.description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
 const TripDetail = () => {
   const { slug } = useParams(); // الـ slug من الرابط
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [programOpen, setProgramOpen] = useState(false);
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -30,12 +54,10 @@ const TripDetail = () => {
     fetchTrip();
   }, [slug]);
 
-  const formatDate = (dateStr) =>
-    new Date(dateStr).toLocaleDateString("ar-SA", {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
+  const formatDate = (dateStr) => {
+    const d = new Date(dateStr);
+    return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
+  };
 
   if (loading) {
     return (
@@ -91,56 +113,46 @@ const TripDetail = () => {
 
             {/* البرنامج اليومي */}
             {trip.program?.length > 0 && (
-              <section className="detail-section">
-                <h2>البرنامج اليومي</h2>
-                <div className="program-list">
-                  {trip.program.map((day) => (
-                    <div key={day._id} className="program-day">
-                      <div className="day-number">يوم {day.day}</div>
-                      <div className="day-content">
-                        <h4>{day.title}</h4>
-                        <p>{day.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </section>
+              <ProgramAccordion program={trip.program} open={programOpen} onToggle={() => setProgramOpen(!programOpen)} />
             )}
 
             {/* يشمل / لا يشمل */}
-            <section className="detail-section includes-section">
-              {trip.includes?.length > 0 && (
-                <div className="includes-col">
-                  <h3 className="includes-title">✅ السعر يشمل</h3>
-                  <ul>
-                    {trip.includes.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-              {trip.excludes?.length > 0 && (
-                <div className="includes-col">
-                  <h3 className="excludes-title">❌ السعر لا يشمل</h3>
-                  <ul>
-                    {trip.excludes.map((item, i) => (
-                      <li key={i}>{item}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </section>
+            {(trip.includes?.length > 0 || trip.excludes?.length > 0) && (
+              <section className="detail-section includes-section">
+                {trip.includes?.length > 0 && (
+                  <div className="includes-col">
+                    <h3 className="includes-title">✅ السعر يشمل</h3>
+                    <ul>
+                      {trip.includes.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {trip.excludes?.length > 0 && (
+                  <div className="includes-col">
+                    <h3 className="excludes-title">❌ السعر لا يشمل</h3>
+                    <ul>
+                      {trip.excludes.map((item, i) => (
+                        <li key={i}>{item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </section>
+            )}
           </div>
 
           {/* ==============================
               العمود الجانبي - الحجز
               ============================== */}
-          <aside className="trip-detail-sidebar">
+          <aside className={`trip-detail-sidebar${programOpen ? " sidebar-sticky" : ""}`}>
             <div className="booking-card">
               <div className="booking-price">
                 <span className="big-price">{trip.price}</span>
                 <span className="price-unit">{trip.currency} / شخص</span>
               </div>
+
 
               {/* التواريخ المتاحة */}
               <div className="booking-dates">
@@ -153,10 +165,7 @@ const TripDetail = () => {
                     .map((date, i) => (
                       <div key={i} className="date-item">
                         <div className="date-range">
-                          {formatDate(date.startDate)} — {formatDate(date.endDate)}
-                        </div>
-                        <div className="spots-left">
-                          {date.spotsTotal - date.spotsTaken} مكان متبقي
+                          {formatDate(date.startDate)} - {formatDate(date.endDate)}
                         </div>
                       </div>
                     ))

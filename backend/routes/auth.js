@@ -50,6 +50,7 @@ router.post("/login", async (req, res) => {
         id: admin._id,
         email: admin.email,
         name: admin.name,
+        username: admin.username,
       },
     });
   } catch (error) {
@@ -67,6 +68,7 @@ router.get("/me", protect, async (req, res) => {
       id: req.admin._id,
       email: req.admin.email,
       name: req.admin.name,
+      username: req.admin.username,
     },
   });
 });

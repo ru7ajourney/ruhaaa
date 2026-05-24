@@ -2,18 +2,17 @@
 // صفحة سياسات رُحى المستقلة
 
 import { POLICIES } from "../data/policies";
+import PageHero from "../components/PageHero";
 import "./Policies.css";
 
 const Policies = () => {
   return (
     <div className="policies-page">
-      {/* Header */}
-      <div className="policies-header">
-        <div className="container">
-          <h1>سياسات وشروط رُحى</h1>
-          <p>آخر تحديث: {new Date().toLocaleDateString("ar-SA", { year: "numeric", month: "long" })}</p>
-        </div>
-      </div>
+      <PageHero
+        title="سياسات وشروط رُحى"
+        subtitle={`آخر تحديث: ${new Date().toLocaleDateString("ar-SA", { year: "numeric", month: "long", numberingSystem: "latn" })}`}
+        icon="📋"
+      />
 
       <div className="container policies-body">
         {/* مقدمة */}

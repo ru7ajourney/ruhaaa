@@ -1,3 +1,4 @@
+import PageHero from "../components/PageHero";
 import "./Contact.css";
 
 const floatingIcons = [
@@ -40,13 +41,7 @@ const Contact = () => {
         ))}
       </div>
 
-      {/* الهيدر */}
-      <div className="contact-header">
-        <div className="container">
-          <h1>تواصل معنا</h1>
-          <p>كل رحلة تبدأ بسؤال — لا تتردد</p>
-        </div>
-      </div>
+      <PageHero title="تواصل معنا" subtitle="كل رحلة تبدأ بسؤال — لا تتردد" icon="💬" waveColor="#eeece4" />
 
       {/* المحتوى */}
       <div className="container contact-body">
@@ -68,10 +63,11 @@ const Contact = () => {
 
           {/* واتساب */}
           <a
-            href="https://wa.me/970504933918?text=مرحباً رُحى، أريد الاستفسار عن الرحلات"
+            href="https://wa.me/972504933918?text=مرحباً رُحى، أريد الاستفسار عن الرحلات"
             target="_blank"
             rel="noreferrer"
             className="contact-card contact-card--whatsapp"
+
           >
             <div className="contact-card-icon">
               <svg viewBox="0 0 24 24" fill="currentColor">
@@ -80,7 +76,7 @@ const Contact = () => {
             </div>
             <div className="contact-card-body">
               <h3>واتساب</h3>
-              <p dir="ltr">0504933918</p>
+                          <p dir="ltr" >0504933918</p>
               <span>اضغط للمحادثة مباشرة</span>
             </div>
           </a>
@@ -146,6 +142,7 @@ const Contact = () => {
           <p>⏱ نرد عادةً خلال 24 ساعة</p>
         </div>
       </div>
+      <div className="contact-footer-pad" />
     </div>
   );
 };

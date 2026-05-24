@@ -1,0 +1,132 @@
+.my-apps-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+}
+
+.my-apps-body {
+  padding: 48px 24px 80px;
+}
+
+.no-apps {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--color-text-light);
+}
+
+.no-apps p {
+  margin-bottom: 20px;
+  font-size: 1.1rem;
+}
+
+.apps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.app-card {
+  background: var(--color-white);
+  border-radius: 16px;
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  display: flex;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  transition: box-shadow 0.2s;
+}
+
+.app-card:hover {
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.app-card-img {
+  width: 160px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.app-card-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.app-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.app-card-top h3 {
+  font-size: 1.1rem;
+  color: var(--color-secondary);
+  margin: 0;
+}
+
+.app-status {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.app-meta {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.app-date {
+  font-size: 0.82rem;
+  color: #aaa;
+  margin: 0;
+}
+
+.app-note {
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 4px 0 0;
+  border-right: 3px solid var(--color-primary);
+}
+
+.checkout-btn {
+  margin-top: 8px;
+  align-self: flex-start;
+}
+
+.payment-pending-msg {
+  font-size: 0.9rem;
+  color: #7c3aed;
+  background: #ede9fe;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin: 4px 0 0;
+}
+
+.confirmed-msg {
+  font-size: 0.95rem;
+  color: #065f46;
+  background: #d1fae5;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  margin: 4px 0 0;
+}
+
+.app-rejected-msg {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  margin: 4px 0 0;
+}
+
+@media (max-width: 600px) {
+  .app-card { flex-direction: column; }
+  .app-card-img { width: 100%; height: 160px; }
+}

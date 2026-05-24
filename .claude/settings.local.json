@@ -2,7 +2,31 @@
   "permissions": {
     "allow": [
       "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd /d C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\backend && npm run dev\" -WindowStyle Normal -PassThru | Select-Object Id)",
-      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd /d C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\frontend && npm run dev\" -WindowStyle Normal -PassThru | Select-Object Id)"
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd /d C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\frontend && npm run dev\" -WindowStyle Normal -PassThru | Select-Object Id)",
+      "Bash(del *)",
+      "PowerShell(New-Item *)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\frontend\\\\src\\\\pages\\\\Gallery.jsx\" -Force)",
+      "Bash(Remove-Item \"C:\\\\Users\\\\gzlad\\\\OneDrive\\\\Desktop\\\\ruhaaa\\\\frontend\\\\src\\\\pages\\\\Gallery.css\" -Force)",
+      "Bash(Write-Host \"Deleted Gallery files\")",
+      "Bash(node scripts/seedGallery.js)",
+      "Bash(curl -s http://localhost:5000/api/gallery)",
+      "Bash(mongosh *)",
+      "Bash(where mongosh *)",
+      "Bash(where mongo *)",
+      "Read(//c/Program Files/MongoDB/Server/**)",
+      "Bash(node *)",
+      "Bash(python3 -c \"import sys, json; data = json.load\\(sys.stdin\\); print\\(f'Total: {len\\(data\\)} photos'\\); [print\\(f'  - {p[\\\\\"title\\\\\"] or \\\\\"\\(no title\\)\\\\\"}: {p[\\\\\"imageUrl\\\\\"][:60]}'\\) for p in data]\")",
+      "PowerShell($data = Invoke-RestMethod -Uri \"http://localhost:5000/api/gallery\"; Write-Host \"Total: $\\($data.Count\\) photos\"; $data | ForEach-Object { Write-Host \" - $\\($_.title\\): $\\($_.imageUrl.Substring\\(0, [Math]::Min\\(70, $_.imageUrl.Length\\)\\)\\)\" })",
+      "Bash(curl -s -o nul -w \"%{http_code}\" \"https://picsum.photos/seed/alps/800/600\")",
+      "Bash(curl -s \"http://localhost:5173/gallery\" -o nul -w \"%{http_code}\")",
+      "Bash(curl -s -I \"https://picsum.photos/seed/alps/800/600\")",
+      "Bash(curl -s \"http://localhost:5000/api/gallery\" -o nul -w \"%{http_code} %{size_download}\")",
+      "Bash(curl -sL \"https://picsum.photos/seed/alps/800/600\" -o nul -w \"code:%{http_code} size:%{size_download}\")",
+      "Bash(curl -s http://localhost:5173/gallery -o nul -w \"%{http_code}\")",
+      "Bash(grep -v \"^.*//.*٠\\\\|^.*//.*١\\\\|^.*//.*٢\\\\|^.*//.*٣\\\\|^.*//.*٤\\\\|^.*//.*٥\\\\|^.*//.*٦\\\\|^.*//.*٧\\\\|^.*//.*٨\\\\|^.*//.*٩\")",
+      "Bash(npm install *)",
+      "Bash(curl -s http://localhost:5000/api/gallery -o nul -w \"%{http_code}\")",
+      "Bash(python -c \"import json, sys; data = json.load\\(sys.stdin\\); print\\(json.dumps\\(data[0], indent=2, ensure_ascii=False\\) if data else 'empty'\\)\")"
     ]
   }
 }

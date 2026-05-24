@@ -2,12 +2,16 @@
 // جذر التطبيق - تعريف كل المسارات
 
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import { AuthProvider } from "./context/AuthContext";
+import { UserAuthProvider } from "./context/UserAuthContext";
 
 // Layout Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Public Pages
 import Home from "./pages/Home";
@@ -17,11 +21,16 @@ import About from "./pages/About";
 import Register from "./pages/Register";
 import Policies from "./pages/Policies";
 import Contact from "./pages/Contact";
-
+import Gallery from "./pages/Gallery";
 // Admin Pages
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import TripForm from "./pages/admin/TripForm";
+import TripStats from "./pages/admin/TripStats";
+import TripCalculator from "./pages/admin/TripCalculator";
+import UserAuth from "./pages/UserAuth";
+import MyApplications from "./pages/MyApplications";
+import Checkout from "./pages/Checkout";
 
 // Global Styles
 import "./styles/global.css";
@@ -39,8 +48,12 @@ const PublicLayout = ({ children, flushFooter }) => (
 
 function App() {
   return (
+    <PayPalScriptProvider options={{ clientId: "AZc2HJEaV0OCt9giyZtoUz0BNTtQeyY_JgomMFR6LcEniqOpycyFCV31eogEWIgNQCmZh4CHdMFTGfn-", currency: "USD", components: "buttons,googlepay" }}>
+    <GoogleOAuthProvider clientId="259401227183-hi6g6bh83g1klvjn5kr39gqf22m2f27u.apps.googleusercontent.com">
+    <UserAuthProvider>
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <Routes>
           {/* ==============================
               الصفحات العامة
@@ -101,7 +114,14 @@ function App() {
               </PublicLayout>
             }
           />
-
+          <Route
+            path="/gallery"
+            element={
+              <PublicLayout flushFooter>
+                <Gallery />
+              </PublicLayout>
+            }
+          />
           {/* ==============================
               صفحات الآدمن (بدون Navbar العام)
               ============================== */}
@@ -134,6 +154,35 @@ function App() {
             }
           />
 
+          <Route
+            path="/admin/trips/:id/stats"
+            element={
+              <ProtectedRoute>
+                <TripStats />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/calculator"
+            element={
+              <ProtectedRoute>
+                <TripCalculator />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* صفحات المستخدم */}
+          <Route path="/my-account" element={<UserAuth />} />
+          <Route
+            path="/my-applications"
+            element={<PublicLayout><MyApplications /></PublicLayout>}
+          />
+          <Route
+            path="/checkout/:id"
+            element={<PublicLayout><Checkout /></PublicLayout>}
+          />
+
           {/* 404 */}
           <Route
             path="*"
@@ -157,6 +206,9 @@ function App() {
         </Routes>
       </BrowserRouter>
     </AuthProvider>
+    </UserAuthProvider>
+    </GoogleOAuthProvider>
+    </PayPalScriptProvider>
   );
 }
 

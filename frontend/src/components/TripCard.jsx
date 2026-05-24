@@ -5,21 +5,6 @@ import { Link } from "react-router-dom";
 import "./TripCard.css";
 
 const TripCard = ({ trip }) => {
-  // أقرب تاريخ متاح
-  const nextDate = trip.availableDates?.find(
-    (d) => new Date(d.startDate) > new Date()
-  );
-
-  // تنسيق التاريخ بالعربية
-  const formatDate = (dateStr) => {
-    if (!dateStr) return null;
-    return new Date(dateStr).toLocaleDateString("ar-SA", {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    });
-  };
-
   return (
     <Link to={`/trips/${trip.slug}`} className="trip-card">
       {/* صورة الرحلة */}
@@ -48,17 +33,12 @@ const TripCard = ({ trip }) => {
         {/* الوصف المختصر */}
         <p className="trip-card-desc">{trip.shortDescription}</p>
 
-        {/* السعر وأقرب تاريخ */}
+        {/* السعر */}
         <div className="trip-card-footer">
           <div className="trip-price">
             <span className="price-amount">{trip.price}</span>
             <span className="price-currency">{trip.currency}</span>
           </div>
-          {nextDate && (
-            <div className="trip-next-date">
-              {formatDate(nextDate.startDate)}
-            </div>
-          )}
         </div>
 
         {/* زر التفاصيل */}

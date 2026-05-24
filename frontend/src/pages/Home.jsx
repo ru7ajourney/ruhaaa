@@ -3,48 +3,26 @@
 
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { tripsAPI } from "../api";
+import { tripsAPI, galleryAPI } from "../api";
 import TripCard from "../components/TripCard";
+import { getCropImgStyle } from "../utils/cropStyle";
 import "./Home.css";
 
-const particles = [
-  { x:"3%",  y:"80%", s:"3px", dur:"9s",  delay:"0s"   },
-  { x:"8%",  y:"65%", s:"2px", dur:"11s", delay:"2s"   },
-  { x:"14%", y:"88%", s:"4px", dur:"7s",  delay:"0.8s" },
-  { x:"20%", y:"72%", s:"2px", dur:"13s", delay:"3.5s" },
-  { x:"28%", y:"85%", s:"3px", dur:"8s",  delay:"1.2s" },
-  { x:"36%", y:"90%", s:"2px", dur:"10s", delay:"4s"   },
-  { x:"44%", y:"78%", s:"3px", dur:"9s",  delay:"2.5s" },
-  { x:"50%", y:"82%", s:"2px", dur:"12s", delay:"0.5s" },
-  { x:"58%", y:"70%", s:"4px", dur:"8s",  delay:"3s"   },
-  { x:"65%", y:"88%", s:"2px", dur:"10s", delay:"1.8s" },
-  { x:"72%", y:"75%", s:"3px", dur:"7s",  delay:"4.5s" },
-  { x:"80%", y:"83%", s:"2px", dur:"11s", delay:"2.2s" },
-  { x:"88%", y:"68%", s:"3px", dur:"9s",  delay:"0.3s" },
-  { x:"6%",  y:"50%", s:"2px", dur:"14s", delay:"1s"   },
-  { x:"22%", y:"55%", s:"3px", dur:"10s", delay:"5s"   },
-  { x:"40%", y:"48%", s:"2px", dur:"12s", delay:"2.8s" },
-  { x:"75%", y:"45%", s:"2px", dur:"11s", delay:"4.2s" },
-  { x:"90%", y:"58%", s:"4px", dur:"8s",  delay:"0.6s" },
+const stars = [
+  { x: "10%", y: "7%",  size: "3px", dur: "3s",   delay: "0s"   },
+  { x: "24%", y: "5%",  size: "2px", dur: "4s",   delay: "1.2s" },
+  { x: "44%", y: "9%",  size: "2px", dur: "2.8s", delay: "0.5s" },
+  { x: "60%", y: "4%",  size: "3px", dur: "3.5s", delay: "2s"   },
+  { x: "77%", y: "10%", size: "2px", dur: "4s",   delay: "0.8s" },
+  { x: "91%", y: "6%",  size: "2px", dur: "3s",   delay: "1.8s" },
+  { x: "6%",  y: "20%", size: "2px", dur: "4.5s", delay: "3s"   },
+  { x: "52%", y: "16%", size: "3px", dur: "3.2s", delay: "2.5s" },
 ];
 
-const stars = [
-  { x:"15%", y:"14%", dur:"3s", delay:"0s"   },
-  { x:"30%", y:"7%",  dur:"4s", delay:"1s"   },
-  { x:"50%", y:"11%", dur:"2s", delay:"2s"   },
-  { x:"70%", y:"5%",  dur:"5s", delay:"0.5s" },
-  { x:"85%", y:"17%", dur:"3s", delay:"1.5s" },
-  { x:"95%", y:"9%",  dur:"4s", delay:"3s"   },
-  { x:"5%",  y:"24%", dur:"3s", delay:"2.5s" },
-  { x:"42%", y:"19%", dur:"4s", delay:"1.8s" },
-  { x:"62%", y:"13%", dur:"2s", delay:"0.8s" },
-  { x:"78%", y:"21%", dur:"5s", delay:"3.5s" },
-  { x:"24%", y:"28%", dur:"3s", delay:"4s"   },
-  { x:"55%", y:"26%", dur:"4s", delay:"0.2s" },
-];
 
 const Home = () => {
-  const [featuredTrips, setFeaturedTrips] = useState([]);
+  const [featuredTrips, setFeaturedTrips]   = useState([]);
+  const [featuredPhotos, setFeaturedPhotos] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -58,7 +36,18 @@ const Home = () => {
         setLoading(false);
       }
     };
+
+    const fetchPhotos = async () => {
+      try {
+        const { data } = await galleryAPI.getFeatured();
+        setFeaturedPhotos(data.slice(0, 3));
+      } catch {
+        // الصور اختيارية — تجاهل الخطأ
+      }
+    };
+
     fetchFeatured();
+    fetchPhotos();
   }, []);
 
   return (
@@ -68,66 +57,67 @@ const Home = () => {
           ============================== */}
       <section className="hero">
 
-        {/* خلفية كريتيف */}
+        {/* خلفية */}
         <div className="hero-bg" aria-hidden="true">
 
-          {/* أورورا */}
-          <div className="hbg-aurora" />
+          {/* توهج شمسي */}
+          <div className="hbg-glow hbg-glow--sun" />
 
-          {/* توهجات */}
-          <div className="hbg-glow hbg-glow--sun"  />
-          <div className="hbg-glow hbg-glow--warm" />
-          <div className="hbg-glow hbg-glow--teal" />
-
-          {/* نجوم تتلألأ */}
+          {/* نجوم صغيرة */}
           {stars.map((s, i) => (
             <div key={i} className="hbg-star" style={{
               left: s.x, top: s.y,
+              width: s.size, height: s.size,
               animationDuration: s.dur,
               animationDelay: s.delay,
             }} />
           ))}
 
-          {/* جزيئات متطايرة */}
-          {particles.map((p, i) => (
-            <div key={i} className="hbg-particle" style={{
-              left: p.x, top: p.y,
-              width: p.s, height: p.s,
-              animationDuration: p.dur,
-              animationDelay: p.delay,
-            }} />
-          ))}
-
-          {/* حلقات */}
-          <svg className="hbg-rings" viewBox="0 0 600 600" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <circle cx="120" cy="120" r="150" stroke="rgba(255,140,40,0.12)" strokeWidth="1"/>
-            <circle cx="120" cy="120" r="240" stroke="rgba(255,140,40,0.07)" strokeWidth="1"/>
-            <circle cx="120" cy="120" r="330" stroke="rgba(255,140,40,0.04)" strokeWidth="1"/>
-            <circle cx="120" cy="120" r="420" stroke="rgba(255,120,20,0.02)" strokeWidth="1"/>
+          {/* غيوم ثابتة */}
+          <svg className="hbg-cloud hbg-cloud--1" viewBox="0 0 210 85" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="85"  cy="66" rx="78" ry="25"/>
+            <ellipse cx="115" cy="46" rx="50" ry="34"/>
+            <ellipse cx="60"  cy="48" rx="42" ry="27"/>
+            <ellipse cx="155" cy="54" rx="38" ry="23"/>
           </svg>
-
-          {/* خطوط مسار */}
-          <svg className="hbg-paths" viewBox="0 0 1000 400" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" fill="none">
-            <path d="M-50,200 Q200,80  450,200 Q700,320 1050,180" stroke="rgba(255,140,40,0.15)" strokeWidth="1.5" strokeDasharray="6 10"/>
-            <path d="M-50,300 Q250,140 500,280 Q750,400 1050,270" stroke="rgba(255,180,80,0.09)" strokeWidth="1"   strokeDasharray="4 12"/>
+          <svg className="hbg-cloud hbg-cloud--2" viewBox="0 0 175 74" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="72"  cy="57" rx="66" ry="22"/>
+            <ellipse cx="99"  cy="39" rx="45" ry="30"/>
+            <ellipse cx="52"  cy="41" rx="37" ry="24"/>
+            <ellipse cx="136" cy="47" rx="33" ry="20"/>
+          </svg>
+          <svg className="hbg-cloud hbg-cloud--3" viewBox="0 0 145 63" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="58" cy="48" rx="52" ry="19"/>
+            <ellipse cx="78" cy="32" rx="34" ry="24"/>
+            <ellipse cx="42" cy="34" rx="28" ry="19"/>
+            <ellipse cx="108" cy="38" rx="26" ry="17"/>
+          </svg>
+          <svg className="hbg-cloud hbg-cloud--4" viewBox="0 0 190 80" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="78"  cy="62" rx="72" ry="24"/>
+            <ellipse cx="108" cy="42" rx="48" ry="32"/>
+            <ellipse cx="56"  cy="44" rx="40" ry="26"/>
+            <ellipse cx="148" cy="50" rx="36" ry="22"/>
+          </svg>
+          <svg className="hbg-cloud hbg-cloud--5" viewBox="0 0 158 68" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="64" cy="52" rx="58" ry="20"/>
+            <ellipse cx="88" cy="35" rx="38" ry="27"/>
+            <ellipse cx="46" cy="37" rx="32" ry="21"/>
+            <ellipse cx="120" cy="43" rx="28" ry="18"/>
           </svg>
 
           {/* جبال */}
           <svg className="hbg-mountains" viewBox="0 0 1440 240" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,240 L0,155 L90,85  L180,145 L300,55  L420,130 L540,80  L660,148 L780,58  L900,118 L1020,72 L1140,138 L1260,88 L1380,120 L1440,100 L1440,240 Z" fill="#1a3020" opacity="0.8"/>
-            <path d="M0,240 L0,185 L140,118 L280,172 L440,105 L600,170 L760,115 L920,165 L1080,120 L1240,158 L1440,128 L1440,240 Z" fill="#214030" opacity="0.9"/>
-            <path d="M0,240 L0,210 L200,165 L400,205 L600,160 L800,200 L1000,162 L1200,198 L1440,168 L1440,240 Z" fill="#284838"/>
+            <path d="M0,240 L0,155 L90,85  L180,145 L300,55  L420,130 L540,80  L660,148 L780,58  L900,118 L1020,72 L1140,138 L1260,88 L1380,120 L1440,100 L1440,240 Z" fill="#1e5e45" opacity="0.55"/>
+            <path d="M0,240 L0,185 L140,118 L280,172 L440,105 L600,170 L760,115 L920,165 L1080,120 L1240,158 L1440,128 L1440,240 Z" fill="#2d6a4f" opacity="0.65"/>
+            <path d="M0,240 L0,210 L200,165 L400,205 L600,160 L800,200 L1000,162 L1200,198 L1440,168 L1440,240 Z" fill="#40916c" opacity="0.75"/>
           </svg>
         </div>
 
-        {/* تعتيم اتجاهي لإبراز النص */}
+        {/* تعتيم خفيف */}
         <div className="hero-overlay" aria-hidden="true" />
 
-        {/* عناصر ديكور خفيفة */}
-        <div className="hero-deco" aria-hidden="true">
-          <div className="hdeco-ring hdeco-ring--1" />
-          <div className="hdeco-dots" />
-        </div>
+
+        <div className="hero-deco" aria-hidden="true" />
 
         {/* المحتوى */}
         <div className="container hero-content">
@@ -230,29 +220,51 @@ const Home = () => {
       </section>
 
       {/* ==============================
+          Featured Photos - من رحلاتنا
+          ============================== */}
+      {featuredPhotos.length > 0 && (
+        <section className="featured-photos section">
+          <div className="fp-grid">
+            {featuredPhotos.map((photo) => (
+              <div key={photo._id} className="fp-item">
+                <img src={photo.imageUrl} alt={photo.title || "صورة من رحلة"} style={getCropImgStyle(photo.cropArea)} />
+                {photo.title && <div className="fp-caption">{photo.title}</div>}
+              </div>
+            ))}
+          </div>
+          <div className="fp-gallery-btn">
+            <Link to="/gallery" className="btn btn-secondary">
+              شوف المعرض كاملاً ←
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* ==============================
           Story Section - قصة رُحى
           ============================== */}
       <section className="story-section">
         <div className="container story-inner">
           <div className="story-text">
             <span className="story-label">القصة</span>
-            <h2>من إيطاليا بدأت رُحى</h2>
+            <h2>مكالمة غيّرت كل شيء</h2>
             <p>
-              سافرت 10 أيام لإيطاليا كمتطوع، وكانت تجربة غيّرت نظرتي للسفر.
-              لما رجعت، بدأ أصحابي يسألوني كيف عملتها. فكّرت: مش لازم يسافر
-              الواحد لحاله.
+              أدهم رجع من إيطاليا وهو مش نفس الشخص — عشر أيام كمتطوع
+              بريف توسكانا حسّسته إنو في سفر تاني بالكل، مش بس سياحة.
+              بس الحياة ما بتوقف، والأيام بلشت تمشي، وشوي شوي بدأ
+              يتناسى الموضوع...
             </p>
             <p>
-              رُحى هي الإجابة — نخطط، نرافق، ونجعل السفر والتطوع ممكناً لكل
-              واحد، بتكاليف بسيطة وبدون تعقيد.
+              بعد كم يوم، رن التلفون. ذياب على الخط — سأله عن الرحلة،
+              وبتلك المحادثة بالذات وُلدت رُحى.
             </p>
             <Link to="/about" className="btn btn-primary">
-              اقرأ القصة كاملة
+              اقرأ كيف وُلدت رُحى ←
             </Link>
           </div>
           <div className="story-image">
             <img
-              src="https://images.unsplash.com/photo-1523906834658-6e24ef2386f9?w=600"
+                          src="https://res.cloudinary.com/du3swcegt/image/upload/v1779528975/7d3770d1-3272-4145-8a41-129f731d24b5_kbopud.jpg"
               alt="إيطاليا"
             />
           </div>

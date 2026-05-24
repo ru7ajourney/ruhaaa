@@ -1,0 +1,90 @@
+/* src/components/PageHero.css */
+
+.page-hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(168deg,
+    #1a6b8a 0%,
+    #1e7865 22%,
+    #2d6a4f 48%,
+    #3d8b5e 72%,
+    #52b788 100%
+  );
+  padding: 72px 0 96px;
+  text-align: center;
+  color: white;
+}
+
+.page-hero-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.ph-star {
+  position: absolute;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 0 4px rgba(255,255,255,0.9), 0 0 10px rgba(255,240,180,0.6);
+  animation: phTwinkle ease-in-out infinite;
+}
+
+@keyframes phTwinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.7); }
+  50%       { opacity: 1;   transform: scale(1.5); }
+}
+
+.page-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(0, 25, 15, 0.18);
+}
+
+.page-hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.ph-icon {
+  font-size: 2.4rem;
+  margin-bottom: 14px;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.18));
+}
+
+.page-hero-content h1 {
+  font-size: 2.6rem;
+  font-weight: 800;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.22);
+  margin-bottom: 12px;
+}
+
+.page-hero-content p {
+  color: rgba(255,255,255,0.8);
+  font-size: 1.05rem;
+}
+
+.page-hero-wave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  line-height: 0;
+}
+
+.page-hero-wave svg {
+  width: 100%;
+  height: 50px;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .page-hero {
+    padding: 56px 0 78px;
+  }
+
+  .page-hero-content h1 {
+    font-size: 1.9rem;
+  }
+}

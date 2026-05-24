@@ -10,7 +10,12 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const tripRoutes = require("./routes/trips");
 const applicationRoutes = require("./routes/applications");
+const galleryRoutes = require("./routes/gallery");
+const subscribersRoutes = require("./routes/subscribers");
+const policyVersionsRoutes = require("./routes/policyVersions");
+const userRoutes = require("./routes/users");
 
+const path = require("path");
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -28,7 +33,8 @@ app.use(
     credentials: true,
   })
 );
-app.use(express.json()); // اقرأ JSON من الـ request body
+app.use(express.json());
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 // ==============================
 // المسارات (Routes)
@@ -36,6 +42,10 @@ app.use(express.json()); // اقرأ JSON من الـ request body
 app.use("/api/auth", authRoutes);
 app.use("/api/trips", tripRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/subscribers", subscribersRoutes);
+app.use("/api/policy-versions", policyVersionsRoutes);
+app.use("/api/users", userRoutes);
 
 // مسار للتأكد من تشغيل السيرفر
 app.get("/", (req, res) => {
@@ -56,4 +66,3 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 Ruha Server running on http://localhost:${PORT}`);
 });
-process.exit(1);

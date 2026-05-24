@@ -1,0 +1,293 @@
+/* TripStats.css */
+
+/* ===== رأس الصفحة ===== */
+
+.ts-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--color-border);
+  flex-wrap: wrap;
+}
+
+.ts-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-text);
+  margin-bottom: 8px;
+}
+
+.ts-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+}
+
+/* ===== ملخص سريع ===== */
+
+.ts-quick-summary {
+  display: flex;
+  align-items: center;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 18px 24px;
+  margin-bottom: 32px;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.ts-qs-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  min-width: 100px;
+  gap: 4px;
+  padding: 8px 12px;
+}
+
+.ts-qs-num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.ts-qs-label {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  font-weight: 600;
+  text-align: center;
+}
+
+.ts-qs-divider {
+  width: 1px;
+  height: 40px;
+  background: var(--color-border);
+  flex-shrink: 0;
+}
+
+/* ===== قائمة التواريخ ===== */
+
+.ts-dates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+/* ===== كتلة تاريخ واحد ===== */
+
+.ts-date-block {
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-white);
+  transition: box-shadow 0.2s;
+}
+
+.ts-date-block:hover {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+
+.ts-date-block--past {
+  opacity: 0.65;
+}
+
+.ts-date-block--undecided {
+  border-color: #d1d5db;
+  border-style: dashed;
+}
+
+/* ===== رأس التاريخ ===== */
+
+.ts-date-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  background: var(--color-bg);
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: right;
+  transition: background 0.15s;
+  flex-wrap: wrap;
+}
+
+.ts-date-header:hover {
+  background: #f1f5f9;
+}
+
+.ts-date-header-right {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ts-date-index {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.ts-date-range {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.ts-date-label-code {
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  direction: ltr;
+}
+
+.ts-past-badge {
+  background: #f3f4f6;
+  color: #6b7280;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.ts-date-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ts-date-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.ts-chip {
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+}
+
+.ts-chip-total   { background: #f1f5f9; color: #475569; border-color: #e2e8f0; }
+.ts-chip-booked  { background: #f5f3ff; color: #7c3aed; border-color: #ddd6fe; }
+.ts-chip-apps    { background: #eff6ff; color: #3b82f6; border-color: #bfdbfe; }
+
+.ts-date-toggle {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  flex-shrink: 0;
+}
+
+/* ===== شريط الامتلاء ===== */
+
+.ts-date-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 20px 14px;
+  background: var(--color-bg);
+}
+
+.ts-progress-bar {
+  flex: 1;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.ts-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
+
+.ts-progress-pct {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #7c3aed;
+  white-space: nowrap;
+  min-width: 60px;
+}
+
+/* ===== جسم التاريخ ===== */
+
+.ts-date-body {
+  padding: 20px;
+  border-top: 1.5px solid var(--color-border);
+}
+
+/* ===== توزيع الحالات ===== */
+
+.ts-status-row {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.ts-status-mini {
+  flex: 1;
+  min-width: 80px;
+  border: 1.5px solid;
+  border-radius: var(--radius-sm);
+  padding: 10px 8px;
+  text-align: center;
+}
+
+.ts-status-mini-num {
+  display: block;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.ts-status-mini-label {
+  display: block;
+  font-size: 0.72rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+  font-weight: 600;
+}
+
+/* ===== لا توجد طلبات ===== */
+
+.ts-no-apps {
+  text-align: center;
+  color: var(--color-text-light);
+  padding: 24px;
+  font-size: 0.9rem;
+}
+
+/* ===== Responsive ===== */
+
+@media (max-width: 768px) {
+  .ts-quick-summary {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .ts-qs-divider { display: none; }
+  .ts-date-header { flex-direction: column; align-items: flex-start; }
+  .ts-status-row { grid-template-columns: repeat(3, 1fr); }
+}

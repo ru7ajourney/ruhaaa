@@ -13,9 +13,20 @@ const ApplicationSchema = new mongoose.Schema(
       ref: "Trip",
       required: [true, "الرحلة مطلوبة"],
     },
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      default: null,
+    },
+    paidAmount: { type: Number, default: 0 },
+    paidCurrency: { type: String, default: "" },
     tripTitle: {
       type: String,
       required: true, // نحفظ اسم الرحلة مباشرة عشان ما نحتاج populate في كل مرة
+    },
+    preferredDate: {
+      type: String,
+      default: "غير محدد",
     },
 
     // ==============================
@@ -71,18 +82,46 @@ const ApplicationSchema = new mongoose.Schema(
       required: [true, "التعريف بالنفس مطلوب"],
       maxlength: [1000, "التعريف لا يتجاوز 1000 حرف"],
     },
+    instagram: {
+      type: String,
+      required: [true, "حساب الإنستغرام مطلوب"],
+      trim: true,
+    },
+    gender: {
+      type: String,
+      enum: ["male", "female"],
+      required: [true, "الجنس مطلوب"],
+    },
+    agreedPolicyVersion: {
+      type: String,
+      default: "",
+    },
+    history: [
+      {
+        status:    { type: String, required: true },
+        reason:    { type: String, default: "" },
+        changedBy: { type: String, default: "" },
+        changedAt: { type: Date, default: Date.now },
+      },
+    ],
 
     // ==============================
     // حالة الطلب (يديرها الآدمن)
     // ==============================
     status: {
       type: String,
-      enum: ["pending", "reviewed", "accepted", "rejected"],
+      enum: ["pending", "reviewed", "accepted", "rejected", "payment_pending", "confirmed"],
       default: "pending",
     },
 
-    // ملاحظات الآدمن
+    // سبب القرار (مرتبط بتغيير الحالة)
     adminNotes: {
+      type: String,
+      default: "",
+    },
+
+    // ملاحظات شخصية عن العميل (اختيارية - حساسية، سلوك، مميزات...)
+    clientNotes: {
       type: String,
       default: "",
     },

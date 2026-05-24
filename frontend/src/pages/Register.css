@@ -5,21 +5,6 @@
   background: var(--color-bg);
 }
 
-/* Header */
-.register-header {
-  background: var(--color-secondary);
-  color: white;
-  padding: 48px 0;
-}
-
-.register-header h1 {
-  font-size: 2rem;
-  margin: 12px 0 8px;
-}
-
-.register-header p {
-  color: rgba(255,255,255,0.7);
-}
 
 .back-link-light {
   color: rgba(255,255,255,0.7);

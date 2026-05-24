@@ -22,6 +22,12 @@ const AdminSchema = new mongoose.Schema(
       type: String,
       default: "Admin",
     },
+    username: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
+    },
   },
   { timestamps: true }
 );

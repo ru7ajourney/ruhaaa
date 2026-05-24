@@ -4,9 +4,13 @@
 import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI } from "../api";
+import { useUserAuth } from "../context/UserAuthContext";
 import { ARAB_COUNTRIES, OTHER_OPTION } from "../data/arabCountries";
 import PoliciesModal from "../components/PoliciesModal";
+import PageHero from "../components/PageHero";
 import "./Register.css";
+
+const NOT_SURE = "غير محدد";
 
 const EMPTY_FORM = {
   fullName: "",
@@ -20,16 +24,25 @@ const EMPTY_FORM = {
   hasEnglish: null,
   readyForDeposit: null,
   aboutMe: "",
+  preferredDate: "",
+  instagram: "",
+  gender: null,
+};
+
+const formatTripDate = (dateStr) => {
+  const d = new Date(dateStr);
+  return `${d.getDate()}/${d.getMonth() + 1}/${d.getFullYear()}`;
 };
 
 const Register = () => {
   const [searchParams] = useSearchParams();
-  const tripId = searchParams.get("trip"); // ID الرحلة من الرابط
+  const tripId = searchParams.get("trip");
   const navigate = useNavigate();
+  const { user: loggedInUser } = useUserAuth();
 
   const [trip, setTrip] = useState(null);
   const [trips, setTrips] = useState([]); // قائمة الرحلات للاختيار
-  const [form, setForm] = useState({ ...EMPTY_FORM, tripId: tripId || "" });
+  const [form, setForm] = useState({ ...EMPTY_FORM, tripId: tripId || "", email: loggedInUser?.email || "" });
   const [selectedCountryData, setSelectedCountryData] = useState(null);
   const [agreedToPolicies, setAgreedToPolicies] = useState(false);
   const [showPolicies, setShowPolicies] = useState(false);
@@ -95,6 +108,11 @@ const Register = () => {
     }
 
     // تحقق من أسئلة نعم/لا
+    if (form.gender === null) {
+      setError("يرجى تحديد الجنس");
+      return;
+    }
+
     if (form.agreeVolunteering === null || form.hasEnglish === null || form.readyForDeposit === null) {
       setError("يرجى الإجابة على جميع أسئلة نعم / لا");
       return;
@@ -122,6 +140,9 @@ const Register = () => {
         hasEnglish: form.hasEnglish,
         readyForDeposit: form.readyForDeposit,
         aboutMe: form.aboutMe,
+        preferredDate: form.preferredDate || NOT_SURE,
+        instagram: form.instagram,
+        gender: form.gender,
       });
 
       setSubmitted(true);
@@ -163,16 +184,11 @@ const Register = () => {
 
   return (
     <div className="register-page">
-      {/* Header */}
-      <div className="register-header">
-        <div className="container">
-          <Link to={trip ? `/trips/${trip.slug}` : "/trips"} className="back-link-light">
-            ← العودة
-          </Link>
-          <h1>سجّل في رحلة رُحى</h1>
-          <p>أكمل بياناتك وسنتواصل معك في أقرب وقت</p>
-        </div>
-      </div>
+      <PageHero title="سجّل في رحلة رُحى" subtitle="أكمل بياناتك وسنتواصل معك في أقرب وقت" icon="📝">
+        <Link to={trip ? `/trips/${trip.slug}` : "/trips"} className="back-link-light">
+          ← العودة
+        </Link>
+      </PageHero>
 
       <div className="container register-body">
         <form onSubmit={handleSubmit} className="register-form">
@@ -216,6 +232,40 @@ const Register = () => {
                 </select>
               </div>
             )}
+
+            {/* اختيار التاريخ */}
+            {(() => {
+              const selectedTrip = trip || trips.find((t) => t._id === form.tripId);
+              const dates = selectedTrip?.availableDates?.filter(
+                (d) => new Date(d.startDate) > new Date()
+              ) || [];
+
+              if (!selectedTrip) return null;
+
+              return (
+                <div className="form-group" style={{ marginTop: 16 }}>
+                  <label className="form-label">التاريخ المفضّل</label>
+                  <select
+                    name="preferredDate"
+                    className="form-input"
+                    value={form.preferredDate}
+                    onChange={handleChange}
+                  >
+                    <option value="">-- اختر التاريخ --</option>
+                    {dates.map((d, i) => {
+                      const label = `${formatTripDate(d.startDate)} - ${formatTripDate(d.endDate)}`;
+                      const left = d.spotsTotal - d.spotsTaken;
+                      return (
+                        <option key={i} value={label}>
+                          {label} ({left} مكان متبقي)
+                        </option>
+                      );
+                    })}
+                    <option value={NOT_SURE}>مش متأكد — تواصلوا معي</option>
+                  </select>
+                </div>
+              );
+            })()}
           </div>
 
           {/* ==============================
@@ -339,6 +389,35 @@ const Register = () => {
                 />
               </div>
             </div>
+            {/* الجنس + الانستغرام */}
+            <div className="form-row-register">
+              <div className="form-group">
+                <label className="form-label">الجنس *</label>
+                <select
+                  name="gender"
+                  className="form-input"
+                  value={form.gender || ""}
+                  onChange={(e) => handleYesNo("gender", e.target.value || null)}
+                  required
+                >
+                  <option value="">-- اختر --</option>
+                  <option value="male">ذكر</option>
+                  <option value="female">أنثى</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">حساب الإنستغرام *</label>
+                <input
+                  name="instagram"
+                  className="form-input"
+                  value={form.instagram}
+                  onChange={handleChange}
+                  placeholder="@username"
+                  required
+                  style={{ direction: "ltr", textAlign: "right" }}
+                />
+              </div>
+            </div>
           </div>
 
           {/* ==============================
@@ -425,7 +504,7 @@ const Register = () => {
             <h3 className="register-section-title">💬 عرّف عن نفسك</h3>
             <div className="form-group">
               <label className="form-label">
-                من أنت؟ ولماذا تريد هذه التجربة؟ *
+                عرّفنا بنفسك وأخبرنا ما الذي يشدّك لهذه التجربة ✨ *
                 <span className="char-hint"> (حتى 1000 حرف)</span>
               </label>
               <textarea

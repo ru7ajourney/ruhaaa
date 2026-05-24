@@ -1,6 +1,3 @@
-// config/db.js
-// الاتصال بقاعدة بيانات MongoDB
-
 const mongoose = require("mongoose");
 
 const connectDB = async () => {
@@ -9,7 +6,7 @@ const connectDB = async () => {
         console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
     } catch (error) {
         console.error(`❌ MongoDB Connection Error: ${error.message}`);
-        // حذفنا process.exit عشان السيرفر ما يوقف
+        process.exit(1);
     }
 };
 

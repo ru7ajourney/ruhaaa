@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { tripsAPI } from "../api";
 import TripCard from "../components/TripCard";
+import PageHero from "../components/PageHero";
 import "./Trips.css";
 
 const Trips = () => {
@@ -28,13 +29,7 @@ const Trips = () => {
 
   return (
     <div className="trips-page">
-      {/* Header */}
-      <div className="trips-header">
-        <div className="container">
-          <h1>رحلاتنا</h1>
-          <p>اكتشف كل الوجهات المتاحة مع رُحى</p>
-        </div>
-      </div>
+      <PageHero title="رحلاتنا" subtitle="اكتشف كل الوجهات المتاحة مع رُحى" icon="✈️" />
 
       {/* المحتوى */}
       <div className="container trips-content">

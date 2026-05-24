@@ -18,6 +18,7 @@ const EMPTY_FORM = {
     price: "",
     currency: "USD",
     coverImage: "",
+    totalSpots: 10,
     isFeatured: false,
     isActive: true,
     includes: [""],
@@ -47,6 +48,7 @@ const TripForm = () => {
                     // حوّل البيانات لتناسب الفورم
                     setForm({
                         ...data,
+                        totalSpots: data.totalSpots ?? 0,
                         includes: data.includes?.length ? data.includes : [""],
                         excludes: data.excludes?.length ? data.excludes : [""],
                         program: data.program?.length
@@ -294,6 +296,18 @@ const TripForm = () => {
                                         value={form.duration}
                                         onChange={handleChange}
                                         min="1"
+                                        required
+                                    />
+                                </div>
+                                <div className="form-group">
+                                    <label className="form-label">إجمالي الأماكن المتاحة *</label>
+                                    <input
+                                        name="totalSpots"
+                                        type="number"
+                                        className="form-input"
+                                        value={form.totalSpots}
+                                        onChange={handleChange}
+                                        min="0"
                                         required
                                     />
                                 </div>
