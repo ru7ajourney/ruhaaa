@@ -1,410 +1,439 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
-import { Link } from "react-router-dom";
-import { tripsAPI } from "../../api";
+import { useState, useMemo } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import "./TripCalculator.css";
 
 const uid = () => Math.random().toString(36).slice(2);
-const emptyItem = () => ({ id: uid(), label: "", amount: "" });
+const emptyItem = (ph = "") => ({ id: uid(), label: "", amount: "" });
 const fmt = (n) =>
   Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const CURRENCIES = [
-  { code: "USD", label: "دولار أمريكي — USD" },
-  { code: "EUR", label: "يورو — EUR" },
-  { code: "ILS", label: "شيكل — ILS" },
+  { code: "USD", symbol: "$" },
+  { code: "EUR", symbol: "€" },
+  { code: "ILS", symbol: "₪" },
+  { code: "SAR", symbol: "ر.س" },
+  { code: "JOD", symbol: "د.أ" },
 ];
 
-// ────────────────────────────────────────────
-// Cost section component
-// ────────────────────────────────────────────
-const SECTIONS = [
-  {
-    key: "fixed",
-    title: "تكاليف ثابتة",
-    icon: "📌",
-    desc: "مبلغ واحد بغض النظر عن الأشخاص أو الأيام",
-    unit: "",
-    ph: "مثال: إيجار حافلة، تصاريح دخول...",
-  },
-  {
-    key: "perDay",
-    title: "تكاليف يومية",
-    icon: "📅",
-    desc: "× عدد الأيام",
-    unit: "/ يوم",
-    ph: "مثال: مرشد سياحي، وقود يومي...",
-  },
-];
-
-const CostSection = ({ section, items, currency, onChange, onAdd, onRemove }) => (
-  <div className="calc-section">
-    <div className="calc-section-header">
-      <div className="calc-section-title">
-        <span className="calc-section-icon">{section.icon}</span>
-        <div>
-          <h3>{section.title}</h3>
-          <p className="calc-section-desc">{section.desc}</p>
-        </div>
-      </div>
-      <button className="calc-add-btn" onClick={onAdd}>+ بند</button>
-    </div>
-
+// ── Reusable dynamic line-items list ──────────────────────
+const LineItems = ({ items, placeholder, unit, sym, onChange, onAdd, onRemove }) => (
+  <div className="calc-items-list">
     {items.length === 0 && (
-      <p className="calc-empty">لا يوجد بنود — اضغط "+ بند"</p>
+      <p className="calc-items-empty">لا يوجد بنود — اضغط "إضافة"</p>
     )}
-
-    <div className="calc-items">
-      {items.map((item) => (
-        <div key={item.id} className="calc-item">
+    {items.map((item) => (
+      <div key={item.id} className="calc-line-item">
+        <input
+          className="calc-line-label"
+          placeholder={placeholder}
+          value={item.label}
+          onChange={(e) => onChange(item.id, "label", e.target.value)}
+        />
+        <div className="calc-line-amt-wrap">
+          <span className="calc-line-sym">{sym}</span>
           <input
-            className="calc-item-label"
-            placeholder={section.ph}
-            value={item.label}
-            onChange={(e) => onChange(item.id, "label", e.target.value)}
+            className="calc-line-amt"
+            type="number"
+            min="0"
+            placeholder="0"
+            value={item.amount}
+            onChange={(e) => onChange(item.id, "amount", e.target.value)}
           />
-          <div className="calc-item-amount-wrap">
-            <input
-              className="calc-item-amount"
-              type="number"
-              min="0"
-              placeholder="0"
-              value={item.amount}
-              onChange={(e) => onChange(item.id, "amount", e.target.value)}
-            />
-            <span className="calc-item-unit">{currency} {section.unit}</span>
-          </div>
-          <button className="calc-remove-btn" onClick={() => onRemove(item.id)}>✕</button>
+          {unit && <span className="calc-line-unit">{unit}</span>}
         </div>
-      ))}
-    </div>
+        <button className="calc-line-remove" onClick={() => onRemove(item.id)} aria-label="حذف">✕</button>
+      </div>
+    ))}
+    <button className="calc-add-row" onClick={onAdd}>+ إضافة</button>
   </div>
 );
 
-// ────────────────────────────────────────────
-// Main page
-// ────────────────────────────────────────────
+// ── Main Component ─────────────────────────────────────────
 const TripCalculator = () => {
-  const [trips, setTrips] = useState([]);
-  const [selectedTrip, setSelectedTrip] = useState(null);
-  const [days, setDays] = useState("");
-  const [currency, setCurrency] = useState("USD");
-  const [minParticipants, setMinParticipants] = useState(10);
-  const [maxParticipants, setMaxParticipants] = useState(20);
-  const [margin, setMargin] = useState(20);
-  const [costs, setCosts] = useState({
-    fixed: [],
-    perDay: [],
-  });
+  // ── Core inputs ──
+  const [days, setDays]               = useState("");
+  const [participants, setParticipants] = useState("");
+  const [targetPrice, setTargetPrice] = useState("");
+  const [currency, setCurrency]       = useState("USD");
 
-  useEffect(() => {
-    tripsAPI.getAdminAll().then(({ data }) => setTrips(Array.isArray(data) ? data : [])).catch(() => {});
-  }, []);
+  // ── Guide / Leader ──
+  const [guideFlight, setGuideFlight]       = useState("");
+  const [guideAllowance, setGuideAllowance] = useState("");
 
-  const tripDays = days !== "" ? Number(days) : (selectedTrip?.duration || 0);
+  // ── Transportation ──
+  const [transFixed, setTransFixed]       = useState([]);
+  const [transVariable, setTransVariable] = useState([]);
 
-  const handleSelectTrip = (e) => {
-    const trip = trips.find((t) => t._id === e.target.value) || null;
-    setSelectedTrip(trip);
-    setDays("");
-  };
+  // ── Per-participant daily costs ──
+  const [perPersonItems, setPerPersonItems] = useState([]);
 
-  const handleChange = useCallback((section, id, field, value) => {
-    setCosts((prev) => ({
-      ...prev,
-      [section]: prev[section].map((i) => (i.id === id ? { ...i, [field]: value } : i)),
-    }));
-  }, []);
+  // ── Helpers ──
+  const addItem    = (setter)           => setter((p) => [...p, emptyItem()]);
+  const removeItem = (setter, id)       => setter((p) => p.filter((i) => i.id !== id));
+  const changeItem = (setter, id, f, v) =>
+    setter((p) => p.map((i) => (i.id === id ? { ...i, [f]: v } : i)));
+  const sumItems   = (arr) => arr.reduce((s, i) => s + (parseFloat(i.amount) || 0), 0);
 
-  const handleAdd = useCallback((section) => {
-    setCosts((prev) => ({ ...prev, [section]: [...prev[section], emptyItem()] }));
-  }, []);
+  const sym = CURRENCIES.find((c) => c.code === currency)?.symbol || currency;
 
-  const handleRemove = useCallback((section, id) => {
-    setCosts((prev) => ({ ...prev, [section]: prev[section].filter((i) => i.id !== id) }));
-  }, []);
-
-  // ── Core calculations ──
+  // ── Live calculations ──
   const calc = useMemo(() => {
-    const sum = (arr) => arr.reduce((a, i) => a + (Number(i.amount) || 0), 0);
-    const d = tripDays;
-    const minP = Number(minParticipants) || 1;
-    const maxP = Number(maxParticipants) || minP;
+    const d      = parseFloat(days) || 0;
+    const n      = parseFloat(participants) || 0;
+    const target = parseFloat(targetPrice) || 0;
 
-    // تكاليف ثابتة بحتة (لا تتغير مع الأشخاص)
-    const fixedOnly = sum(costs.fixed) + sum(costs.perDay) * d;
+    // Guide
+    const guideFixed = (parseFloat(guideFlight) || 0) + (parseFloat(guideAllowance) || 0) * d;
 
-    // التكلفة الإجمالية عند الحد الأدنى
-    const totalAtMin = fixedOnly;
-    const costPerPersonAtMin = minP > 0 ? totalAtMin / minP : 0;
+    // Transportation
+    const transFixedTotal = sumItems(transFixed);
+    const transVarTotal   = sumItems(transVariable) * d;  // per-day × days
 
-    // السعر المحدد (ثابت للجميع) بناءً على الحد الأدنى
-    const sellingPrice = costPerPersonAtMin * (1 + margin / 100);
+    // Fixed total
+    const totalFixed = guideFixed + transFixedTotal;
 
-    // نقطة التعادل الحقيقية (بدون margin)
-    // Revenue = sellingPrice × n
-    // Cost    = fixedOnly + varPerPerson × n
-    // BEP: sellingPrice × n = fixedOnly + varPerPerson × n
-    // n = fixedOnly / (sellingPrice - varPerPerson)
-    const bep = sellingPrice > 0
-      ? Math.ceil(fixedOnly / sellingPrice)
-      : null;
+    // Per-person
+    const perPersonDailyTotal = sumItems(perPersonItems);
+    const perPersonTripTotal  = perPersonDailyTotal * d;       // per person, full trip
 
-    // جدول السيناريوهات
-    const step = Math.max(1, Math.floor((maxP - minP) / 5));
-    const scenarioPoints = [];
-    for (let n = minP; n <= maxP; n += step) scenarioPoints.push(n);
-    if (scenarioPoints[scenarioPoints.length - 1] !== maxP) scenarioPoints.push(maxP);
+    // Variable total
+    const totalVariable = perPersonTripTotal * n + transVarTotal;
 
-    const scenarios = scenarioPoints.map((n) => {
-      const revenue = sellingPrice * n;
-      const cost = fixedOnly;
-      const profit = revenue - cost;
-      const roi = cost > 0 ? (profit / cost) * 100 : 0;
-      return { n, revenue, cost, profit, roi };
-    });
+    // Grand totals
+    const totalCost            = totalFixed + totalVariable;
+    const actualCostPerPerson  = n > 0 ? totalCost / n : 0;
+
+    // Break-even
+    // n × target = totalFixed + transVarTotal + perPersonTripTotal × n
+    // n × (target − perPersonTripTotal) = totalFixed + transVarTotal
+    const marginPerPerson = target - perPersonTripTotal;
+    let bep = null;
+    if (target > 0 && marginPerPerson > 0 && (totalFixed + transVarTotal) > 0) {
+      bep = Math.ceil((totalFixed + transVarTotal) / marginPerPerson);
+    }
+
+    // Feasibility
+    let feasibility = "none";
+    if (target > 0 && n > 0 && totalCost > 0) {
+      const ratio = actualCostPerPerson / target;
+      if (ratio > 1)        feasibility = "red";
+      else if (ratio > 0.9) feasibility = "yellow";
+      else                  feasibility = "green";
+    }
 
     return {
-      fixedOnly,
-      totalAtMin,
-      costPerPersonAtMin,
-      sellingPrice,
-      bep,
-      scenarios,
-      minP,
-      maxP,
-      d,
+      d, n, target,
+      guideFixed, transFixedTotal, transVarTotal,
+      totalFixed, perPersonDailyTotal, perPersonTripTotal,
+      totalVariable, totalCost, actualCostPerPerson,
+      bep, feasibility, marginPerPerson,
     };
-  }, [costs, tripDays, minParticipants, maxParticipants, margin]);
+  }, [days, participants, targetPrice, guideFlight, guideAllowance, transFixed, transVariable, perPersonItems]);
 
-  const currentPrice = selectedTrip?.price || 0;
+  const FEAS_MAP = {
+    none:   { label: "أدخل البيانات للتحليل", icon: "—",  color: "#6b7280", bg: "#f3f4f6", border: "#d1d5db" },
+    green:  { label: "جيّد — في حدود الميزانية", icon: "✓", color: "#16a34a", bg: "#f0fdf4", border: "#86efac" },
+    yellow: { label: "تحذير — قريب من الحد الأقصى", icon: "⚠", color: "#d97706", bg: "#fffbeb", border: "#fcd34d" },
+    red:    { label: "غير مجدي — يتجاوز الميزانية",   icon: "✗", color: "#dc2626", bg: "#fef2f2", border: "#fca5a5" },
+  };
+  const feas = FEAS_MAP[calc.feasibility];
+
+  const hasData = calc.totalCost > 0 || calc.totalFixed > 0;
+
+  const reset = () => {
+    setDays(""); setParticipants(""); setTargetPrice(""); setCurrency("USD");
+    setGuideFlight(""); setGuideAllowance("");
+    setTransFixed([]); setTransVariable([]); setPerPersonItems([]);
+  };
 
   return (
     <AdminLayout>
       <div className="admin-page-header">
-        <h1 className="admin-page-title">🧮 حاسبة التكاليف</h1>
+        <div>
+          <h1 className="admin-page-title">🧮 حاسبة الجدوى والتكاليف</h1>
+        </div>
       </div>
-      <div className="calc-main">
-        <div className="calc-container">
-          <div className="calc-page-title">
-            <p>حدد الحد الأدنى للتشغيل وسيُحسب السعر الأنسب لكل شخص</p>
+
+      {/* ── Settings ── */}
+      <div className="calc-settings-card">
+        <div className="calc-settings-grid">
+          <div className="calc-field">
+            <label className="calc-label">
+              مدة الرحلة
+              <span className="calc-label-hint">أيام</span>
+            </label>
+            <input
+              className="calc-input"
+              type="number" min="1" placeholder="7"
+              value={days} onChange={(e) => setDays(e.target.value)}
+            />
           </div>
 
-          {/* ── إعدادات ── */}
-          <div className="calc-settings">
-            <div className="calc-settings-row">
-              <div className="calc-field">
-                <label>اختر رحلة (اختياري)</label>
-                <select value={selectedTrip?._id || ""} onChange={handleSelectTrip}>
-                  <option value="">— حساب يدوي —</option>
-                  {trips.map((t) => (
-                    <option key={t._id} value={t._id}>
-                      {t.title} {t.isActive === false ? "🔒" : "✅"}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="calc-field calc-field--sm">
-                <label>عدد الأيام</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={days !== "" ? days : (selectedTrip?.duration || "")}
-                  placeholder={selectedTrip?.duration ? String(selectedTrip.duration) : "أدخل"}
-                  onChange={(e) => setDays(e.target.value)}
-                />
-              </div>
-
-              <div className="calc-field calc-field--sm">
-                <label>العملة</label>
-                <select value={currency} onChange={(e) => setCurrency(e.target.value)}>
-                  {CURRENCIES.map((c) => (
-                    <option key={c.code} value={c.code}>{c.label}</option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            <div className="calc-settings-row">
-              <div className="calc-field calc-field--sm">
-                <label>الحد الأدنى للتشغيل 👥</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={minParticipants}
-                  onChange={(e) => setMinParticipants(e.target.value)}
-                />
-                <span className="calc-field-hint">أقل عدد تشغّل عليه الرحلة</span>
-              </div>
-
-              <div className="calc-field calc-field--sm">
-                <label>الحد الأقصى للمشاركين</label>
-                <input
-                  type="number"
-                  min="1"
-                  value={maxParticipants}
-                  onChange={(e) => setMaxParticipants(e.target.value)}
-                />
-                <span className="calc-field-hint">للسيناريوهات فقط</span>
-              </div>
-
-              <div className="calc-field calc-field--sm">
-                <label>هامش الربح %</label>
-                <div className="calc-margin-wrap">
-                  <input
-                    type="number"
-                    min="0"
-                    value={margin}
-                    onChange={(e) => setMargin(e.target.value)}
-                  />
-                  <span>%</span>
-                </div>
-              </div>
-            </div>
-
-            {selectedTrip && (
-              <div className="calc-trip-info">
-                <span>📍 {selectedTrip.destination}</span>
-                <span>🗓 {calc.d} أيام</span>
-                <span>💰 السعر الحالي: <strong>{fmt(currentPrice)} {currency}</strong></span>
-              </div>
-            )}
+          <div className="calc-field">
+            <label className="calc-label">
+              عدد المشاركين المتوقع
+              <span className="calc-label-hint">شخص</span>
+            </label>
+            <input
+              className="calc-input"
+              type="number" min="1" placeholder="15"
+              value={participants} onChange={(e) => setParticipants(e.target.value)}
+            />
           </div>
 
-          {/* ── بنود التكاليف ── */}
-          <div className="calc-sections">
-            {SECTIONS.map((s) => (
-              <CostSection
-                key={s.key}
-                section={s}
-                items={costs[s.key]}
-                currency={currency}
-                onChange={(id, f, v) => handleChange(s.key, id, f, v)}
-                onAdd={() => handleAdd(s.key)}
-                onRemove={(id) => handleRemove(s.key, id)}
+          <div className="calc-field">
+            <label className="calc-label">
+              الحد الأقصى للسعر / شخص
+              <span className="calc-label-hint">السقف السعري</span>
+            </label>
+            <div className="calc-input-sym-wrap">
+              <span className="calc-sym-prefix">{sym}</span>
+              <input
+                className="calc-input calc-input--sym"
+                type="number" min="0" placeholder="1200"
+                value={targetPrice} onChange={(e) => setTargetPrice(e.target.value)}
               />
-            ))}
+            </div>
           </div>
 
-          {/* ── النتائج الرئيسية ── */}
-          <div className="calc-results">
-            <h3 className="calc-results-title">📊 النتائج</h3>
+          <div className="calc-field calc-field--sm">
+            <label className="calc-label">العملة</label>
+            <select className="calc-input" value={currency} onChange={(e) => setCurrency(e.target.value)}>
+              {CURRENCIES.map((c) => (
+                <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
 
-            <div className="calc-results-grid">
-              <div className="calc-result-card calc-result-neutral">
-                <div className="calc-result-label">التكاليف الثابتة (بغض النظر عن الأشخاص)</div>
-                <div className="calc-result-value">{fmt(calc.fixedOnly)} {currency}</div>
-              </div>
+      {/* ── Cost Cards ── */}
+      <div className="calc-cost-grid">
 
-              <div className="calc-result-card calc-result-neutral">
-                <div className="calc-result-label">التكلفة الإجمالية عند {calc.minP} أشخاص</div>
-                <div className="calc-result-value">{fmt(calc.totalAtMin)} {currency}</div>
-              </div>
+        {/* Guide / Leader */}
+        <div className="calc-cost-card">
+          <div className="calc-cost-card-header">
+            <span className="calc-cost-icon">🧑‍✈️</span>
+            <div className="calc-cost-info">
+              <h3>مصاريف المرشد / القائد</h3>
+              <p>تُحتسب ضمن التكاليف الثابتة</p>
+            </div>
+            <div className="calc-cost-subtotal">
+              <span className="calc-cost-subtotal-label">الإجمالي</span>
+              <span className="calc-cost-subtotal-value">{sym}{fmt(calc.guideFixed)}</span>
+            </div>
+          </div>
 
-              <div className="calc-result-card calc-result-neutral">
-                <div className="calc-result-label">التكلفة الفعلية / شخص عند الحد الأدنى</div>
-                <div className="calc-result-value">{fmt(calc.costPerPersonAtMin)} {currency}</div>
-              </div>
-
-              <div className="calc-result-card calc-result-price">
-                <div className="calc-result-label">💡 السعر المقترح / شخص</div>
-                <div className="calc-result-value">{fmt(calc.sellingPrice)} {currency}</div>
-                <div className="calc-result-sub">محسوب من الحد الأدنى + {margin}% ربح</div>
-              </div>
-
-              <div className={`calc-result-card ${calc.bep ? "calc-result-bep" : "calc-result-warn"}`}>
-                <div className="calc-result-label">نقطة التعادل الفعلية</div>
-                <div className="calc-result-value">
-                  {calc.bep ? `${calc.bep} شخص` : "غير محسوبة"}
-                </div>
-                <div className="calc-result-sub">
-                  {calc.bep ? `من ${calc.bep} شخص فأكثر = ربح صافي` : "أدخل البيانات أولاً"}
-                </div>
+          <div className="calc-guide-rows">
+            <div className="calc-guide-row">
+              <label className="calc-guide-label">🎫 تذكرة الطيران (ثابتة)</label>
+              <div className="calc-input-sym-wrap">
+                <span className="calc-sym-prefix">{sym}</span>
+                <input
+                  className="calc-input calc-input--sym"
+                  type="number" min="0" placeholder="0"
+                  value={guideFlight}
+                  onChange={(e) => setGuideFlight(e.target.value)}
+                />
               </div>
             </div>
-
-            {currentPrice > 0 && (
-              <div className={`calc-price-compare ${currentPrice >= calc.sellingPrice ? "calc-price-ok" : "calc-price-low"}`}>
-                {currentPrice >= calc.sellingPrice
-                  ? `✅ السعر الحالي (${fmt(currentPrice)} ${currency}) أعلى من المقترح بفرق ${fmt(currentPrice - calc.sellingPrice)} ${currency}`
-                  : `⚠️ السعر الحالي (${fmt(currentPrice)} ${currency}) أقل من المقترح بـ ${fmt(calc.sellingPrice - currentPrice)} ${currency} — قد تخسر عند الحد الأدنى`}
+            <div className="calc-guide-row">
+              <label className="calc-guide-label">
+                💵 البدل اليومي
+                <span className="calc-guide-mult">
+                  × {calc.d > 0 ? calc.d : "—"} أيام = {sym}{fmt((parseFloat(guideAllowance) || 0) * calc.d)}
+                </span>
+              </label>
+              <div className="calc-input-sym-wrap">
+                <span className="calc-sym-prefix">{sym}</span>
+                <input
+                  className="calc-input calc-input--sym"
+                  type="number" min="0" placeholder="0"
+                  value={guideAllowance}
+                  onChange={(e) => setGuideAllowance(e.target.value)}
+                />
+                <span className="calc-input-unit">/ يوم</span>
               </div>
-            )}
+            </div>
+          </div>
+        </div>
+
+        {/* Transportation */}
+        <div className="calc-cost-card">
+          <div className="calc-cost-card-header">
+            <span className="calc-cost-icon">🚌</span>
+            <div className="calc-cost-info">
+              <h3>تكاليف المواصلات</h3>
+              <p>ثابتة + متغيرة × الأيام</p>
+            </div>
+            <div className="calc-cost-subtotal">
+              <span className="calc-cost-subtotal-label">الإجمالي</span>
+              <span className="calc-cost-subtotal-value">{sym}{fmt(calc.transFixedTotal + calc.transVarTotal)}</span>
+            </div>
           </div>
 
-          {/* ── جدول السيناريوهات ── */}
-          {calc.scenarios.length > 0 && (
-            <div className="calc-scenarios">
-              <h3 className="calc-scenarios-title">📈 سيناريوهات الربح والخسارة</h3>
-              <p className="calc-scenarios-sub">
-                السعر ثابت عند <strong>{fmt(calc.sellingPrice)} {currency} / شخص</strong> — يتغير الربح فقط مع عدد المشاركين
-              </p>
+          <div className="calc-sub-section">
+            <div className="calc-sub-label">📌 ثابتة (إيجار حافلة، إلخ)</div>
+            <LineItems
+              items={transFixed} sym={sym} unit="" placeholder="مثال: إيجار حافلة"
+              onChange={(id, f, v) => changeItem(setTransFixed, id, f, v)}
+              onAdd={() => addItem(setTransFixed)}
+              onRemove={(id) => removeItem(setTransFixed, id)}
+            />
+          </div>
 
-              <div className="calc-table-wrap">
-                <table className="calc-table">
-                  <thead>
-                    <tr>
-                      <th>عدد المشاركين</th>
-                      <th>الإيراد الكلي</th>
-                      <th>التكلفة الكلية</th>
-                      <th>الربح الصافي</th>
-                      <th>نسبة العائد</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {calc.scenarios.map((s) => (
-                      <tr
-                        key={s.n}
-                        className={
-                          s.n === calc.minP
-                            ? "calc-row-min"
-                            : s.n === calc.maxP
-                            ? "calc-row-max"
-                            : ""
-                        }
-                      >
-                        <td>
-                          {s.n}
-                          {s.n === calc.minP && <span className="calc-tag calc-tag-min">الحد الأدنى</span>}
-                          {s.n === calc.maxP && <span className="calc-tag calc-tag-max">الحد الأقصى</span>}
-                          {calc.bep && s.n === calc.bep && <span className="calc-tag calc-tag-bep">نقطة التعادل</span>}
-                        </td>
-                        <td>{fmt(s.revenue)} {currency}</td>
-                        <td>{fmt(s.cost)} {currency}</td>
-                        <td className={s.profit >= 0 ? "calc-profit-pos" : "calc-profit-neg"}>
-                          {s.profit >= 0 ? "+" : ""}{fmt(s.profit)} {currency}
-                        </td>
-                        <td className={s.roi >= 0 ? "calc-profit-pos" : "calc-profit-neg"}>
-                          {s.roi.toFixed(1)}%
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          <div className="calc-sub-section">
+            <div className="calc-sub-label">
+              ⛽ متغيرة / يوم
+              {calc.d > 0 && calc.transVarTotal > 0 && (
+                <span className="calc-sub-computed"> × {calc.d} = {sym}{fmt(calc.transVarTotal)}</span>
+              )}
+            </div>
+            <LineItems
+              items={transVariable} sym={sym} unit="/يوم" placeholder="مثال: وقود يومي"
+              onChange={(id, f, v) => changeItem(setTransVariable, id, f, v)}
+              onAdd={() => addItem(setTransVariable)}
+              onRemove={(id) => removeItem(setTransVariable, id)}
+            />
+          </div>
+        </div>
+
+        {/* Per-Participant */}
+        <div className="calc-cost-card">
+          <div className="calc-cost-card-header">
+            <span className="calc-cost-icon">🏨</span>
+            <div className="calc-cost-info">
+              <h3>مصاريف متغيرة / شخص</h3>
+              <p>× عدد الأيام × عدد المشاركين</p>
+            </div>
+            <div className="calc-cost-subtotal">
+              <span className="calc-cost-subtotal-label">/شخص/يوم</span>
+              <span className="calc-cost-subtotal-value">{sym}{fmt(calc.perPersonDailyTotal)}</span>
+            </div>
+          </div>
+
+          <div className="calc-sub-section" style={{ borderTop: "none", paddingTop: "14px" }}>
+            <LineItems
+              items={perPersonItems} sym={sym} unit="/شخص/يوم"
+              placeholder="مثال: إقامة، طعام، أنشطة..."
+              onChange={(id, f, v) => changeItem(setPerPersonItems, id, f, v)}
+              onAdd={() => addItem(setPerPersonItems)}
+              onRemove={(id) => removeItem(setPerPersonItems, id)}
+            />
+          </div>
+
+          {calc.perPersonDailyTotal > 0 && (
+            <div className="calc-person-hint">
+              {calc.d > 0 && (
+                <div>كلفة الفرد للرحلة كاملة: <strong>{sym}{fmt(calc.perPersonTripTotal)}</strong></div>
+              )}
+              {calc.d > 0 && calc.n > 0 && (
+                <div>إجمالي جميع المشاركين: <strong>{sym}{fmt(calc.perPersonTripTotal * calc.n)}</strong></div>
+              )}
             </div>
           )}
+        </div>
+      </div>
 
-          <div className="calc-actions">
-            <button
-              className="btn btn-secondary"
-              onClick={() => {
-                setCosts({ fixed: [], perDay: [] });
-                setMargin(20);
-                setDays("");
-                setMinParticipants(10);
-                setMaxParticipants(20);
-              }}
-            >
-              🗑 مسح الكل
-            </button>
-            {selectedTrip && (
-              <Link to={`/admin/trips/edit/${selectedTrip._id}`} className="btn btn-primary">
-                ✏️ تعديل سعر الرحلة
-              </Link>
+      {/* ── Results Summary ── */}
+      <div className="calc-results-card">
+
+        {/* Feasibility Badge */}
+        <div
+          className="calc-feas-badge"
+          style={{ background: feas.bg, borderColor: feas.border }}
+        >
+          <div className="calc-feas-icon" style={{ color: feas.color, borderColor: feas.border }}>
+            {feas.icon}
+          </div>
+          <div className="calc-feas-body">
+            <div className="calc-feas-title" style={{ color: feas.color }}>{feas.label}</div>
+            {calc.feasibility !== "none" && (
+              <div className="calc-feas-detail">
+                التكلفة الفعلية: <strong>{sym}{fmt(calc.actualCostPerPerson)} / شخص</strong>
+                {calc.target > 0 && (
+                  <> &nbsp;·&nbsp; الحد الأقصى: <strong>{sym}{fmt(calc.target)}</strong></>
+                )}
+              </div>
             )}
           </div>
+          {calc.feasibility !== "none" && calc.target > 0 && (
+            <div className="calc-feas-diff" style={{ color: feas.color }}>
+              {calc.actualCostPerPerson > calc.target
+                ? <><span className="calc-feas-diff-sign">+</span>{sym}{fmt(calc.actualCostPerPerson - calc.target)} تجاوز</>
+                : <><span className="calc-feas-diff-sign">−</span>{sym}{fmt(calc.target - calc.actualCostPerPerson)} هامش</>}
+            </div>
+          )}
+        </div>
+
+        {/* Cost Breakdown */}
+        <div className="calc-breakdown">
+          <h3 className="calc-breakdown-title">تفصيل التكاليف</h3>
+          <div className="calc-breakdown-rows">
+            <div className="calc-brow">
+              <span className="calc-brow-dot calc-brow-dot--fixed" />
+              <span className="calc-brow-label">
+                إجمالي التكاليف الثابتة
+                <span className="calc-brow-hint">(مرشد + مواصلات ثابتة)</span>
+              </span>
+              <span className="calc-brow-value">{sym}{fmt(calc.totalFixed)}</span>
+            </div>
+            <div className="calc-brow">
+              <span className="calc-brow-dot calc-brow-dot--var" />
+              <span className="calc-brow-label">
+                إجمالي التكاليف المتغيرة
+                <span className="calc-brow-hint">(مصاريف شخصية + مواصلات يومية)</span>
+              </span>
+              <span className="calc-brow-value">{sym}{fmt(calc.totalVariable)}</span>
+            </div>
+            <div className="calc-brow calc-brow--total">
+              <span className="calc-brow-dot calc-brow-dot--total" />
+              <span className="calc-brow-label">إجمالي تكلفة الرحلة</span>
+              <span className="calc-brow-value">{sym}{fmt(calc.totalCost)}</span>
+            </div>
+            <div className="calc-brow calc-brow--per">
+              <span className="calc-brow-dot calc-brow-dot--per" />
+              <span className="calc-brow-label">التكلفة الفعلية / شخص</span>
+              <span className="calc-brow-value">{sym}{fmt(calc.actualCostPerPerson)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Break-Even */}
+        <div className="calc-bep-panel">
+          <div className="calc-bep-header">
+            <span className="calc-bep-icon">🎯</span>
+            <span className="calc-bep-title">تحليل نقطة التعادل</span>
+          </div>
+
+          {!calc.target ? (
+            <p className="calc-bep-empty">أدخل الحد الأقصى للسعر / شخص لحساب نقطة التعادل</p>
+          ) : calc.marginPerPerson <= 0 ? (
+            <p className="calc-bep-impossible">
+              السعر المستهدف لا يكفي لتغطية المصاريف الشخصية للرحلة —
+              راجع السعر أو قلّل التكاليف الشخصية
+            </p>
+          ) : calc.bep ? (
+            <div className="calc-bep-result">
+              <div className="calc-bep-num-row">
+                <div className="calc-bep-num">{calc.bep}</div>
+                <div className="calc-bep-num-label">مشارك كحد أدنى لتغطية التكاليف</div>
+              </div>
+              {calc.n > 0 && (
+                <div className={`calc-bep-status ${calc.bep <= calc.n ? "calc-bep-ok" : "calc-bep-warn"}`}>
+                  {calc.bep <= calc.n
+                    ? `✓ العدد المتوقع (${calc.n}) يتجاوز نقطة التعادل بـ ${calc.n - calc.bep} مشارك`
+                    : `⚠ العدد المتوقع (${calc.n}) أقل من نقطة التعادل بـ ${calc.bep - calc.n} مشارك`}
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="calc-bep-empty">أدخل التكاليف لحساب نقطة التعادل</p>
+          )}
+        </div>
+
+        <div className="calc-results-footer">
+          <button className="btn btn-secondary" onClick={reset}>🗑 مسح الكل</button>
         </div>
       </div>
     </AdminLayout>
