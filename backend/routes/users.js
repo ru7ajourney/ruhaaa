@@ -13,75 +13,75 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 
 const sendOtpEmail = async (email, otp, fullName) => {
+  const year = new Date().getFullYear();
   await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
     to: email,
     subject: `${otp} — كود تفعيل حسابك في رُحى`,
-    html: `
-<!DOCTYPE html>
-<html dir="rtl" lang="ar">
+    html: `<!DOCTYPE html>
+<html lang="ar">
 <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
-<body style="margin:0;padding:0;background:#f0ede8;font-family:Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f0ede8;padding:40px 16px;">
-    <tr><td align="center">
-      <table width="100%" style="max-width:500px;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+<body style="margin:0;padding:0;background:#f0ede8;font-family:Arial,Helvetica,sans-serif;direction:rtl;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;padding:40px 16px;">
+  <tr><td align="center">
+    <table width="500" cellpadding="0" cellspacing="0" border="0" style="max-width:500px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">
 
-        <!-- Header -->
-        <tr>
-          <td style="background:linear-gradient(135deg,#c8622a,#a04e20);padding:36px 40px;text-align:center;">
-            <p style="margin:0;font-size:32px;font-weight:800;color:#ffffff;letter-spacing:2px;">رُحى</p>
-            <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.75);letter-spacing:1px;">سفر وتطوع</p>
-          </td>
-        </tr>
+      <tr>
+        <td align="center" style="background:#c8622a;padding:36px 40px;">
+          <p style="margin:0;font-size:34px;font-weight:800;color:#ffffff;">رُحى</p>
+          <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">سفر وتطوع</p>
+        </td>
+      </tr>
 
-        <!-- Body -->
-        <tr>
-          <td style="padding:40px 40px 32px;">
-            <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#2c4a3e;text-align:center;">مرحباً ${fullName} 👋</p>
-            <p style="margin:0 0 28px;font-size:15px;color:#666;line-height:1.7;text-align:center;">
-              شكراً لانضمامك إلى رُحى!<br>أدخل الكود ا��تالي لتفعيل حسابك:
-            </p>
+      <tr>
+        <td align="center" style="padding:40px 40px 16px;">
+          <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#2c4a3e;text-align:center;">مرحباً ${fullName} 👋</p>
+          <p style="margin:0;font-size:15px;color:#666;line-height:1.8;text-align:center;">شكراً لانضمامك إلى رُحى<br>أدخل الكود التالي لتفعيل حسابك</p>
+        </td>
+      </tr>
 
-            <!-- OTP Box -->
-            <table width="100%" cellpadding="0" cellspacing="0">
-              <tr>
-                <td align="center" style="background:#faf8f5;border:2px dashed #c8622a;border-radius:12px;padding:28px 20px;text-align:center;">
-                  <p style="margin:0 0 6px;font-size:12px;color:#999;letter-spacing:1px;text-align:center;">ك��د التفعيل</p>
-                  <p style="margin:0;font-size:42px;font-weight:800;color:#c8622a;letter-spacing:14px;text-align:center;">${otp}</p>
-                </td>
-              </tr>
-            </table>
+      <tr>
+        <td align="center" style="padding:24px 40px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;border:2px dashed #c8622a;border-radius:14px;width:100%;">
+            <tr>
+              <td align="center" style="padding:28px 20px;">
+                <p style="margin:0 0 8px;font-size:12px;color:#999;text-align:center;letter-spacing:2px;">كود التفعيل</p>
+                <p style="margin:0;font-size:44px;font-weight:800;color:#c8622a;letter-spacing:16px;text-align:center;">${otp}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
 
-            <!-- Warning -->
-            <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
-              <tr>
-                <td style="background:#fff8f0;border-radius:8px;padding:14px 16px;text-align:center;">
-                  <p style="margin:0;font-size:13px;color:#a04e20;line-height:1.6;text-align:center;">
-                    ⏱ الكود صالح ��مدة <strong>10 دقائق</strong> فقط<br>
-                    🔒 لا تشاركه مع أي شخص
-                  </p>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
+      <tr>
+        <td align="center" style="padding:0 40px 32px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="background:#fff8f0;border-radius:10px;width:100%;">
+            <tr>
+              <td align="center" style="padding:16px 20px;">
+                <p style="margin:0;font-size:13px;color:#a04e20;line-height:1.8;text-align:center;">
+                  ⏱ الكود صالح لمدة <strong>10 دقائق</strong> فقط<br>
+                  🔒 لا تشاركه مع أي شخص
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
 
-        <!-- Footer -->
-        <tr>
-          <td style="background:#faf8f5;padding:20px 40px;text-align:center;border-top:1px solid #ece8e1;">
-            <p style="margin:0;font-size:12px;color:#aaa;line-height:1.8;">
-              إذا لم تطلب هذا الكود، يمكنك تجاهل هذا الإيميل بأمان.<br>
-              © ${new Date().getFullYear()} رُحى — جميع الحقوق محفوظة
-            </p>
-          </td>
-        </tr>
+      <tr>
+        <td align="center" style="background:#faf8f5;padding:20px 40px;border-top:1px solid #ece8e1;">
+          <p style="margin:0;font-size:12px;color:#aaa;line-height:1.8;text-align:center;">
+            إذا لم تطلب هذا الكود، يمكنك تجاهل هذا الإيميل<br>
+            © ${year} رُحى — جميع الحقوق محفوظة
+          </p>
+        </td>
+      </tr>
 
-      </table>
-    </td></tr>
-  </table>
+    </table>
+  </td></tr>
+</table>
 </body>
-</html>
-    `,
+</html>`,
   });
 };
 
