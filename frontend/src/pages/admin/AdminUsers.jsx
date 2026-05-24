@@ -146,6 +146,15 @@ const AdminUsers = () => {
     }
   };
 
+  const handleBan = async (id) => {
+    try {
+      const { data } = await userAPI.adminBan(id);
+      setUsers((prev) => prev.map((u) => u._id === id ? { ...u, isBanned: data.isBanned } : u));
+    } catch (err) {
+      alert(err?.response?.data?.message || "فشل تغيير حالة الحساب");
+    }
+  };
+
   const handleSaveEdit = async (id, data) => {
     const { data: updated } = await userAPI.adminUpdate(id, data);
     setUsers((prev) => prev.map((u) => (u._id === id ? updated : u)));
@@ -235,25 +244,34 @@ const AdminUsers = () => {
                         )}
                       </td>
                       <td>
-                        {u.isVerified ? (
-                          <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>✓ مفعّل</span>
-                        ) : (
-                          <span style={{ background: "#fef9c3", color: "#b45309", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>⏳ غير مفعّل</span>
-                        )}
+                        <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                          {u.isVerified ? (
+                            <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>✓ مفعّل</span>
+                          ) : (
+                            <span style={{ background: "#fef9c3", color: "#b45309", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>⏳ غير مفعّل</span>
+                          )}
+                          {u.isBanned && (
+                            <span style={{ background: "#fef2f2", color: "#dc2626", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>🚫 محظور</span>
+                          )}
+                        </div>
                       </td>
                       <td style={{ color: "var(--color-text-light)", fontSize: "0.88rem" }}>{fmtDate(u.createdAt)}</td>
                       <td>
                         <div className="table-actions">
-                          <button
-                            className="btn-action btn-edit"
-                            onClick={() => setEditingUser(u)}
-                          >
+                          <button className="btn-action btn-edit" onClick={() => setEditingUser(u)}>
                             تعديل
                           </button>
                           <button
-                            className="btn-action btn-delete"
-                            onClick={() => handleDelete(u._id, u.fullName)}
+                            className="btn-action"
+                            style={u.isBanned
+                              ? { background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" }
+                              : { background: "#fff7ed", color: "#c2410c", border: "1px solid #fed7aa" }
+                            }
+                            onClick={() => handleBan(u._id)}
                           >
+                            {u.isBanned ? "رفع الحظر" : "حظر"}
+                          </button>
+                          <button className="btn-action btn-delete" onClick={() => handleDelete(u._id, u.fullName)}>
                             حذف
                           </button>
                         </div>

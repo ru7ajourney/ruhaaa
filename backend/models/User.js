@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema(
     googleId:    { type: String, default: "" },
     avatar:      { type: String, default: "" },
     isVerified:  { type: Boolean, default: false },
+    isBanned:    { type: Boolean, default: false },
     otp:         { type: String, default: null },
     otpExpires:  { type: Date,   default: null },
   },

@@ -110,6 +110,7 @@ export const userAPI = {
   adminGetAll:    ()         => api.get("/users/admin/all"),
   adminUpdate:    (id, data) => api.patch(`/users/admin/${id}`, data),
   adminDelete:    (id)       => api.delete(`/users/admin/${id}`),
+  adminBan:       (id)       => api.post(`/users/admin/${id}/ban`),
   register: (data) => userApi.post("/users/register", data),
   verifyEmail: (data) => userApi.post("/users/verify-email", data),
   resendOtp: (data) => userApi.post("/users/resend-otp", data),

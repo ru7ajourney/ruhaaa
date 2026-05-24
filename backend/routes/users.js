@@ -225,6 +225,9 @@ router.post("/login", async (req, res) => {
     if (!user.isVerified)
       return res.status(403).json({ message: "يجب تفعيل حسابك أولاً", needsVerification: true, email: user.email });
 
+    if (user.isBanned)
+      return res.status(403).json({ message: "تم تعليق هذا الحساب. للاستفسار تواصل معنا." });
+
     res.json({
       message: "تم تسجيل الدخول بنجاح",
       token: generateToken(user._id),
@@ -353,6 +356,8 @@ router.post("/google-auth", async (req, res) => {
     let user = await User.findOne({ email });
 
     if (user) {
+      if (user.isBanned)
+        return res.status(403).json({ message: "تم تعليق هذا الحساب. للاستفسار تواصل معنا." });
       // حدّث googleId إذا لم يكن مسجّلاً
       if (!user.googleId) {
         user.googleId = googleId;
@@ -405,6 +410,19 @@ router.patch("/admin/:id", protectAdmin, async (req, res) => {
     res.json(user);
   } catch (err) {
     if (err.code === 11000) return res.status(400).json({ message: "الإيميل مستخدم بالفعل" });
+    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
+  }
+});
+
+// POST /api/users/admin/:id/ban — تعليق/رفع تعليق مستخدم (أدمن)
+router.post("/admin/:id/ban", protectAdmin, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
+    user.isBanned = !user.isBanned;
+    await user.save();
+    res.json({ isBanned: user.isBanned });
+  } catch (err) {
     res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
   }
 });
