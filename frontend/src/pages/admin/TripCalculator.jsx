@@ -156,8 +156,10 @@ const TripCalculator = () => {
     const priceExVat       = C + grossProfit;
     const vatAmount        = priceExVat * v;
     const finalPrice       = priceExVat + vatAmount;
-    const grossMarkupPct   = C > 0 ? (grossProfit / C) * 100 : 0;
-    const totalMarkupPct   = C > 0 ? ((finalPrice - C) / C) * 100 : 0;
+    const grossMarkupPct        = C > 0 ? (grossProfit / C) * 100 : 0;
+    const totalMarkupPct        = C > 0 ? ((finalPrice - C) / C) * 100 : 0;
+    // نسبة الربح الصافي من سعر البيع النهائي (شامل القيمة المضافة)
+    const netProfitOnFinalPrice = finalPrice > 0 ? (netProfit / finalPrice) * 100 : 0;
 
     // Total-trip view (multiply per-person figures by n)
     const n = calc.n || 1;
@@ -172,7 +174,7 @@ const TripCalculator = () => {
     return {
       C, grossProfit, profitTaxAmount, netProfit,
       priceExVat, vatAmount, finalPrice,
-      grossMarkupPct, totalMarkupPct,
+      grossMarkupPct, totalMarkupPct, netProfitOnFinalPrice,
       // trip totals
       n,
       totalNetProfit, totalGrossProfit, totalProfitTaxAmt,
@@ -698,8 +700,15 @@ const TripCalculator = () => {
                   </div>
 
                   <div className="calc-tax-profit-pct-badge">
-                    <span>التحقق: صافي الربح من التكلفة =</span>
-                    <strong>{((taxCalc.netProfit / taxCalc.C) * 100).toFixed(2)}%</strong>
+                    <div className="calc-tax-pct-row">
+                      <span>من التكلفة الخام</span>
+                      <strong>{((taxCalc.netProfit / taxCalc.C) * 100).toFixed(2)}%</strong>
+                    </div>
+                    <div className="calc-tax-pct-divider" />
+                    <div className="calc-tax-pct-row calc-tax-pct-row--vat">
+                      <span>من سعر البيع (شامل القيمة المضافة)</span>
+                      <strong>{taxCalc.netProfitOnFinalPrice.toFixed(2)}%</strong>
+                    </div>
                   </div>
                 </div>
 

@@ -1100,18 +1100,33 @@
   background: #f0fdf4;
   border: 1.5px solid #86efac;
   border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.85rem;
-  color: #166534;
+  overflow: hidden;
+}
+
+.calc-tax-pct-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  padding: 9px 14px;
+  font-size: 0.83rem;
+  color: #166534;
 }
 
-.calc-tax-profit-pct-badge strong {
+.calc-tax-pct-row strong {
   font-size: 1rem;
   font-family: monospace;
+  font-weight: 800;
+}
+
+.calc-tax-pct-divider {
+  height: 1px;
+  background: #bbf7d0;
+}
+
+.calc-tax-pct-row--vat {
+  background: #ecfdf5;
+  color: #065f46;
 }
 
 /* Right col: price stack */
