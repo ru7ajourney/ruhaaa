@@ -28,6 +28,93 @@ const STATUS_MAP = {
   confirmed:       { label: "مسجّل رسمياً",   color: "#065f46", bg: "#d1fae5" },
 };
 
+// ── Edit Modal ─────────────────────────────────────────────
+const EditUserModal = ({ user, onClose, onSave }) => {
+  const [form, setForm]   = useState({ fullName: user.fullName, email: user.email, isVerified: user.isVerified });
+  const [saving, setSaving] = useState(false);
+  const [error, setError]   = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.fullName.trim() || !form.email.trim()) {
+      setError("الاسم والإيميل مطلوبان");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      await onSave(user._id, form);
+      onClose();
+    } catch (err) {
+      setError(err?.response?.data?.message || "فشل حفظ التغييرات");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box" onClick={(e) => e.stopPropagation()} style={{ maxWidth: "460px" }}>
+        <div className="modal-header">
+          <div>
+            <h2 className="modal-title">تعديل المستخدم</h2>
+            <p className="modal-subtitle">{user.fullName}</p>
+          </div>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+        <form onSubmit={handleSubmit} style={{ padding: "24px" }}>
+          {error && <div className="error-msg" style={{ marginBottom: "16px" }}>{error}</div>}
+
+          <div className="form-group" style={{ marginBottom: "16px" }}>
+            <label className="form-label">الاسم الكامل</label>
+            <input
+              className="form-input"
+              type="text"
+              value={form.fullName}
+              onChange={(e) => setForm({ ...form, fullName: e.target.value })}
+              required
+            />
+          </div>
+
+          <div className="form-group" style={{ marginBottom: "16px" }}>
+            <label className="form-label">البريد الإلكتروني</label>
+            <input
+              className="form-input"
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              required
+              dir="ltr"
+            />
+          </div>
+
+          <div style={{ marginBottom: "24px" }}>
+            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", fontSize: "0.95rem" }}>
+              <input
+                type="checkbox"
+                checked={form.isVerified}
+                onChange={(e) => setForm({ ...form, isVerified: e.target.checked })}
+                style={{ width: "16px", height: "16px", accentColor: "var(--color-primary)" }}
+              />
+              الحساب مفعّل (تحقق من الإيميل)
+            </label>
+          </div>
+
+          <div style={{ display: "flex", gap: "12px" }}>
+            <button type="submit" className="btn btn-primary" disabled={saving} style={{ flex: 1, justifyContent: "center" }}>
+              {saving ? "جاري الحفظ..." : "حفظ التغييرات"}
+            </button>
+            <button type="button" className="btn btn-secondary" onClick={onClose}>
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+// ── Main Component ─────────────────────────────────────────
 const AdminUsers = () => {
   const [tab, setTab]               = useState("site");
   const [users, setUsers]           = useState([]);
@@ -35,6 +122,7 @@ const AdminUsers = () => {
   const [usersLoading, setUsersLoading] = useState(true);
   const [appsLoading, setAppsLoading]   = useState(true);
   const [search, setSearch]         = useState("");
+  const [editingUser, setEditingUser] = useState(null);
 
   useEffect(() => {
     userAPI.adminGetAll()
@@ -47,6 +135,21 @@ const AdminUsers = () => {
       .catch(console.error)
       .finally(() => setAppsLoading(false));
   }, []);
+
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`هل أنت متأكد من حذف مستخدم "${name}"؟\nسيتم حذف حسابه نهائياً.`)) return;
+    try {
+      await userAPI.adminDelete(id);
+      setUsers((prev) => prev.filter((u) => u._id !== id));
+    } catch (err) {
+      alert(err?.response?.data?.message || "فشل حذف المستخدم");
+    }
+  };
+
+  const handleSaveEdit = async (id, data) => {
+    const { data: updated } = await userAPI.adminUpdate(id, data);
+    setUsers((prev) => prev.map((u) => (u._id === id ? updated : u)));
+  };
 
   const filteredUsers = users.filter((u) =>
     u.fullName.toLowerCase().includes(search.toLowerCase()) ||
@@ -103,6 +206,7 @@ const AdminUsers = () => {
                     <th>طريقة التسجيل</th>
                     <th>الحالة</th>
                     <th>تاريخ الانضمام</th>
+                    <th>الإجراءات</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -138,6 +242,22 @@ const AdminUsers = () => {
                         )}
                       </td>
                       <td style={{ color: "var(--color-text-light)", fontSize: "0.88rem" }}>{fmtDate(u.createdAt)}</td>
+                      <td>
+                        <div className="table-actions">
+                          <button
+                            className="btn-action btn-edit"
+                            onClick={() => setEditingUser(u)}
+                          >
+                            تعديل
+                          </button>
+                          <button
+                            className="btn-action btn-delete"
+                            onClick={() => handleDelete(u._id, u.fullName)}
+                          >
+                            حذف
+                          </button>
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -209,6 +329,15 @@ const AdminUsers = () => {
             </div>
           )}
         </>
+      )}
+
+      {/* Edit Modal */}
+      {editingUser && (
+        <EditUserModal
+          user={editingUser}
+          onClose={() => setEditingUser(null)}
+          onSave={handleSaveEdit}
+        />
       )}
     </AdminLayout>
   );

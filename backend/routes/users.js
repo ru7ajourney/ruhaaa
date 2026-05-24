@@ -386,4 +386,38 @@ router.get("/admin/all", protectAdmin, async (req, res) => {
   }
 });
 
+// PATCH /api/users/admin/:id — تعديل مستخدم (أدمن)
+router.patch("/admin/:id", protectAdmin, async (req, res) => {
+  try {
+    const { fullName, email, isVerified } = req.body;
+    const update = {};
+    if (fullName !== undefined) update.fullName = fullName.trim();
+    if (email    !== undefined) update.email    = email.trim().toLowerCase();
+    if (isVerified !== undefined) update.isVerified = isVerified;
+
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: update },
+      { new: true, runValidators: true }
+    ).select("-password -otp -otpExpires");
+
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
+    res.json(user);
+  } catch (err) {
+    if (err.code === 11000) return res.status(400).json({ message: "الإيميل مستخدم بالفعل" });
+    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
+  }
+});
+
+// DELETE /api/users/admin/:id — حذف مستخدم (أدمن)
+router.delete("/admin/:id", protectAdmin, async (req, res) => {
+  try {
+    const user = await User.findByIdAndDelete(req.params.id);
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
+    res.json({ message: "تم حذف المستخدم" });
+  } catch (err) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
+  }
+});
+
 module.exports = router;
