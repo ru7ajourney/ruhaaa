@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80" width="200" height="80">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@700&amp;display=swap');
+      .logo-main { font-family: 'Aref Ruqaa', serif; font-size: 48px; font-weight: 700; fill: #c8622a; }
+      .logo-sub  { font-family: 'Aref Ruqaa', serif; font-size: 13px; font-weight: 400; fill: #9ca3af; }
+    </style>
+  </defs>
+  <text x="100" y="55" text-anchor="middle" class="logo-main">رُحى</text>
+</svg>

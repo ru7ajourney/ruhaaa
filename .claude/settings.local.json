@@ -26,7 +26,10 @@
       "Bash(grep -v \"^.*//.*٠\\\\|^.*//.*١\\\\|^.*//.*٢\\\\|^.*//.*٣\\\\|^.*//.*٤\\\\|^.*//.*٥\\\\|^.*//.*٦\\\\|^.*//.*٧\\\\|^.*//.*٨\\\\|^.*//.*٩\")",
       "Bash(npm install *)",
       "Bash(curl -s http://localhost:5000/api/gallery -o nul -w \"%{http_code}\")",
-      "Bash(python -c \"import json, sys; data = json.load\\(sys.stdin\\); print\\(json.dumps\\(data[0], indent=2, ensure_ascii=False\\) if data else 'empty'\\)\")"
+      "Bash(python -c \"import json, sys; data = json.load\\(sys.stdin\\); print\\(json.dumps\\(data[0], indent=2, ensure_ascii=False\\) if data else 'empty'\\)\")",
+      "Bash(npm run *)",
+      "Bash(git commit *)",
+      "Bash(git push *)"
     ]
   }
 }
