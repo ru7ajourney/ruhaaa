@@ -106,6 +106,7 @@ export const policyVersionsAPI = {
 // User API
 // ==============================
 export const userAPI = {
+  adminGetAll: () => api.get("/users/admin/all"),
   register: (data) => userApi.post("/users/register", data),
   verifyEmail: (data) => userApi.post("/users/verify-email", data),
   resendOtp: (data) => userApi.post("/users/resend-otp", data),

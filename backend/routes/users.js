@@ -5,6 +5,7 @@ const { Resend } = require("resend");
 const User = require("../models/User");
 const Application = require("../models/Application");
 const { protectUser } = require("../middleware/userAuthMiddleware");
+const { protect: protectAdmin } = require("../middleware/authMiddleware");
 const { createOrder, captureOrder } = require("../utils/paypal");
 
 const router = express.Router();
@@ -370,6 +371,18 @@ router.post("/google-auth", async (req, res) => {
     });
   } catch (err) {
     res.status(401).json({ message: "فشل التحقق من حساب جوجل", error: err.message });
+  }
+});
+
+// GET /api/users/admin/all — جلب جميع المستخدمين (أدمن فقط)
+router.get("/admin/all", protectAdmin, async (req, res) => {
+  try {
+    const users = await User.find({})
+      .select("-password -otp -otpExpires")
+      .sort({ createdAt: -1 });
+    res.json(users);
+  } catch (err) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
   }
 });
 

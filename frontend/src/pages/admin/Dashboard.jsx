@@ -412,6 +412,7 @@ const Dashboard = () => {
           <h1 className="admin-logo">رُحى <span>Admin</span></h1>
           <div className="admin-header-actions">
             <span className="admin-name">مرحباً، {admin?.username || admin?.name}</span>
+            <Link to="/admin/users" className="btn btn-secondary">👥 المستخدمون</Link>
             <Link to="/admin/calculator" className="btn btn-secondary">🧮 حاسبة التكاليف</Link>
             <button className="btn btn-secondary admin-logout" onClick={handleLogout}>
               خروج

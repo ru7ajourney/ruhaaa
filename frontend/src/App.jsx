@@ -28,6 +28,7 @@ import Dashboard from "./pages/admin/Dashboard";
 import TripForm from "./pages/admin/TripForm";
 import TripStats from "./pages/admin/TripStats";
 import TripCalculator from "./pages/admin/TripCalculator";
+import AdminUsers from "./pages/admin/AdminUsers";
 import UserAuth from "./pages/UserAuth";
 import MyApplications from "./pages/MyApplications";
 import Checkout from "./pages/Checkout";
@@ -168,6 +169,15 @@ function App() {
             element={
               <ProtectedRoute>
                 <TripCalculator />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/admin/users"
+            element={
+              <ProtectedRoute>
+                <AdminUsers />
               </ProtectedRoute>
             }
           />
