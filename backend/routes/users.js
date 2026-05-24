@@ -37,17 +37,17 @@ const sendOtpEmail = async (email, otp, fullName) => {
         <!-- Body -->
         <tr>
           <td style="padding:40px 40px 32px;">
-            <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#2c4a3e;">مرحباً ${fullName} 👋</p>
-            <p style="margin:0 0 28px;font-size:15px;color:#666;line-height:1.7;">
-              شكراً لانضمامك إلى رُحى! أدخل الكود التالي لتفعيل حسابك:
+            <p style="margin:0 0 8px;font-size:20px;font-weight:700;color:#2c4a3e;text-align:center;">مرحباً ${fullName} 👋</p>
+            <p style="margin:0 0 28px;font-size:15px;color:#666;line-height:1.7;text-align:center;">
+              شكراً لانضمامك إلى رُحى!<br>أدخل الكود ا��تالي لتفعيل حسابك:
             </p>
 
             <!-- OTP Box -->
             <table width="100%" cellpadding="0" cellspacing="0">
               <tr>
-                <td align="center" style="background:#faf8f5;border:2px dashed #c8622a;border-radius:12px;padding:28px 20px;">
-                  <p style="margin:0 0 6px;font-size:12px;color:#999;letter-spacing:1px;">كود التفعيل</p>
-                  <p style="margin:0;font-size:42px;font-weight:800;color:#c8622a;letter-spacing:14px;">${otp}</p>
+                <td align="center" style="background:#faf8f5;border:2px dashed #c8622a;border-radius:12px;padding:28px 20px;text-align:center;">
+                  <p style="margin:0 0 6px;font-size:12px;color:#999;letter-spacing:1px;text-align:center;">ك��د التفعيل</p>
+                  <p style="margin:0;font-size:42px;font-weight:800;color:#c8622a;letter-spacing:14px;text-align:center;">${otp}</p>
                 </td>
               </tr>
             </table>
@@ -55,9 +55,9 @@ const sendOtpEmail = async (email, otp, fullName) => {
             <!-- Warning -->
             <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px;">
               <tr>
-                <td style="background:#fff8f0;border-right:4px solid #c8622a;border-radius:8px;padding:14px 16px;">
-                  <p style="margin:0;font-size:13px;color:#a04e20;line-height:1.6;">
-                    ⏱ الكود صالح لمدة <strong>10 دقائق</strong> فقط<br>
+                <td style="background:#fff8f0;border-radius:8px;padding:14px 16px;text-align:center;">
+                  <p style="margin:0;font-size:13px;color:#a04e20;line-height:1.6;text-align:center;">
+                    ⏱ الكود صالح ��مدة <strong>10 دقائق</strong> فقط<br>
                     🔒 لا تشاركه مع أي شخص
                   </p>
                 </td>
