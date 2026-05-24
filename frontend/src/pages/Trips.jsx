@@ -16,7 +16,7 @@ const Trips = () => {
     const fetchTrips = async () => {
       try {
         const { data } = await tripsAPI.getAll();
-        setTrips(data);
+        setTrips(Array.isArray(data) ? data : []);
       } catch (err) {
         setError("حدث خطأ أثناء تحميل الرحلات. حاول مرة أخرى.");
         console.error(err);

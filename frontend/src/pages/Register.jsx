@@ -56,11 +56,12 @@ const Register = () => {
     const fetchData = async () => {
       try {
         const { data: allTrips } = await tripsAPI.getAll();
-        setTrips(allTrips);
+        const safeTrips = Array.isArray(allTrips) ? allTrips : [];
+        setTrips(safeTrips);
 
         // إذا في tripId في الرابط، جلب تفاصيل الرحلة
         if (tripId) {
-          const foundTrip = allTrips.find((t) => t._id === tripId);
+          const foundTrip = safeTrips.find((t) => t._id === tripId);
           if (foundTrip) setTrip(foundTrip);
         }
       } catch (err) {

@@ -4,8 +4,10 @@
 import axios from "axios";
 
 // أنشئ instance من axios مع الإعدادات الافتراضية
+const API_BASE = (import.meta.env.VITE_API_URL || "") + "/api";
+
 const api = axios.create({
-  baseURL: "/api", // يستخدم الـ proxy في vite.config.js
+  baseURL: API_BASE, // dev: "/api" (proxy)، prod: "https://your-backend.onrender.com/api"
   headers: {
     "Content-Type": "application/json",
   },
@@ -20,7 +22,7 @@ api.interceptors.request.use((config) => {
 
 // instance منفصل للمستخدم العادي — يستخدم user token فقط
 const userApi = axios.create({
-  baseURL: "/api",
+  baseURL: API_BASE,
   headers: { "Content-Type": "application/json" },
 });
 

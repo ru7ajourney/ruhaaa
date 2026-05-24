@@ -41,7 +41,7 @@ const TripStats = () => {
           applicationsAPI.getAll({ tripId: id }),
         ]);
         setTrip(tripRes.data);
-        setApplications(appsRes.data);
+        setApplications(Array.isArray(appsRes.data) ? appsRes.data : []);
       } catch (err) {
         console.error(err);
       } finally {

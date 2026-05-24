@@ -26,7 +26,7 @@ const MyApplications = () => {
 
   useEffect(() => {
     userAPI.getMyApplications()
-      .then(({ data }) => setApplications(data))
+      .then(({ data }) => setApplications(Array.isArray(data) ? data : []))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);

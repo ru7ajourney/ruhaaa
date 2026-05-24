@@ -130,7 +130,7 @@ const Dashboard = () => {
     setSubscribersLoading(true);
     try {
       const { data } = await subscribersAPI.getAll(q, country, gender);
-      setSubscribers(data);
+      setSubscribers(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -170,7 +170,7 @@ const Dashboard = () => {
     setPolicyVersionsLoading(true);
     try {
       const { data } = await policyVersionsAPI.getAll();
-      setPolicyVersions(data);
+      setPolicyVersions(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -226,7 +226,7 @@ const Dashboard = () => {
   const fetchGallery = async () => {
     try {
       const { data } = await galleryAPI.getAll();
-      setGallery(data);
+      setGallery(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -295,7 +295,7 @@ const Dashboard = () => {
   const fetchTrips = async () => {
     try {
       const { data } = await tripsAPI.getAdminAll();
-      setTrips(data);
+      setTrips(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -306,7 +306,7 @@ const Dashboard = () => {
   const fetchApplications = async () => {
     try {
       const { data } = await applicationsAPI.getAll();
-      setApplications(data);
+      setApplications(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error(err);
     } finally {

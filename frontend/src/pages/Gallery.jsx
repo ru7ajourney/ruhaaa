@@ -39,7 +39,7 @@ export default function Gallery() {
 
   useEffect(() => {
     galleryAPI.getAll()
-      .then(({ data }) => setPhotos(data))
+      .then(({ data }) => setPhotos(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);

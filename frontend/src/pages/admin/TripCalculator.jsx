@@ -97,7 +97,7 @@ const TripCalculator = () => {
   });
 
   useEffect(() => {
-    tripsAPI.getAdminAll().then(({ data }) => setTrips(data)).catch(() => {});
+    tripsAPI.getAdminAll().then(({ data }) => setTrips(Array.isArray(data) ? data : [])).catch(() => {});
   }, []);
 
   const tripDays = days !== "" ? Number(days) : (selectedTrip?.duration || 0);

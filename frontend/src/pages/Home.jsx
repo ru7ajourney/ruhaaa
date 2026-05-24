@@ -29,7 +29,7 @@ const Home = () => {
     const fetchFeatured = async () => {
       try {
         const { data } = await tripsAPI.getFeatured();
-        setFeaturedTrips(data);
+        setFeaturedTrips(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("خطأ في جلب الرحلات:", err);
       } finally {
@@ -40,7 +40,7 @@ const Home = () => {
     const fetchPhotos = async () => {
       try {
         const { data } = await galleryAPI.getFeatured();
-        setFeaturedPhotos(data.slice(0, 3));
+        setFeaturedPhotos(Array.isArray(data) ? data.slice(0, 3) : []);
       } catch {
         // الصور اختيارية — تجاهل الخطأ
       }
