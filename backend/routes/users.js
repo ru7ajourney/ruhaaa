@@ -50,7 +50,7 @@ const sendOtpEmail = async (email, otp, fullName) => {
       <tr>
         <td align="center" style="padding:44px 48px 8px;">
           <p style="margin:0 0 12px;font-size:24px;font-weight:700;color:#2c4a3e;text-align:center;">أهلاً وسهلاً، ${fullName}! 🌍</p>
-          <p style="margin:0;font-size:15px;color:#777;line-height:2;text-align:center;">
+          <p style="margin:0;font-size:17px;color:#555;line-height:2;text-align:center;">
             يسعدنا انضمامك إلى عائلة رُحى —<br>
             خطوة واحدة تفصلك عن عالم من التجارب والمغامرات.
           </p>
@@ -88,7 +88,7 @@ const sendOtpEmail = async (email, otp, fullName) => {
           <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#fdf6f0;border-radius:12px;border:1px solid #f5dece;">
             <tr>
               <td align="center" style="padding:18px 24px;">
-                <p style="margin:0;font-size:13px;color:#b06030;line-height:2;text-align:center;">
+                <p style="margin:0;font-size:15px;color:#b06030;line-height:2.2;text-align:center;">
                   ⏳ &nbsp;صالح لمدة <strong>10 دقائق</strong> فقط — لا تتأخر!<br>
                   🔐 &nbsp;هذا الكود سري، لا تشاركه مع أحد.
                 </p>
@@ -101,8 +101,8 @@ const sendOtpEmail = async (email, otp, fullName) => {
       <!-- FOOTER -->
       <tr>
         <td align="center" style="background:#faf8f5;padding:24px 48px;border-top:1px solid #ece8e1;">
-          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
-          <p style="margin:0;font-size:11px;color:#bbb;line-height:1.8;text-align:center;">
+          <p style="margin:0 0 8px;font-size:15px;font-weight:700;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
+          <p style="margin:0;font-size:13px;color:#999;line-height:2;text-align:center;">
             إن لم تكن أنت من طلب هذا الكود، يمكنك تجاهل هذا البريد بأمان تام.<br>
             © ${year} رُحى &nbsp;·&nbsp; جميع الحقوق محفوظة
           </p>
