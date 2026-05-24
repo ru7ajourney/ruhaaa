@@ -73,4 +73,12 @@ router.get("/me", protect, async (req, res) => {
   });
 });
 
+// ==============================
+// POST /api/auth/refresh
+// تجديد التوكن (محمي)
+// ==============================
+router.post("/refresh", protect, (req, res) => {
+  res.json({ token: generateToken(req.admin._id) });
+});
+
 module.exports = router;

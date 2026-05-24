@@ -55,6 +55,7 @@ export const tripsAPI = {
 export const authAPI = {
   login: (credentials) => api.post("/auth/login", credentials),
   getMe: () => api.get("/auth/me"),
+  refresh: () => api.post("/auth/refresh"),
 };
 
 // ==============================
