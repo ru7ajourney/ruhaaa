@@ -107,6 +107,8 @@ export const policyVersionsAPI = {
 // ==============================
 export const userAPI = {
   register: (data) => userApi.post("/users/register", data),
+  verifyEmail: (data) => userApi.post("/users/verify-email", data),
+  resendOtp: (data) => userApi.post("/users/resend-otp", data),
   login: (data) => userApi.post("/users/login", data),
   getMe: () => userApi.get("/users/me"),
   getMyApplications: () => userApi.get("/users/my-applications"),

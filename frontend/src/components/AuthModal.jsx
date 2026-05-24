@@ -1,6 +1,4 @@
 // src/components/AuthModal.jsx
-// مودال تسجيل الدخول — يظهر عند محاولة التسجيل بدون حساب
-
 import { useState } from "react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userAPI } from "../api";
@@ -8,10 +6,16 @@ import { useUserAuth } from "../context/UserAuthContext";
 import "./AuthModal.css";
 
 const AuthModal = () => {
-  const [tab, setTab] = useState("login");
-  const [form, setForm] = useState({ fullName: "", email: "", password: "" });
+  const [tab, setTab]         = useState("login");
+  const [form, setForm]       = useState({ fullName: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError]     = useState("");
+  // بعد التسجيل — شاشة التحقق
+  const [otpStep, setOtpStep]         = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
+  const [otp, setOtp]                   = useState("");
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const { login } = useUserAuth();
 
   const handleChange = (e) =>
@@ -39,18 +43,121 @@ const AuthModal = () => {
     setError("");
     setLoading(true);
     try {
-      const { data } =
-        tab === "login"
-          ? await userAPI.login({ email: form.email, password: form.password })
-          : await userAPI.register(form);
-      login(data.token, data.user);
+      if (tab === "login") {
+        const { data } = await userAPI.login({ email: form.email, password: form.password });
+        login(data.token, data.user);
+      } else {
+        await userAPI.register(form);
+        setPendingEmail(form.email);
+        setOtpStep(true);
+        startCooldown();
+      }
     } catch (err) {
-      setError(err.response?.data?.message || "حدث خطأ، حاول مجدداً");
+      const errData = err.response?.data;
+      // لو سجّل دخول وحسابه غير مفعّل
+      if (errData?.needsVerification) {
+        setPendingEmail(errData.email);
+        setOtpStep(true);
+        startCooldown();
+        return;
+      }
+      setError(
+        errData?.message ||
+        (err.message === "Network Error" ? "تعذّر الاتصال بالسيرفر" : "حدث خطأ، حاول مجدداً")
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    setError("");
+    setLoading(true);
+    try {
+      const { data } = await userAPI.verifyEmail({ email: pendingEmail, otp });
+      login(data.token, data.user);
+    } catch (err) {
+      setError(err.response?.data?.message || "الكود غير صحيح");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    if (resendCooldown > 0) return;
+    setError("");
+    try {
+      await userAPI.resendOtp({ email: pendingEmail });
+      startCooldown();
+    } catch (err) {
+      setError(err.response?.data?.message || "فشل إرسال الكود");
+    }
+  };
+
+  const startCooldown = () => {
+    setResendCooldown(60);
+    const interval = setInterval(() => {
+      setResendCooldown((c) => {
+        if (c <= 1) { clearInterval(interval); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  // ===== شاشة التحقق من الإيميل =====
+  if (otpStep) {
+    return (
+      <div className="auth-modal-overlay">
+        <div className="auth-modal-card">
+          <div className="auth-modal-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+
+          <div className="otp-icon">📧</div>
+          <h3 className="otp-title">تحقق من إيميلك</h3>
+          <p className="otp-desc">
+            أرسلنا كود مكوّن من 6 أرقام إلى<br />
+            <strong>{pendingEmail}</strong>
+          </p>
+
+          <form onSubmit={handleVerify} className="user-auth-form">
+            <div className="auth-field">
+              <label>كود التفعيل</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={otp}
+                onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+                placeholder="_ _ _ _ _ _"
+                className="otp-input"
+                required
+                style={{ direction: "ltr", textAlign: "center", letterSpacing: "8px", fontSize: "1.4rem" }}
+              />
+            </div>
+
+            {error && <p className="auth-error">{error}</p>}
+
+            <button type="submit" className="auth-submit-btn" disabled={loading || otp.length < 6}>
+              {loading ? "..." : "تفعيل الحساب"}
+            </button>
+          </form>
+
+          <button
+            className="otp-resend-btn"
+            onClick={handleResend}
+            disabled={resendCooldown > 0}
+          >
+            {resendCooldown > 0 ? `إعادة الإرسال بعد ${resendCooldown}ث` : "إعادة إرسال الكود"}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== شاشة تسجيل الدخول / الحساب الجديد =====
   return (
     <div className="auth-modal-overlay">
       <div className="auth-modal-card">

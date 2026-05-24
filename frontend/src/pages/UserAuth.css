@@ -196,3 +196,54 @@
 .auth-back-link a:hover {
   color: var(--color-primary);
 }
+
+/* OTP Screen */
+.otp-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+}
+
+.otp-title {
+  font-size: 1.2rem;
+  color: var(--color-secondary);
+  margin-bottom: 8px;
+}
+
+.otp-desc {
+  font-size: 0.9rem;
+  color: var(--color-text-light);
+  margin-bottom: 24px;
+  line-height: 1.7;
+}
+
+.otp-resend-btn {
+  margin-top: 16px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.otp-resend-btn:disabled {
+  color: var(--color-text-light);
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.otp-back-link {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  cursor: pointer;
+  padding: 0;
+}
+
+.otp-back-link:hover {
+  color: var(--color-primary);
+}
