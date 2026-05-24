@@ -158,6 +158,11 @@
   flex-shrink: 0;
 }
 
+.navbar-user-avatar--img {
+  object-fit: cover;
+  background: none;
+}
+
 .account-arrow {
   font-size: 0.75rem;
   opacity: 0.8;

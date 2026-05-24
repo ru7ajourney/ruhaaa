@@ -3,6 +3,36 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useUserAuth } from "../context/UserAuthContext";
 import "./Navbar.css";
 
+const ARABIC_TO_LATIN = {
+  'ا':'A','أ':'A','إ':'A','آ':'A','ب':'B','ت':'T','ث':'T','ج':'J','ح':'H',
+  'خ':'K','د':'D','ذ':'D','ر':'R','ز':'Z','س':'S','ش':'S','ص':'S','ض':'D',
+  'ط':'T','ظ':'Z','ع':'A','غ':'G','ف':'F','ق':'Q','ك':'K','ل':'L','م':'M',
+  'ن':'N','ه':'H','و':'W','ي':'Y','ى':'Y','ة':'T','ئ':'Y','ؤ':'W',
+};
+
+const getAvatarLetter = (name) => {
+  const first = name?.charAt(0) || "?";
+  return ARABIC_TO_LATIN[first] || first.toUpperCase();
+};
+
+const UserAvatar = ({ user }) => {
+  if (user.avatar) {
+    return (
+      <img
+        src={user.avatar}
+        alt={user.fullName}
+        className="navbar-user-avatar navbar-user-avatar--img"
+        referrerPolicy="no-referrer"
+      />
+    );
+  }
+  return (
+    <span className="navbar-user-avatar">
+      {getAvatarLetter(user.fullName)}
+    </span>
+  );
+};
+
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -66,9 +96,7 @@ const Navbar = () => {
               className="navbar-user-greeting"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <span className="navbar-user-avatar">
-                {user.fullName.charAt(0)}
-              </span>
+              <UserAvatar user={user} />
               {user.fullName.split(" ")[0]}
               <span className="account-arrow">▾</span>
             </button>
