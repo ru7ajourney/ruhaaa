@@ -3,6 +3,7 @@
 .register-page {
   min-height: 100vh;
   background: var(--color-bg);
+  overflow-x: hidden;
 }
 
 
@@ -322,5 +323,22 @@
 
   .change-trip-btn {
     margin-right: 0;
+  }
+
+  .register-section {
+    padding: 20px 16px;
+  }
+
+  .register-body {
+    padding: 24px 0 60px;
+  }
+
+  .yn-btn {
+    flex: 1;
+    padding: 10px 12px;
+  }
+
+  .register-form {
+    width: 100%;
   }
 }
