@@ -75,7 +75,7 @@ const sendOtpEmail = async (email, otp, fullName) => {
           <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:linear-gradient(135deg,#fff8f4,#faf3ee);border:2px solid #e8b49a;border-radius:16px;">
             <tr>
               <td align="center" style="padding:32px 24px;">
-                <p style="margin:0;font-size:50px;font-weight:800;color:#c8622a;letter-spacing:18px;text-align:center;font-family:Georgia,serif;">${otp}</p>
+                <p style="margin:0;font-size:52px;font-weight:800;color:#c8622a;letter-spacing:20px;text-align:center;font-family:Arial,Helvetica,sans-serif;">${otp}</p>
               </td>
             </tr>
           </table>
