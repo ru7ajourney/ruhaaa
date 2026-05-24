@@ -8,7 +8,7 @@
     "build": "npx vite build",
     "preview": "vite preview"
   },
-  "dependencies": "build":{
+  "dependencies": {
     "@paypal/react-paypal-js": "^9.2.0",
     "@react-oauth/google": "^0.13.5",
     "axios": "^1.6.0",
