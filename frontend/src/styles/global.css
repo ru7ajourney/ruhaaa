@@ -6,6 +6,7 @@
 /* المتغيرات - ألوان وخطوط المشروع */
 :root {
   --color-primary: #c8622a;      /* برتقالي دافئ - لون رُحى الرئيسي */
+  --color-primary-rgb: 200, 98, 42;
   --color-primary-dark: #a04e20;
   --color-primary-light: #f0d5c4;
   --color-secondary: #2c4a3e;    /* أخضر داكن */

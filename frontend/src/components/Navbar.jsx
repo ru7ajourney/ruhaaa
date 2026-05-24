@@ -66,7 +66,10 @@ const Navbar = () => {
               className="navbar-user-greeting"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              مرحبا، {user.fullName.split(" ")[0]}
+              <span className="navbar-user-avatar">
+                {user.fullName.charAt(0)}
+              </span>
+              {user.fullName.split(" ")[0]}
               <span className="account-arrow">▾</span>
             </button>
             {dropdownOpen && (
