@@ -20,47 +20,77 @@ const sendOtpEmail = async (email, otp, fullName) => {
     subject: `${otp} — كود تفعيل حسابك في رُحى`,
     html: `<!DOCTYPE html>
 <html lang="ar">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+</head>
 <body style="margin:0;padding:0;background:#f0ede8;font-family:Arial,Helvetica,sans-serif;direction:rtl;">
-<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;padding:40px 16px;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;padding:48px 16px;">
   <tr><td align="center">
-    <table width="500" cellpadding="0" cellspacing="0" border="0" style="max-width:500px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;">
+    <table width="520" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.10);">
 
+      <!-- HEADER -->
       <tr>
-        <td align="center" style="background:#c8622a;padding:36px 40px;">
-          <p style="margin:0;font-size:34px;font-weight:800;color:#ffffff;">رُحى</p>
-          <p style="margin:6px 0 0;font-size:13px;color:rgba(255,255,255,0.8);">سفر وتطوع</p>
-        </td>
-      </tr>
-
-      <tr>
-        <td align="center" style="padding:40px 40px 16px;">
-          <p style="margin:0 0 8px;font-size:22px;font-weight:700;color:#2c4a3e;text-align:center;">مرحباً ${fullName} 👋</p>
-          <p style="margin:0;font-size:15px;color:#666;line-height:1.8;text-align:center;">شكراً لانضمامك إلى رُحى<br>أدخل الكود التالي لتفعيل حسابك</p>
-        </td>
-      </tr>
-
-      <tr>
-        <td align="center" style="padding:24px 40px;">
-          <table cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;border:2px dashed #c8622a;border-radius:14px;width:100%;">
+        <td align="center" style="background:linear-gradient(145deg,#c8622a 0%,#a04e20 100%);padding:44px 40px 36px;">
+          <p style="margin:0;font-family:'Aref Ruqaa',Georgia,serif;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">رُحى</p>
+          <p style="margin:8px 0 0;font-size:13px;color:rgba(255,255,255,0.7);letter-spacing:3px;text-transform:uppercase;">سفر &nbsp;•&nbsp; تطوع &nbsp;•&nbsp; اكتشاف</p>
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
             <tr>
-              <td align="center" style="padding:28px 20px;">
-                <p style="margin:0 0 8px;font-size:12px;color:#999;text-align:center;letter-spacing:2px;">كود التفعيل</p>
-                <p style="margin:0;font-size:44px;font-weight:800;color:#c8622a;letter-spacing:16px;text-align:center;">${otp}</p>
+              <td style="background:rgba(255,255,255,0.15);border-radius:20px;padding:6px 20px;">
+                <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.9);">تفعيل الحساب</p>
               </td>
             </tr>
           </table>
         </td>
       </tr>
 
+      <!-- GREETING -->
       <tr>
-        <td align="center" style="padding:0 40px 32px;">
-          <table cellpadding="0" cellspacing="0" border="0" style="background:#fff8f0;border-radius:10px;width:100%;">
+        <td align="center" style="padding:44px 48px 8px;">
+          <p style="margin:0 0 12px;font-size:24px;font-weight:700;color:#2c4a3e;text-align:center;">أهلاً وسهلاً، ${fullName}! 🌍</p>
+          <p style="margin:0;font-size:15px;color:#777;line-height:2;text-align:center;">
+            يسعدنا انضمامك إلى عائلة رُحى —<br>
+            خطوة واحدة تفصلك عن عالم من التجارب والمغامرات.
+          </p>
+        </td>
+      </tr>
+
+      <!-- DIVIDER -->
+      <tr>
+        <td align="center" style="padding:28px 48px 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
             <tr>
-              <td align="center" style="padding:16px 20px;">
-                <p style="margin:0;font-size:13px;color:#a04e20;line-height:1.8;text-align:center;">
-                  ⏱ الكود صالح لمدة <strong>10 دقائق</strong> فقط<br>
-                  🔒 لا تشاركه مع أي شخص
+              <td style="border-top:1px solid #ece8e1;"></td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- OTP BOX -->
+      <tr>
+        <td align="center" style="padding:32px 48px;">
+          <p style="margin:0 0 20px;font-size:14px;color:#999;text-align:center;letter-spacing:1px;">— كود التفعيل الخاص بك —</p>
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:linear-gradient(135deg,#fff8f4,#faf3ee);border:2px solid #e8b49a;border-radius:16px;">
+            <tr>
+              <td align="center" style="padding:32px 24px;">
+                <p style="margin:0;font-size:50px;font-weight:800;color:#c8622a;letter-spacing:18px;text-align:center;font-family:Georgia,serif;">${otp}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- WARNING -->
+      <tr>
+        <td align="center" style="padding:0 48px 40px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#fdf6f0;border-radius:12px;border:1px solid #f5dece;">
+            <tr>
+              <td align="center" style="padding:18px 24px;">
+                <p style="margin:0;font-size:13px;color:#b06030;line-height:2;text-align:center;">
+                  ⏳ &nbsp;صالح لمدة <strong>10 دقائق</strong> فقط — لا تتأخر!<br>
+                  🔐 &nbsp;هذا الكود سري، لا تشاركه مع أحد.
                 </p>
               </td>
             </tr>
@@ -68,11 +98,13 @@ const sendOtpEmail = async (email, otp, fullName) => {
         </td>
       </tr>
 
+      <!-- FOOTER -->
       <tr>
-        <td align="center" style="background:#faf8f5;padding:20px 40px;border-top:1px solid #ece8e1;">
-          <p style="margin:0;font-size:12px;color:#aaa;line-height:1.8;text-align:center;">
-            إذا لم تطلب هذا الكود، يمكنك تجاهل هذا الإيميل<br>
-            © ${year} رُحى — جميع الحقوق محفوظة
+        <td align="center" style="background:#faf8f5;padding:24px 48px;border-top:1px solid #ece8e1;">
+          <p style="margin:0 0 6px;font-size:13px;font-weight:600;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
+          <p style="margin:0;font-size:11px;color:#bbb;line-height:1.8;text-align:center;">
+            إن لم تكن أنت من طلب هذا الكود، يمكنك تجاهل هذا البريد بأمان تام.<br>
+            © ${year} رُحى &nbsp;·&nbsp; جميع الحقوق محفوظة
           </p>
         </td>
       </tr>
@@ -80,6 +112,7 @@ const sendOtpEmail = async (email, otp, fullName) => {
     </table>
   </td></tr>
 </table>
+
 </body>
 </html>`,
   });
