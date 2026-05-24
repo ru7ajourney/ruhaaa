@@ -63,10 +63,10 @@ const Navbar = () => {
         {user ? (
           <div className="navbar-account-wrapper" ref={dropdownRef}>
             <button
-              className="navbar-account-btn"
+              className="navbar-user-greeting"
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              👤 {user.fullName.split(" ")[0]}
+              مرحبا، {user.fullName.split(" ")[0]}
               <span className="account-arrow">▾</span>
             </button>
             {dropdownOpen && (
@@ -81,7 +81,7 @@ const Navbar = () => {
             )}
           </div>
         ) : (
-          <Link to="/my-account" className="navbar-account-btn">حسابي</Link>
+          <Link to="/my-account" className="navbar-register-btn">سجّل!</Link>
         )}
 
         {/* زر القائمة للموبايل */}
@@ -111,7 +111,7 @@ const Navbar = () => {
                 <li><button className="mobile-logout-btn" onClick={() => { logout(); setMenuOpen(false); navigate("/"); }}>🚪 خروج</button></li>
               </>
             ) : (
-              <li><Link to="/my-account" onClick={() => setMenuOpen(false)}>حسابي</Link></li>
+              <li><Link to="/my-account" onClick={() => setMenuOpen(false)}>سجّل!</Link></li>
             )}
           </ul>
         </div>

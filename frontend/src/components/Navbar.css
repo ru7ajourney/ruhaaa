@@ -101,6 +101,44 @@
   transform: translateY(-1px);
 }
 
+/* زر سجّل! — غير مسجّل */
+.navbar-register-btn {
+  padding: 8px 20px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.navbar-register-btn:hover {
+  background: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+/* نص الترحيب — مسجّل */
+.navbar-user-greeting {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-secondary);
+  cursor: pointer;
+  padding: 4px 0;
+  white-space: nowrap;
+}
+
+.navbar-user-greeting:hover {
+  color: var(--color-primary);
+}
+
 .account-arrow {
   font-size: 0.75rem;
   opacity: 0.8;
