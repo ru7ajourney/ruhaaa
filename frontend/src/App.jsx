@@ -25,10 +25,14 @@ import Gallery from "./pages/Gallery";
 // Admin Pages
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
+import AdminTrips from "./pages/admin/AdminTrips";
 import TripForm from "./pages/admin/TripForm";
 import TripStats from "./pages/admin/TripStats";
 import TripCalculator from "./pages/admin/TripCalculator";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminGallery from "./pages/admin/AdminGallery";
+import AdminLegal from "./pages/admin/AdminLegal";
+import AdminSubscribers from "./pages/admin/AdminSubscribers";
 import UserAuth from "./pages/UserAuth";
 import MyApplications from "./pages/MyApplications";
 import Checkout from "./pages/Checkout";
@@ -128,59 +132,16 @@ function App() {
               ============================== */}
           <Route path="/admin" element={<Login />} />
 
-          <Route
-            path="/admin/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/trips/new"
-            element={
-              <ProtectedRoute>
-                <TripForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/trips/edit/:id"
-            element={
-              <ProtectedRoute>
-                <TripForm />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/trips/:id/stats"
-            element={
-              <ProtectedRoute>
-                <TripStats />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/calculator"
-            element={
-              <ProtectedRoute>
-                <TripCalculator />
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/admin/users"
-            element={
-              <ProtectedRoute>
-                <AdminUsers />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+          <Route path="/admin/trips" element={<ProtectedRoute><AdminTrips /></ProtectedRoute>} />
+          <Route path="/admin/trips/new" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
+          <Route path="/admin/trips/edit/:id" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
+          <Route path="/admin/trips/:id/stats" element={<ProtectedRoute><TripStats /></ProtectedRoute>} />
+          <Route path="/admin/calculator" element={<ProtectedRoute><TripCalculator /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+          <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
+          <Route path="/admin/legal" element={<ProtectedRoute><AdminLegal /></ProtectedRoute>} />
+          <Route path="/admin/subscribers" element={<ProtectedRoute><AdminSubscribers /></ProtectedRoute>} />
 
           {/* صفحات المستخدم */}
           <Route path="/my-account" element={<UserAuth />} />

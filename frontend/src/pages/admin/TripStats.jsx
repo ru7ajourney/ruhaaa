@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI } from "../../api";
+import AdminLayout from "../../components/admin/AdminLayout";
 import "./AdminStyles.css";
 import "./TripStats.css";
 
@@ -51,8 +52,8 @@ const TripStats = () => {
     load();
   }, [id]);
 
-  if (loading) return <div className="page-loading"><div className="spinner" /></div>;
-  if (!trip)   return <div className="container" style={{ padding: 60 }}>الرحلة غير موجودة</div>;
+  if (loading) return <AdminLayout><div className="page-loading"><div className="spinner" /></div></AdminLayout>;
+  if (!trip)   return <AdminLayout><div style={{ padding: 60 }}>الرحلة غير موجودة</div></AdminLayout>;
 
   // ربط كل طلب بتاريخ محدد
   const appsForDate = (d) =>
@@ -66,16 +67,8 @@ const TripStats = () => {
   const isPast = (d) => new Date(d.endDate) < new Date();
 
   return (
-    <div className="admin-layout">
-      <header className="admin-header">
-        <div className="admin-header-inner">
-          <h1 className="admin-logo">رُحى <span>Admin</span></h1>
-          <Link to="/admin/dashboard" className="btn btn-secondary">← الداشبورد</Link>
-        </div>
-      </header>
-
-      <main className="admin-main">
-        <div className="admin-container">
+    <AdminLayout>
+      <div>
 
           {/* ===== رأس الصفحة ===== */}
           <div className="ts-header">
@@ -90,7 +83,10 @@ const TripStats = () => {
                 </span>
               </div>
             </div>
+            <div style={{ display: "flex", gap: "10px" }}>
+            <Link to="/admin/trips" className="btn btn-secondary">← الرحلات</Link>
             <Link to={`/admin/trips/edit/${id}`} className="btn btn-secondary">✏️ تعديل الرحلة</Link>
+          </div>
           </div>
 
           {/* ===== ملخص سريع ===== */}
@@ -312,9 +308,8 @@ const TripStats = () => {
             </div>
           )}
 
-        </div>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

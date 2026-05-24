@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import { tripsAPI } from "../../api";
+import AdminLayout from "../../components/admin/AdminLayout";
 import "./AdminStyles.css";
 
 // القيم الافتراضية للفورم
@@ -191,7 +192,7 @@ const TripForm = () => {
                 setForm(EMPTY_FORM); // أفرغ الفورم
             }
 
-            setTimeout(() => navigate("/admin/dashboard"), 1500);
+            setTimeout(() => navigate("/admin/trips"), 1500);
         } catch (err) {
             setError(err.response?.data?.message || "حدث خطأ أثناء الحفظ");
         } finally {
@@ -201,28 +202,21 @@ const TripForm = () => {
 
     if (fetchLoading) {
         return (
-            <div className="page-loading">
-                <div className="spinner" />
-            </div>
+            <AdminLayout>
+                <div className="page-loading"><div className="spinner" /></div>
+            </AdminLayout>
         );
     }
 
     return (
-        <div className="admin-layout">
-            <header className="admin-header">
-                <div className="admin-header-inner">
-                    <h1 className="admin-logo">رُحى <span>Admin</span></h1>
-                    <Link to="/admin/dashboard" className="btn btn-secondary">
-                        ← الداشبورد
-                    </Link>
-                </div>
-            </header>
-
-            <main className="admin-main">
-                <div className="admin-container">
-                    <h2 className="form-page-title">
-                        {isEditMode ? "تعديل الرحلة" : "إضافة رحلة جديدة"}
-                    </h2>
+        <AdminLayout>
+            <div className="admin-page-header">
+                <h1 className="admin-page-title">
+                    {isEditMode ? "تعديل الرحلة" : "إضافة رحلة جديدة"}
+                </h1>
+                <Link to="/admin/trips" className="btn btn-secondary">← الرحلات</Link>
+            </div>
+            <div>
 
                     {error && <div className="error-msg">{error}</div>}
                     {success && <div className="success-msg">{success}</div>}
@@ -579,14 +573,13 @@ const TripForm = () => {
                                         ? "💾 حفظ التعديلات"
                                         : "✅ إضافة الرحلة"}
                             </button>
-                            <Link to="/admin/dashboard" className="btn btn-secondary">
+                            <Link to="/admin/trips" className="btn btn-secondary">
                                 إلغاء
                             </Link>
                         </div>
                     </form>
                 </div>
-            </main>
-        </div>
+        </AdminLayout>
     );
 };
 

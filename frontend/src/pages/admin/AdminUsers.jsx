@@ -1,6 +1,7 @@
+// src/pages/admin/AdminUsers.jsx
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { userAPI } from "../../api";
+import { userAPI, applicationsAPI } from "../../api";
+import AdminLayout from "../../components/admin/AdminLayout";
 import "./AdminStyles.css";
 
 const ARABIC_TO_LATIN = {
@@ -18,62 +19,78 @@ const getInitial = (name) => {
 const fmtDate = (d) =>
   new Date(d).toLocaleDateString("ar-SA", { year: "numeric", month: "short", day: "numeric" });
 
+const STATUS_MAP = {
+  pending:         { label: "قيد المراجعة",   color: "#f59e0b", bg: "#fffbeb" },
+  reviewed:        { label: "تمت المراجعة",   color: "#3b82f6", bg: "#eff6ff" },
+  accepted:        { label: "تم القبول",       color: "#16a34a", bg: "#f0fdf4" },
+  rejected:        { label: "تم الرفض",        color: "#dc2626", bg: "#fef2f2" },
+  payment_pending: { label: "انتظار الدفع",    color: "#7c3aed", bg: "#ede9fe" },
+  confirmed:       { label: "مسجّل رسمياً",   color: "#065f46", bg: "#d1fae5" },
+};
+
 const AdminUsers = () => {
-  const [users, setUsers]     = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch]   = useState("");
+  const [tab, setTab]               = useState("site");
+  const [users, setUsers]           = useState([]);
+  const [applications, setApplications] = useState([]);
+  const [usersLoading, setUsersLoading] = useState(true);
+  const [appsLoading, setAppsLoading]   = useState(true);
+  const [search, setSearch]         = useState("");
 
   useEffect(() => {
     userAPI.adminGetAll()
       .then(({ data }) => setUsers(Array.isArray(data) ? data : []))
       .catch(console.error)
-      .finally(() => setLoading(false));
+      .finally(() => setUsersLoading(false));
+
+    applicationsAPI.getAll()
+      .then(({ data }) => setApplications(Array.isArray(data) ? data : []))
+      .catch(console.error)
+      .finally(() => setAppsLoading(false));
   }, []);
 
-  const filtered = users.filter((u) =>
+  const filteredUsers = users.filter((u) =>
     u.fullName.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  if (loading) return <div className="page-loading"><div className="spinner" /></div>;
+  const filteredApps = applications.filter((a) =>
+    a.fullName?.toLowerCase().includes(search.toLowerCase()) ||
+    a.email?.toLowerCase().includes(search.toLowerCase()) ||
+    a.phone?.includes(search) ||
+    a.tripTitle?.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
-    <div className="admin-layout">
-      <header className="admin-header">
-        <div className="admin-header-inner">
-          <h1 className="admin-logo">رُحى <span>Admin</span></h1>
-          <Link to="/admin/dashboard" className="btn btn-secondary">← الداشبورد</Link>
-        </div>
-      </header>
+    <AdminLayout>
+      <div className="admin-page-header">
+        <h1 className="admin-page-title">المستخدمون</h1>
+        <input
+          type="text"
+          placeholder="🔍 بحث بالاسم أو الإيميل..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ padding: "10px 16px", border: "1.5px solid var(--color-border)", borderRadius: "10px", fontSize: "0.9rem", fontFamily: "inherit", width: "240px", outline: "none", background: "#fff" }}
+        />
+      </div>
 
-      <main className="admin-main">
-        <div className="admin-container">
+      {/* Tabs */}
+      <div className="admin-tabs" style={{ marginBottom: "24px" }}>
+        <button className={`admin-tab ${tab === "site" ? "active" : ""}`} onClick={() => setTab("site")}>
+          👤 مستخدمو الموقع
+          <span className="tab-badge" style={{ background: "#718096" }}>{users.length}</span>
+        </button>
+        <button className={`admin-tab ${tab === "applicants" ? "active" : ""}`} onClick={() => setTab("applicants")}>
+          📩 مسجّلو الرحلات
+          <span className="tab-badge" style={{ background: "#718096" }}>{applications.length}</span>
+        </button>
+      </div>
 
-          {/* رأس الصفحة */}
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 24, flexWrap: "wrap", gap: 12 }}>
-            <div>
-              <h2 style={{ margin: 0, fontSize: "1.4rem", color: "var(--color-secondary)" }}>
-                👥 المستخدمون
-              </h2>
-              <p style={{ margin: "4px 0 0", fontSize: "0.88rem", color: "var(--color-text-light)" }}>
-                إجمالي {users.length} مستخدم مسجّل
-              </p>
-            </div>
-            <input
-              type="text"
-              placeholder="🔍 ابحث بالاسم أو الإيميل..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              style={{
-                padding: "9px 16px", border: "1.5px solid var(--color-border)",
-                borderRadius: 10, fontSize: "0.9rem", fontFamily: "inherit",
-                background: "var(--color-white)", width: 260, outline: "none",
-              }}
-            />
-          </div>
-
-          {/* الجدول */}
-          {filtered.length === 0 ? (
+      {/* ── Site Users Tab ── */}
+      {tab === "site" && (
+        <>
+          {usersLoading ? (
+            <div className="page-loading"><div className="spinner" /></div>
+          ) : filteredUsers.length === 0 ? (
             <div className="admin-empty"><p>لا يوجد مستخدمون.</p></div>
           ) : (
             <div className="admin-table-wrapper">
@@ -89,34 +106,20 @@ const AdminUsers = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((u, i) => (
+                  {filteredUsers.map((u, i) => (
                     <tr key={u._id}>
-                      <td>{i + 1}</td>
+                      <td style={{ color: "#a0aec0" }}>{i + 1}</td>
                       <td>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                           {u.avatar ? (
-                            <img
-                              src={u.avatar}
-                              alt={u.fullName}
-                              referrerPolicy="no-referrer"
-                              style={{ width: 34, height: 34, borderRadius: "50%", objectFit: "cover", flexShrink: 0 }}
-                            />
+                            <img src={u.avatar} alt={u.fullName} referrerPolicy="no-referrer" className="admin-users-avatar" />
                           ) : (
-                            <div style={{
-                              width: 34, height: 34, borderRadius: "50%",
-                              background: "var(--color-primary)", color: "#fff",
-                              display: "flex", alignItems: "center", justifyContent: "center",
-                              fontWeight: 700, fontSize: "0.85rem", flexShrink: 0,
-                            }}>
-                              {getInitial(u.fullName)}
-                            </div>
+                            <div className="admin-users-avatar">{getInitial(u.fullName)}</div>
                           )}
                           <strong>{u.fullName}</strong>
                         </div>
                       </td>
-                      <td style={{ direction: "ltr", textAlign: "right", color: "var(--color-text-light)" }}>
-                        {u.email}
-                      </td>
+                      <td style={{ direction: "ltr", textAlign: "right", color: "var(--color-text-light)" }}>{u.email}</td>
                       <td>
                         {u.googleId ? (
                           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -129,28 +132,85 @@ const AdminUsers = () => {
                       </td>
                       <td>
                         {u.isVerified ? (
-                          <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>
-                            ✓ مفعّل
-                          </span>
+                          <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>✓ مفعّل</span>
                         ) : (
-                          <span style={{ background: "#fef9c3", color: "#b45309", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>
-                            ⏳ غير مفعّل
-                          </span>
+                          <span style={{ background: "#fef9c3", color: "#b45309", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>⏳ غير مفعّل</span>
                         )}
                       </td>
-                      <td style={{ color: "var(--color-text-light)", fontSize: "0.88rem" }}>
-                        {fmtDate(u.createdAt)}
-                      </td>
+                      <td style={{ color: "var(--color-text-light)", fontSize: "0.88rem" }}>{fmtDate(u.createdAt)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           )}
+        </>
+      )}
 
-        </div>
-      </main>
-    </div>
+      {/* ── Trip Applicants Tab ── */}
+      {tab === "applicants" && (
+        <>
+          {appsLoading ? (
+            <div className="page-loading"><div className="spinner" /></div>
+          ) : filteredApps.length === 0 ? (
+            <div className="admin-empty"><p>لا توجد طلبات.</p></div>
+          ) : (
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>الاسم</th>
+                    <th>الإيميل</th>
+                    <th>الهاتف</th>
+                    <th>الرحلة</th>
+                    <th>الحالة</th>
+                    <th>التاريخ</th>
+                    <th>التواصل</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredApps.map((app, i) => {
+                    const s = STATUS_MAP[app.status] || STATUS_MAP.pending;
+                    return (
+                      <tr key={app._id}>
+                        <td style={{ color: "#a0aec0" }}>{i + 1}</td>
+                        <td>
+                          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                            <div className="admin-users-avatar">{getInitial(app.fullName)}</div>
+                            <div>
+                              <div style={{ fontWeight: 600 }}>{app.fullName}</div>
+                              <div style={{ fontSize: "0.78rem", color: "#718096" }}>{app.country} - {app.city}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="ltr" style={{ color: "var(--color-text-light)", fontSize: "0.88rem" }}>{app.email}</td>
+                        <td className="ltr" style={{ fontSize: "0.88rem" }}>{app.phone}</td>
+                        <td style={{ fontWeight: 500, fontSize: "0.9rem" }}>{app.tripTitle}</td>
+                        <td>
+                          <span style={{ background: s.bg, color: s.color, padding: "3px 10px", borderRadius: 100, fontSize: "0.78rem", fontWeight: 700 }}>
+                            {s.label}
+                          </span>
+                        </td>
+                        <td style={{ color: "#a0aec0", fontSize: "0.85rem" }}>{fmtDate(app.createdAt)}</td>
+                        <td>
+                          <div className="table-actions">
+                            <a href={`https://wa.me/${app.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer"
+                              className="btn-action" style={{ background: "#f0fdf4", color: "#16a34a", border: "1px solid #bbf7d0" }}>
+                              واتساب
+                            </a>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </>
+      )}
+    </AdminLayout>
   );
 };
 

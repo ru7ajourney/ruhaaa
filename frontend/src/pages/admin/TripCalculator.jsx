@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { tripsAPI } from "../../api";
+import AdminLayout from "../../components/admin/AdminLayout";
 import "./TripCalculator.css";
 
 const uid = () => Math.random().toString(36).slice(2);
@@ -179,20 +180,13 @@ const TripCalculator = () => {
   const currentPrice = selectedTrip?.price || 0;
 
   return (
-    <div className="calc-layout">
-      <header className="admin-header">
-        <div className="admin-header-inner">
-          <h1 className="admin-logo">رُحى <span>Admin</span></h1>
-          <div className="admin-header-actions">
-            <Link to="/admin/dashboard" className="btn btn-secondary">← الداشبورد</Link>
-          </div>
-        </div>
-      </header>
-
-      <main className="calc-main">
+    <AdminLayout>
+      <div className="admin-page-header">
+        <h1 className="admin-page-title">🧮 حاسبة التكاليف</h1>
+      </div>
+      <div className="calc-main">
         <div className="calc-container">
           <div className="calc-page-title">
-            <h2>🧮 حاسبة تكاليف الرحلة</h2>
             <p>حدد الحد الأدنى للتشغيل وسيُحسب السعر الأنسب لكل شخص</p>
           </div>
 
@@ -412,8 +406,8 @@ const TripCalculator = () => {
             )}
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 
