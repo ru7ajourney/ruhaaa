@@ -82,6 +82,7 @@ export const applicationsAPI = {
   getById: (id) => api.get(`/applications/${id}`),
   updateStatus: (id, data) => api.put(`/applications/${id}`, data),
   confirmDeposit: (id) => api.post(`/applications/${id}/confirm-deposit`),
+  completeRefund: (id) => api.post(`/applications/${id}/complete-refund`),
   delete: (id) => api.delete(`/applications/${id}`),
 };
 

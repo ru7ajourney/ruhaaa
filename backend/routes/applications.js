@@ -328,9 +328,10 @@ router.put("/:id", protect, async (req, res) => {
     if (status && status !== oldApp.status) {
       updateFields.status = status;
 
-      // إذا تم الرفض وكان العربون مدفوعاً → نلغي العربون ونُرجع المقعد
+      // إذا تم الرفض وكان العربون مدفوعاً → نلغي العربون ونُرجع المقعد ونطلب ريفند
       if (status === "rejected" && oldApp.depositPaid) {
         updateFields.depositPaid = false;
+        updateFields.refundStatus = "required";
         await Trip.findByIdAndUpdate(oldApp.trip, { $inc: { bookedSpots: -1 } });
       }
 
@@ -352,17 +353,47 @@ router.put("/:id", protect, async (req, res) => {
 });
 
 // ==============================
+// POST /api/applications/:id/complete-refund (آدمن فقط)
+// تأكيد إتمام الريفند
+// ==============================
+router.post("/:id/complete-refund", protect, async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+    if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
+
+    if (application.refundStatus !== "required") {
+      return res.status(400).json({ message: "لا يوجد ريفند مطلوب لهذا الطلب" });
+    }
+
+    application.refundStatus = "completed";
+    application.history.push({
+      status: application.status,
+      reason: "تم إتمام الريفند",
+      changedBy: req.admin?.username || req.admin?.name || "",
+      changedAt: new Date(),
+    });
+    await application.save();
+
+    res.json({ message: "تم تأكيد الريفند", application });
+  } catch (error) {
+    res.status(500).json({ message: "خطأ في تأكيد الريفند", error: error.message });
+  }
+});
+
+// ==============================
 // DELETE /api/applications/:id (آدمن فقط)
-// حذف طلب
+// حذف طلب — ممنوع إذا كان الريفند لم يتم بعد
 // ==============================
 router.delete("/:id", protect, async (req, res) => {
   try {
-    const application = await Application.findByIdAndDelete(req.params.id);
+    const application = await Application.findById(req.params.id);
+    if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
 
-    if (!application) {
-      return res.status(404).json({ message: "الطلب غير موجود" });
+    if (application.refundStatus === "required") {
+      return res.status(400).json({ message: "لا يمكن حذف هذا الطلب قبل إتمام الريفند" });
     }
 
+    await application.deleteOne();
     res.json({ message: "تم حذف الطلب بنجاح" });
   } catch (error) {
     res.status(500).json({ message: "خطأ في حذف الطلب", error: error.message });

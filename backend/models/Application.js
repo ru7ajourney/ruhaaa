@@ -120,6 +120,13 @@ const ApplicationSchema = new mongoose.Schema(
       default: false,
     },
 
+    // حالة الريفند (none = لا يوجد، required = مطلوب، completed = تم)
+    refundStatus: {
+      type: String,
+      enum: ["none", "required", "completed"],
+      default: "none",
+    },
+
     // سبب القرار (مرتبط بتغيير الحالة)
     adminNotes: {
       type: String,
