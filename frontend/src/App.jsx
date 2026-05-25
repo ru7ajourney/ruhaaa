@@ -11,6 +11,7 @@ import { UserAuthProvider } from "./context/UserAuthContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SuperRoute from "./components/SuperRoute";
 import ScrollToTop from "./components/ScrollToTop";
 
 // Public Pages
@@ -139,12 +140,12 @@ function App() {
           <Route path="/admin/trips/new" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
           <Route path="/admin/trips/edit/:id" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
           <Route path="/admin/trips/:id/stats" element={<ProtectedRoute><TripStats /></ProtectedRoute>} />
-          <Route path="/admin/calculator" element={<ProtectedRoute><TripCalculator /></ProtectedRoute>} />
+          <Route path="/admin/calculator" element={<ProtectedRoute><SuperRoute><TripCalculator /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute><AdminPeople /></ProtectedRoute>} />
           <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
-          <Route path="/admin/legal" element={<ProtectedRoute><AdminLegal /></ProtectedRoute>} />
+          <Route path="/admin/legal" element={<ProtectedRoute><SuperRoute><AdminLegal /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/subscribers" element={<ProtectedRoute><AdminSubscribers /></ProtectedRoute>} />
-          <Route path="/admin/admins" element={<ProtectedRoute><AdminManagement /></ProtectedRoute>} />
+          <Route path="/admin/admins" element={<ProtectedRoute><SuperRoute><AdminManagement /></SuperRoute></ProtectedRoute>} />
 
           {/* صفحات المستخدم */}
           <Route path="/my-account" element={<UserAuth />} />

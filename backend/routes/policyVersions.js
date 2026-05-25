@@ -1,6 +1,6 @@
 const express = require("express");
 const PolicyVersion = require("../models/PolicyVersion");
-const { protect } = require("../middleware/authMiddleware");
+const { protectSuperSuper } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -16,7 +16,7 @@ function generateVersionName() {
 }
 
 // GET /api/policy-versions — كل النسخ (بدون المحتوى للتخفيف)
-router.get("/", protect, async (req, res) => {
+router.get("/", protectSuper, async (req, res) => {
   try {
     const versions = await PolicyVersion.find({}, "versionName createdAt").sort({ createdAt: -1 });
     res.json(versions);
@@ -26,7 +26,7 @@ router.get("/", protect, async (req, res) => {
 });
 
 // GET /api/policy-versions/:id — محتوى نسخة معينة
-router.get("/:id", protect, async (req, res) => {
+router.get("/:id", protectSuper, async (req, res) => {
   try {
     const version = await PolicyVersion.findById(req.params.id);
     if (!version) return res.status(404).json({ message: "النسخة غير موجودة" });
@@ -37,7 +37,7 @@ router.get("/:id", protect, async (req, res) => {
 });
 
 // POST /api/policy-versions — حفظ نسخة جديدة
-router.post("/", protect, async (req, res) => {
+router.post("/", protectSuper, async (req, res) => {
   try {
     const { policies } = req.body;
     const versionName = generateVersionName();
@@ -52,7 +52,7 @@ router.post("/", protect, async (req, res) => {
 });
 
 // DELETE /api/policy-versions/:id
-router.delete("/:id", protect, async (req, res) => {
+router.delete("/:id", protectSuper, async (req, res) => {
   try {
     const version = await PolicyVersion.findByIdAndDelete(req.params.id);
     if (!version) return res.status(404).json({ message: "النسخة غير موجودة" });
