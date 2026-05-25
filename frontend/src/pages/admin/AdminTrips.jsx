@@ -420,14 +420,69 @@ const AdminTrips = () => {
 
           <div className="applications-layout">
             <div className="applications-list">
-              <div className="admin-section-header">
-                <h2>
-                  {APP_FOLDERS.find((f) => f.key === appFolder)?.emoji}{" "}
-                  {APP_FOLDERS.find((f) => f.key === appFolder)?.label} ({filteredApps.length})
-                </h2>
-              </div>
               {appsLoading ? (
                 <div className="page-loading"><div className="spinner" /></div>
+              ) : appFolder === "accepted" ? (
+                // ── قسم القبول مقسّم: بانتظار العربون + دفع العربون ──
+                (() => {
+                  const waiting = filteredApps.filter((a) => !a.depositPaid);
+                  const paid    = filteredApps.filter((a) => a.depositPaid);
+                  const renderCard = (app) => {
+                    const s = STATUS_MAP[app.status];
+                    return (
+                      <div
+                        key={app._id}
+                        className={`app-card ${selectedApp?._id === app._id ? "app-card-selected" : ""}`}
+                        onClick={() => setSelectedApp(app)}
+                      >
+                        <div className="app-card-top">
+                          <div>
+                            <div className="app-name">{app.fullName}</div>
+                            <div className="app-trip">{app.tripTitle}</div>
+                          </div>
+                          {app.refundStatus === "required" && (
+                            <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: "12px" }}>⚠️ ريفند مطلوب</span>
+                          )}
+                        </div>
+                        <div className="app-card-bottom">
+                          <span>📍 {app.country} - {app.city}</span>
+                          <span>{new Date(app.createdAt).toLocaleDateString("ar-SA")}</span>
+                        </div>
+                      </div>
+                    );
+                  };
+                  return (
+                    <>
+                      {/* بانتظار العربون */}
+                      <div className="app-sub-section">
+                        <div className="app-sub-header">
+                          <span className="app-sub-dot" style={{ background: "#f59e0b" }} />
+                          <span>بانتظار العربون</span>
+                          <span className="app-sub-count">{waiting.length}</span>
+                        </div>
+                        {waiting.length === 0 ? (
+                          <div className="admin-empty" style={{ padding: "16px 12px", fontSize: "0.85rem" }}><p>لا يوجد</p></div>
+                        ) : (
+                          <div className="app-cards">{waiting.map(renderCard)}</div>
+                        )}
+                      </div>
+
+                      {/* دفع العربون */}
+                      <div className="app-sub-section">
+                        <div className="app-sub-header">
+                          <span className="app-sub-dot" style={{ background: "#16a34a" }} />
+                          <span>دفع العربون</span>
+                          <span className="app-sub-count">{paid.length}</span>
+                        </div>
+                        {paid.length === 0 ? (
+                          <div className="admin-empty" style={{ padding: "16px 12px", fontSize: "0.85rem" }}><p>لا يوجد</p></div>
+                        ) : (
+                          <div className="app-cards">{paid.map(renderCard)}</div>
+                        )}
+                      </div>
+                    </>
+                  );
+                })()
               ) : filteredApps.length === 0 ? (
                 <div className="admin-empty"><p>لا توجد طلبات في هذا القسم.</p></div>
               ) : (
@@ -447,9 +502,6 @@ const AdminTrips = () => {
                           </div>
                           <div style={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "flex-end" }}>
                             <span className="app-status-badge" style={{ color: s.color, background: s.bg }}>{s.label}</span>
-                            {app.depositPaid && (
-                              <span style={{ background: "#f0fdf4", color: "#16a34a", fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: "12px" }}>💳 دفع العربون</span>
-                            )}
                             {app.refundStatus === "required" && (
                               <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: "12px" }}>⚠️ ريفند مطلوب</span>
                             )}
