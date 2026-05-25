@@ -4,6 +4,7 @@
 import { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI } from "../../api";
+import { useAuth } from "../../context/AuthContext";
 import AdminLayout from "../../components/admin/AdminLayout";
 import "./AdminStyles.css";
 import "./TripStats.css";
@@ -27,6 +28,7 @@ const dateLabel = (d) => `${fmtDate(d.startDate)} - ${fmtDate(d.endDate)}`;
 
 const TripStats = () => {
   const { id } = useParams();
+  const { isSuper } = useAuth();
   const [trip, setTrip] = useState(null);
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -82,9 +84,11 @@ const TripStats = () => {
               </div>
             </div>
             <div style={{ display: "flex", gap: "10px" }}>
-            <Link to="/admin/trips" className="btn btn-secondary">← الرحلات</Link>
-            <Link to={`/admin/trips/edit/${id}`} className="btn btn-secondary">✏️ تعديل الرحلة</Link>
-          </div>
+              <Link to="/admin/trips" className="btn btn-secondary">← الرحلات</Link>
+              {isSuper && (
+                <Link to={`/admin/trips/edit/${id}`} className="btn btn-secondary">✏️ تعديل الرحلة</Link>
+              )}
+            </div>
           </div>
 
           {/* ===== ملخص سريع ===== */}

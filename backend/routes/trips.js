@@ -3,7 +3,7 @@
 
 const express = require("express");
 const Trip = require("../models/Trip");
-const { protect } = require("../middleware/authMiddleware");
+const { protect, protectSuper } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
@@ -84,7 +84,7 @@ router.get("/admin/:id", protect, async (req, res) => {
 
 // POST /api/trips
 // إضافة رحلة جديدة (آدمن فقط)
-router.post("/", protect, async (req, res) => {
+router.post("/", protectSuper, async (req, res) => {
   try {
     const trip = await Trip.create(req.body);
     res.status(201).json({ message: "تم إضافة الرحلة بنجاح", trip });
@@ -95,7 +95,7 @@ router.post("/", protect, async (req, res) => {
 
 // PUT /api/trips/:id
 // تعديل رحلة موجودة (آدمن فقط)
-router.put("/:id", protect, async (req, res) => {
+router.put("/:id", protectSuper, async (req, res) => {
   try {
     const updateData = { ...req.body };
     delete updateData.bookedSpots; // محمي - لا يتغير إلا عند تأكيد عربون
@@ -117,7 +117,7 @@ router.put("/:id", protect, async (req, res) => {
 
 // DELETE /api/trips/:id
 // حذف رحلة (آدمن فقط)
-router.delete("/:id", protect, async (req, res) => {
+router.delete("/:id", protectSuper, async (req, res) => {
   try {
     const trip = await Trip.findByIdAndDelete(req.params.id);
 

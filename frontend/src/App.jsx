@@ -138,8 +138,8 @@ function App() {
 
           <Route path="/admin/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
           <Route path="/admin/trips" element={<ProtectedRoute><AdminTrips /></ProtectedRoute>} />
-          <Route path="/admin/trips/new" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
-          <Route path="/admin/trips/edit/:id" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
+          <Route path="/admin/trips/new" element={<ProtectedRoute><SuperRoute><TripForm /></SuperRoute></ProtectedRoute>} />
+          <Route path="/admin/trips/edit/:id" element={<ProtectedRoute><SuperRoute><TripForm /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/trips/:id/stats" element={<ProtectedRoute><TripStats /></ProtectedRoute>} />
           <Route path="/admin/calculator" element={<ProtectedRoute><SuperRoute><TripCalculator /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute><AdminPeople /></ProtectedRoute>} />

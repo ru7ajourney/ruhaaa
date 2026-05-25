@@ -79,7 +79,7 @@ const ClientNotesSection = ({ app, onSave }) => {
 };
 
 // ── Trip Detail Panel ─────────────────────────────────────
-const TripDetail = ({ trip, applications, onDelete }) => {
+const TripDetail = ({ trip, applications, onDelete, isSuper }) => {
   const tripApps = applications.filter(
     (a) => (a.trip?._id || a.trip) === trip._id
   );
@@ -106,12 +106,16 @@ const TripDetail = ({ trip, applications, onDelete }) => {
           <Link to={`/admin/trips/${trip._id}/stats`} className="btn-action" style={{ background: "#f5f3ff", color: "#7c3aed", border: "1px solid #ddd6fe" }}>
             📊 إحصائيات
           </Link>
-          <Link to={`/admin/trips/edit/${trip._id}`} className="btn-action btn-edit">
-            تعديل
-          </Link>
-          <button className="btn-action btn-delete" onClick={() => onDelete(trip._id)}>
-            حذف
-          </button>
+          {isSuper && (
+            <>
+              <Link to={`/admin/trips/edit/${trip._id}`} className="btn-action btn-edit">
+                تعديل
+              </Link>
+              <button className="btn-action btn-delete" onClick={() => onDelete(trip._id)}>
+                حذف
+              </button>
+            </>
+          )}
         </div>
       </div>
 
@@ -179,7 +183,7 @@ const TripDetail = ({ trip, applications, onDelete }) => {
 
 // ── Main Component ─────────────────────────────────────────
 const AdminTrips = () => {
-  const { admin } = useAuth();
+  const { admin, isSuper } = useAuth();
 
   const [activeTab, setActiveTab]       = useState("trips");
   const [trips, setTrips]               = useState([]);
@@ -328,9 +332,11 @@ const AdminTrips = () => {
           <div className="trips-list-col">
             <div className="trips-list-header">
               <span>الرحلات ({trips.length})</span>
-              <Link to="/admin/trips/new" className="btn btn-primary" style={{ padding: "7px 16px", fontSize: "0.85rem" }}>
-                + جديدة
-              </Link>
+              {isSuper && (
+                <Link to="/admin/trips/new" className="btn btn-primary" style={{ padding: "7px 16px", fontSize: "0.85rem" }}>
+                  + جديدة
+                </Link>
+              )}
             </div>
 
             {tripsLoading ? (
@@ -382,6 +388,7 @@ const AdminTrips = () => {
                 trip={selectedTrip}
                 applications={applications}
                 onDelete={handleDeleteTrip}
+                isSuper={isSuper}
               />
             )}
           </div>
