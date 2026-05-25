@@ -77,11 +77,16 @@ router.patch("/:id", async (req, res) => {
       return res.status(404).json({ message: "الأدمن غير موجود" });
     }
 
+    // لا يمكن تخفيض صلاحية سوبر ادمن
+    if (admin.role === "super" && role === "admin") {
+      return res.status(403).json({ message: "لا يمكن تغيير صلاحية المدير الأعلى" });
+    }
+
     if (name !== undefined)     admin.name     = name;
     if (username !== undefined) admin.username = username;
     if (email !== undefined)    admin.email    = email;
     if (role !== undefined)     admin.role     = role === "super" ? "super" : "admin";
-    if (password)               admin.password = password; // pre-save hook يشفرها
+    if (password)               admin.password = password;
 
     await admin.save();
 

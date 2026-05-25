@@ -204,22 +204,29 @@ const AdminManagement = () => {
                 </label>
                 <label className="adm-label adm-label--full">
                   الصلاحية
-                  <div className="adm-role-group">
-                    <button
-                      type="button"
-                      className={`adm-role-btn ${form.role === "admin" ? "adm-role-btn--active" : ""}`}
-                      onClick={() => setForm({ ...form, role: "admin" })}
-                    >
-                      مدير عادي
-                    </button>
-                    <button
-                      type="button"
-                      className={`adm-role-btn adm-role-btn--super ${form.role === "super" ? "adm-role-btn--active" : ""}`}
-                      onClick={() => setForm({ ...form, role: "super" })}
-                    >
-                      مدير أعلى
-                    </button>
-                  </div>
+                  {modal.mode === "edit" && modal.id && admins.find((a) => (a.id || a._id) === modal.id)?.role === "super" ? (
+                    <div className="adm-role-locked">
+                      <span className="adm-role-badge adm-role-badge--super">مدير أعلى</span>
+                      <span className="adm-role-locked-note">لا يمكن تغيير صلاحية المدير الأعلى</span>
+                    </div>
+                  ) : (
+                    <div className="adm-role-group">
+                      <button
+                        type="button"
+                        className={`adm-role-btn ${form.role === "admin" ? "adm-role-btn--active" : ""}`}
+                        onClick={() => setForm({ ...form, role: "admin" })}
+                      >
+                        مدير عادي
+                      </button>
+                      <button
+                        type="button"
+                        className={`adm-role-btn adm-role-btn--super ${form.role === "super" ? "adm-role-btn--active" : ""}`}
+                        onClick={() => setForm({ ...form, role: "super" })}
+                      >
+                        مدير أعلى
+                      </button>
+                    </div>
+                  )}
                 </label>
               </div>
             </div>

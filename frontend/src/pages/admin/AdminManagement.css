@@ -279,6 +279,23 @@
   margin: 0;
 }
 
+/* ── Role Locked ── */
+.adm-role-locked {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #f8f9fa;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+}
+
+.adm-role-locked-note {
+  font-size: 0.82rem;
+  color: #999;
+  font-weight: 400;
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .adm-form-grid { grid-template-columns: 1fr; }
