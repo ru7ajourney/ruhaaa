@@ -4,10 +4,12 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI, subscribersAPI, userAPI } from "../../api";
+import { useAuth } from "../../context/AuthContext";
 import AdminLayout from "../../components/admin/AdminLayout";
 import "./AdminStyles.css";
 
 const Dashboard = () => {
+  const { isSuper } = useAuth();
   const [stats, setStats] = useState({
     trips: 0,
     activeTrips: 0,
@@ -114,7 +116,7 @@ const Dashboard = () => {
               <div className="dash-stat-sub">حسابات مسجّلة</div>
             </Link>
 
-            <Link to="/admin/subscribers" className="dash-stat-card">
+            <Link to="/admin/users" className="dash-stat-card">
               <div className="dash-stat-icon">📋</div>
               <div className="dash-stat-number">{stats.subscribers}</div>
               <div className="dash-stat-label">المشتركون</div>
@@ -135,9 +137,14 @@ const Dashboard = () => {
                   <span className="dash-badge">{stats.pendingApps}</span>
                 )}
               </Link>
-              <Link to="/admin/gallery" className="dash-quick-btn">🖼️ إدارة المعرض</Link>
-              <Link to="/admin/legal" className="dash-quick-btn">📜 السياسات</Link>
-              <Link to="/admin/calculator" className="dash-quick-btn">🧮 حاسبة التكاليف</Link>
+              <Link to="/admin/users" className="dash-quick-btn">👥 المستخدمون</Link>
+              {isSuper && (
+                <>
+                  <Link to="/admin/legal" className="dash-quick-btn">📜 السياسات</Link>
+                  <Link to="/admin/calculator" className="dash-quick-btn">🧮 حاسبة التكاليف</Link>
+                  <Link to="/admin/admins" className="dash-quick-btn">🛡️ المديرون</Link>
+                </>
+              )}
             </div>
           </div>
 

@@ -1,4 +1,5 @@
 // src/components/admin/AdminLayout.jsx
+import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import "./AdminLayout.css";
@@ -19,6 +20,9 @@ const AdminLayout = ({ children }) => {
   const { admin, logout, isSuper } = useAuth();
   const navigate  = useNavigate();
   const location  = useLocation();
+
+  const isLibraryPath = LIBRARY_NAV.some((item) => location.pathname.startsWith(item.path));
+  const [libraryOpen, setLibraryOpen] = useState(isLibraryPath);
 
   const handleLogout = () => { logout(); navigate("/admin"); };
 
@@ -51,19 +55,29 @@ const AdminLayout = ({ children }) => {
 
           {isSuper && (
             <>
-              <div className="sidebar-section-header">
-                <span className="sidebar-section-label">المكتبة</span>
-              </div>
-              {LIBRARY_NAV.map((item) => (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`sidebar-link sidebar-link--sub ${isActive(item.path) ? "sidebar-link--active" : ""}`}
-                >
-                  <span className="sidebar-link-icon">{item.icon}</span>
-                  <span className="sidebar-link-label">{item.label}</span>
-                </Link>
-              ))}
+              <button
+                className={`sidebar-link sidebar-library-btn ${isLibraryPath ? "sidebar-library-btn--active" : ""}`}
+                onClick={() => setLibraryOpen((o) => !o)}
+              >
+                <span className="sidebar-link-icon">📚</span>
+                <span className="sidebar-link-label">المكتبة</span>
+                <span className={`sidebar-library-arrow ${libraryOpen ? "sidebar-library-arrow--open" : ""}`}>›</span>
+              </button>
+
+              {libraryOpen && (
+                <div className="sidebar-library-items">
+                  {LIBRARY_NAV.map((item) => (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      className={`sidebar-link sidebar-link--sub ${isActive(item.path) ? "sidebar-link--active" : ""}`}
+                    >
+                      <span className="sidebar-link-icon">{item.icon}</span>
+                      <span className="sidebar-link-label">{item.label}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </>
           )}
         </nav>
