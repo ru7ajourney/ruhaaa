@@ -1,9 +1,9 @@
 // src/pages/admin/AdminManagement.jsx
 // إدارة الأدمنز — متاحة للمدير الأعلى فقط
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
-import { adminsAPI } from "../../api";
+import { adminsAPI, authAPI } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import "./AdminManagement.css";
 
@@ -18,6 +18,20 @@ const AdminManagement = () => {
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState(null); // id to delete
+
+  // Ping only while this page is open
+  useEffect(() => {
+    const lastPing = { current: 0 };
+    const handleActivity = () => {
+      const now = Date.now();
+      if (now - lastPing.current < 60_000) return;
+      lastPing.current = now;
+      authAPI.ping().catch(() => {});
+    };
+    const events = ["click", "keydown", "mousemove", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, handleActivity, { passive: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, handleActivity));
+  }, []);
 
   const loadAdmins = async () => {
     try {
