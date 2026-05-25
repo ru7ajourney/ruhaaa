@@ -9,11 +9,9 @@ import "./AdminStyles.css";
 import "./TripStats.css";
 
 const STATUS_MAP = {
-  pending:   { label: "قيد المراجعة",  color: "#f59e0b", bg: "#fffbeb" },
-  reviewed:  { label: "تمت المراجعة", color: "#3b82f6", bg: "#eff6ff" },
-  accepted:  { label: "تم القبول",     color: "#16a34a", bg: "#f0fdf4" },
-  rejected:  { label: "تم الرفض",      color: "#dc2626", bg: "#fef2f2" },
-  confirmed: { label: "مسجّل رسمياً", color: "#7c3aed", bg: "#f5f3ff" },
+  pending:  { label: "قيد المراجعة", color: "#f59e0b", bg: "#fffbeb" },
+  accepted: { label: "تم القبول",    color: "#16a34a", bg: "#f0fdf4" },
+  rejected: { label: "تم الرفض",     color: "#dc2626", bg: "#fef2f2" },
 };
 
 const fmtDate = (d) => {
@@ -92,17 +90,15 @@ const TripStats = () => {
           {/* ===== ملخص سريع ===== */}
           <div className="ts-quick-summary">
             <div className="ts-qs-item">
-              <span className="ts-qs-num">
-                {applications.filter((a) => a.status !== "confirmed" && a.status !== "rejected").length}
-              </span>
+              <span className="ts-qs-num">{applications.length}</span>
               <span className="ts-qs-label">إجمالي الطلبات</span>
             </div>
             <div className="ts-qs-divider" />
             <div className="ts-qs-item">
-              <span className="ts-qs-num" style={{ color: "#7c3aed" }}>
-                {applications.filter((a) => a.status === "confirmed").length}
+              <span className="ts-qs-num" style={{ color: "#16a34a" }}>
+                {applications.filter((a) => a.depositPaid).length}
               </span>
-              <span className="ts-qs-label">مسجّلون رسمياً</span>
+              <span className="ts-qs-label">دفعوا العربون</span>
             </div>
             <div className="ts-qs-divider" />
             <div className="ts-qs-item">
@@ -113,10 +109,10 @@ const TripStats = () => {
             </div>
             <div className="ts-qs-divider" />
             <div className="ts-qs-item">
-              <span className="ts-qs-num" style={{ color: "#6b7280" }}>
-                {appsUndecided.length}
+              <span className="ts-qs-num" style={{ color: "#dc2626" }}>
+                {applications.filter((a) => a.status === "rejected").length}
               </span>
-              <span className="ts-qs-label">بدون تاريخ محدد</span>
+              <span className="ts-qs-label">تم الرفض</span>
             </div>
           </div>
 
@@ -129,7 +125,7 @@ const TripStats = () => {
                 const apps     = appsForDate(d);
                 const past     = isPast(d);
                 const label    = dateLabel(d);
-                const confirmed = apps.filter((a) => a.status === "confirmed").length;
+                const confirmed = apps.filter((a) => a.depositPaid).length;
                 const available = d.spotsTotal - confirmed;
                 const fillPct  = d.spotsTotal > 0 ? Math.round((confirmed / d.spotsTotal) * 100) : 0;
                 const isOpen   = openDate === idx;
@@ -158,7 +154,7 @@ const TripStats = () => {
                       <div className="ts-date-header-left">
                         <div className="ts-date-chips">
                           <span className="ts-chip ts-chip-apps">
-                            {apps.filter((a) => a.status !== "confirmed" && a.status !== "rejected").length} طلب
+                            {apps.length} طلب
                           </span>
                         </div>
                         <span className="ts-date-toggle">{isOpen ? "▲" : "▼"}</span>
@@ -201,36 +197,34 @@ const TripStats = () => {
                                   <th>الاسم</th>
                                   <th>البلد والمدينة</th>
                                   <th>الحالة</th>
+                                  <th>العربون</th>
                                   <th>تاريخ التقديم</th>
                                   <th>تواصل</th>
                                 </tr>
                               </thead>
                               <tbody>
                                 {apps.map((a, i) => {
-                                  const s = STATUS_MAP[a.status];
+                                  const s = STATUS_MAP[a.status] || STATUS_MAP.pending;
                                   return (
                                     <tr key={a._id}>
                                       <td>{i + 1}</td>
                                       <td><strong>{a.fullName}</strong></td>
                                       <td>{a.country} — {a.city}</td>
                                       <td>
-                                        <span style={{
-                                          color: s.color, background: s.bg,
-                                          padding: "3px 10px", borderRadius: 20,
-                                          fontSize: "0.8rem", fontWeight: 700,
-                                        }}>
+                                        <span style={{ color: s.color, background: s.bg, padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>
                                           {s.label}
                                         </span>
                                       </td>
+                                      <td>
+                                        {a.depositPaid ? (
+                                          <span style={{ background: "#f0fdf4", color: "#16a34a", padding: "3px 10px", borderRadius: 20, fontSize: "0.8rem", fontWeight: 700 }}>✓ مدفوع</span>
+                                        ) : (
+                                          <span style={{ color: "#cbd5e0", fontSize: "0.85rem" }}>—</span>
+                                        )}
+                                      </td>
                                       <td>{new Date(a.createdAt).toLocaleDateString("ar-SA")}</td>
                                       <td>
-                                        <div style={{ display: "flex", gap: 6 }}>
-                                          <a
-                                            href={`https://wa.me/${a.phone.replace(/\D/g, "")}`}
-                                            target="_blank" rel="noreferrer"
-                                            className="btn-action btn-edit"
-                                          >واتساب</a>
-                                        </div>
+                                        <a href={`https://wa.me/${a.phone.replace(/\D/g, "")}`} target="_blank" rel="noreferrer" className="btn-action btn-edit">واتساب</a>
                                       </td>
                                     </tr>
                                   );

@@ -14,7 +14,7 @@ const Dashboard = () => {
     trips: 0,
     activeTrips: 0,
     pendingApps: 0,
-    confirmedApps: 0,
+    depositPaidApps: 0,
     totalApps: 0,
     subscribers: 0,
     users: 0,
@@ -38,13 +38,13 @@ const Dashboard = () => {
         const users = usersRes.status === "fulfilled" ? usersRes.value.data : [];
 
         setStats({
-          trips:        trips.length,
-          activeTrips:  trips.filter((t) => t.isActive).length,
-          pendingApps:  apps.filter((a) => a.status === "pending").length,
-          confirmedApps: apps.filter((a) => a.status === "confirmed").length,
-          totalApps:    apps.length,
-          subscribers:  subs.length,
-          users:        users.length,
+          trips:           trips.length,
+          activeTrips:     trips.filter((t) => t.isActive).length,
+          pendingApps:     apps.filter((a) => a.status === "pending").length,
+          depositPaidApps: apps.filter((a) => a.depositPaid).length,
+          totalApps:       apps.length,
+          subscribers:     subs.length,
+          users:           users.length,
         });
 
         setRecentApps(
@@ -103,9 +103,9 @@ const Dashboard = () => {
             </Link>
 
             <Link to="/admin/trips" className="dash-stat-card">
-              <div className="dash-stat-icon">⭐</div>
-              <div className="dash-stat-number" style={{ color: "#065f46" }}>{stats.confirmedApps}</div>
-              <div className="dash-stat-label">مسجّلون رسمياً</div>
+              <div className="dash-stat-icon">💳</div>
+              <div className="dash-stat-number" style={{ color: "#16a34a" }}>{stats.depositPaidApps}</div>
+              <div className="dash-stat-label">دفعوا العربون</div>
               <div className="dash-stat-sub">تم تأكيد دفعهم</div>
             </Link>
 

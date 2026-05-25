@@ -4,6 +4,7 @@ const crypto = require("crypto");
 const { Resend } = require("resend");
 const User = require("../models/User");
 const Application = require("../models/Application");
+const Trip = require("../models/Trip");
 const { protectUser } = require("../middleware/userAuthMiddleware");
 const { protect: protectAdmin } = require("../middleware/authMiddleware");
 const { createOrder, captureOrder } = require("../utils/paypal");
@@ -264,8 +265,10 @@ router.post("/applications/:id/create-paypal-order", protectUser, async (req, re
     });
 
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
-    if (application.status !== "accepted")
-      return res.status(400).json({ message: "يجب أن يكون الطلب مقبولاً أولاً" });
+    if (application.status === "rejected")
+      return res.status(400).json({ message: "لا يمكن الدفع لطلب مرفوض" });
+    if (application.depositPaid)
+      return res.status(400).json({ message: "تم دفع العربون بالفعل" });
 
     const order = await createOrder(amount, currency || "USD");
     res.json({ orderId: order.id });
@@ -291,17 +294,18 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
       return res.status(400).json({ message: "لم يتم تأكيد الدفع من PayPal" });
     }
 
-    application.status = "payment_pending";
+    application.depositPaid = true;
     application.paidAmount = amount || 0;
     application.paidCurrency = currency || "USD";
     application.history.push({
-      status: "payment_pending",
+      status: application.status,
       reason: `تم الدفع عبر PayPal بمبلغ ${amount} ${currency} — Order: ${orderId}`,
       changedAt: new Date(),
     });
     await application.save();
+    await Trip.findByIdAndUpdate(application.trip, { $inc: { bookedSpots: 1 } });
 
-    res.json({ message: "تم الدفع بنجاح وسيتم تأكيد تسجيلك قريباً" });
+    res.json({ message: "تم الدفع بنجاح، شكراً لك!" });
   } catch (err) {
     res.status(500).json({ message: "خطأ في تأكيد الدفع", error: err.message });
   }
@@ -319,20 +323,23 @@ router.post("/applications/:id/pay", protectUser, async (req, res) => {
     if (!application)
       return res.status(404).json({ message: "الطلب غير موجود" });
 
-    if (application.status !== "accepted")
-      return res.status(400).json({ message: "يجب أن يكون الطلب مقبولاً أولاً" });
+    if (application.status === "rejected")
+      return res.status(400).json({ message: "لا يمكن الدفع لطلب مرفوض" });
+    if (application.depositPaid)
+      return res.status(400).json({ message: "تم دفع العربون بالفعل" });
 
-    application.status = "payment_pending";
+    application.depositPaid = true;
     application.paidAmount = amount || 0;
     application.paidCurrency = currency || "";
     application.history.push({
-      status: "payment_pending",
-      reason: `أرسل المتقدم تأكيد الدفع بمبلغ ${amount} ${currency} — في انتظار مراجعة الآدمن`,
+      status: application.status,
+      reason: `أرسل المتقدم تأكيد الدفع بمبلغ ${amount} ${currency}`,
       changedAt: new Date(),
     });
     await application.save();
+    await Trip.findByIdAndUpdate(application.trip, { $inc: { bookedSpots: 1 } });
 
-    res.json({ message: "تم إرسال تأكيد الدفع، سنراجعه قريباً", application });
+    res.json({ message: "تم إرسال تأكيد الدفع، شكراً لك!", application });
   } catch (err) {
     res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
   }
