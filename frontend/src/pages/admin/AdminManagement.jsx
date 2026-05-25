@@ -95,6 +95,20 @@ const AdminManagement = () => {
 
   const isSelf = (adm) => (adm.id || adm._id) === currentAdmin?.id;
 
+  const isOnline = (lastSeen) => {
+    if (!lastSeen) return false;
+    return Date.now() - new Date(lastSeen).getTime() < 5 * 60 * 1000;
+  };
+
+  const formatLastSeen = (lastSeen) => {
+    if (!lastSeen) return "لم يدخل بعد";
+    const diff = Math.floor((Date.now() - new Date(lastSeen).getTime()) / 1000);
+    if (diff < 60) return "الآن";
+    if (diff < 3600) return `منذ ${Math.floor(diff / 60)} دقيقة`;
+    if (diff < 86400) return `منذ ${Math.floor(diff / 3600)} ساعة`;
+    return `منذ ${Math.floor(diff / 86400)} يوم`;
+  };
+
   return (
     <AdminLayout>
       <div className="admin-page-header">
@@ -113,6 +127,7 @@ const AdminManagement = () => {
                 <th>اسم المستخدم</th>
                 <th>الإيميل</th>
                 <th>الصلاحية</th>
+                <th>آخر ظهور</th>
                 <th>تاريخ الإنشاء</th>
                 <th></th>
               </tr>
@@ -129,6 +144,12 @@ const AdminManagement = () => {
                   <td>
                     <span className={`adm-role-badge adm-role-badge--${adm.role}`}>
                       {adm.role === "super" ? "مدير أعلى" : "مدير عادي"}
+                    </span>
+                  </td>
+                  <td>
+                    <span className="adm-lastseen">
+                      <span className={`adm-online-dot ${isOnline(adm.lastSeen) ? "adm-online-dot--on" : ""}`} />
+                      {formatLastSeen(adm.lastSeen)}
                     </span>
                   </td>
                   <td>{new Date(adm.createdAt).toLocaleDateString("ar-IL")}</td>

@@ -33,6 +33,10 @@ const AdminSchema = new mongoose.Schema(
       enum: ["super", "admin"],
       default: "admin",
     },
+    lastSeen: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );

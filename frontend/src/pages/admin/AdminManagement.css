@@ -279,6 +279,29 @@
   margin: 0;
 }
 
+/* ── Online Status ── */
+.adm-lastseen {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.85rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.adm-online-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #cbd5e0;
+  flex-shrink: 0;
+}
+
+.adm-online-dot--on {
+  background: #22c55e;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+}
+
 /* ── Role Locked ── */
 .adm-role-locked {
   display: flex;
@@ -301,6 +324,6 @@
   .adm-form-grid { grid-template-columns: 1fr; }
   .adm-table th:nth-child(3),
   .adm-table td:nth-child(3),
-  .adm-table th:nth-child(5),
-  .adm-table td:nth-child(5) { display: none; }
+  .adm-table th:nth-child(6),
+  .adm-table td:nth-child(6) { display: none; }
 }
