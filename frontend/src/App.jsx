@@ -12,6 +12,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ProtectedRoute from "./components/ProtectedRoute";
 import SuperRoute from "./components/SuperRoute";
+import AdminLayout from "./components/admin/AdminLayout";
 import ScrollToTop from "./components/ScrollToTop";
 
 // Public Pages
@@ -146,6 +147,19 @@ function App() {
           <Route path="/admin/legal" element={<ProtectedRoute><SuperRoute><AdminLegal /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/subscribers" element={<ProtectedRoute><AdminSubscribers /></ProtectedRoute>} />
           <Route path="/admin/admins" element={<ProtectedRoute><SuperRoute><AdminManagement /></SuperRoute></ProtectedRoute>} />
+
+          {/* 404 للأدمن — موحد لأي رابط غير معروف تحت /admin */}
+          <Route path="/admin/*" element={
+            <ProtectedRoute>
+              <AdminLayout>
+                <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", minHeight:"60vh", textAlign:"center", gap:"16px" }}>
+                  <div style={{ fontSize:"5rem", lineHeight:1 }}>404</div>
+                  <h2 style={{ fontSize:"1.4rem", fontWeight:800, color:"var(--color-secondary,#2d3748)", margin:0 }}>الصفحة غير موجودة</h2>
+                  <p style={{ color:"var(--color-text-light,#718096)", margin:0, fontSize:"0.95rem" }}>الرابط الذي أدخلته غير موجود أو تم نقله.</p>
+                </div>
+              </AdminLayout>
+            </ProtectedRoute>
+          } />
 
           {/* صفحات المستخدم */}
           <Route path="/my-account" element={<UserAuth />} />
