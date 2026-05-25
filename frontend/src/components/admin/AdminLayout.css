@@ -97,6 +97,28 @@
   flex: 1;
 }
 
+/* ── Library Section Header ── */
+.sidebar-section-header {
+  padding: 16px 14px 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-section-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.3);
+  text-transform: uppercase;
+  font-family: var(--font-arabic, sans-serif);
+}
+
+.sidebar-link--sub {
+  padding-right: 20px;
+  font-size: 0.9rem;
+}
+
 /* ==============================
    Sidebar Footer
    ============================== */

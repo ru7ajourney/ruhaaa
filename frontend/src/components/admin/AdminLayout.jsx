@@ -4,31 +4,27 @@ import { useAuth } from "../../context/AuthContext";
 import "./AdminLayout.css";
 
 const NAV = [
-  { path: "/admin/dashboard",   icon: "🏠", label: "الرئيسية"     },
-  { path: "/admin/trips",       icon: "✈️", label: "الرحلات"       },
-  { path: "/admin/users",       icon: "👥", label: "المستخدمون"    },
-  { path: "/admin/gallery",     icon: "🖼️", label: "المعرض"        },
-  { path: "/admin/subscribers", icon: "📋", label: "المشتركون"     },
-  { path: "/admin/legal",       icon: "📜", label: "القانونية"     },
-  { path: "/admin/calculator",  icon: "🧮", label: "الحاسبة"       },
+  { path: "/admin/dashboard", icon: "🏠", label: "الرئيسية" },
+  { path: "/admin/trips",     icon: "✈️", label: "الرحلات"  },
+  { path: "/admin/users",     icon: "👥", label: "المستخدمون" },
+];
+
+const LIBRARY_NAV = [
+  { path: "/admin/calculator", icon: "🧮", label: "الحاسبة"    },
+  { path: "/admin/legal",      icon: "📜", label: "القانونية"  },
+  { path: "/admin/admins",     icon: "🛡️", label: "المديرون"  },
 ];
 
 const AdminLayout = ({ children }) => {
   const { admin, logout, isSuper } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate  = useNavigate();
+  const location  = useLocation();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/admin");
-  };
+  const handleLogout = () => { logout(); navigate("/admin"); };
 
   const isActive = (path) => {
     if (path === "/admin/trips") {
-      return (
-        location.pathname === "/admin/trips" ||
-        location.pathname.startsWith("/admin/trips/")
-      );
+      return location.pathname === "/admin/trips" || location.pathname.startsWith("/admin/trips/");
     }
     return location.pathname === path || location.pathname.startsWith(path + "/");
   };
@@ -52,14 +48,23 @@ const AdminLayout = ({ children }) => {
               <span className="sidebar-link-label">{item.label}</span>
             </Link>
           ))}
+
           {isSuper && (
-            <Link
-              to="/admin/admins"
-              className={`sidebar-link ${isActive("/admin/admins") ? "sidebar-link--active" : ""}`}
-            >
-              <span className="sidebar-link-icon">🛡️</span>
-              <span className="sidebar-link-label">المديرون</span>
-            </Link>
+            <>
+              <div className="sidebar-section-header">
+                <span className="sidebar-section-label">المكتبة</span>
+              </div>
+              {LIBRARY_NAV.map((item) => (
+                <Link
+                  key={item.path}
+                  to={item.path}
+                  className={`sidebar-link sidebar-link--sub ${isActive(item.path) ? "sidebar-link--active" : ""}`}
+                >
+                  <span className="sidebar-link-icon">{item.icon}</span>
+                  <span className="sidebar-link-label">{item.label}</span>
+                </Link>
+              ))}
+            </>
           )}
         </nav>
 

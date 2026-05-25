@@ -30,6 +30,7 @@ import TripForm from "./pages/admin/TripForm";
 import TripStats from "./pages/admin/TripStats";
 import TripCalculator from "./pages/admin/TripCalculator";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AdminPeople from "./pages/admin/AdminPeople";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminLegal from "./pages/admin/AdminLegal";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
@@ -139,7 +140,7 @@ function App() {
           <Route path="/admin/trips/edit/:id" element={<ProtectedRoute><TripForm /></ProtectedRoute>} />
           <Route path="/admin/trips/:id/stats" element={<ProtectedRoute><TripStats /></ProtectedRoute>} />
           <Route path="/admin/calculator" element={<ProtectedRoute><TripCalculator /></ProtectedRoute>} />
-          <Route path="/admin/users" element={<ProtectedRoute><AdminUsers /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute><AdminPeople /></ProtectedRoute>} />
           <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
           <Route path="/admin/legal" element={<ProtectedRoute><AdminLegal /></ProtectedRoute>} />
           <Route path="/admin/subscribers" element={<ProtectedRoute><AdminSubscribers /></ProtectedRoute>} />

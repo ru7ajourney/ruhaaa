@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI } from "../../api";
 import { useAuth } from "../../context/AuthContext";
 import AdminLayout from "../../components/admin/AdminLayout";
+import GalleryPanel from "./GalleryPanel";
 import "./AdminStyles.css";
 
 const STATUS_MAP = {
@@ -295,6 +296,9 @@ const AdminTrips = () => {
         <button className={`admin-tab ${activeTab === "applications" ? "active" : ""}`} onClick={() => setActiveTab("applications")}>
           📩 طلبات التسجيل
           {pendingCount > 0 && <span className="tab-badge">{pendingCount}</span>}
+        </button>
+        <button className={`admin-tab ${activeTab === "gallery" ? "active" : ""}`} onClick={() => setActiveTab("gallery")}>
+          🖼️ المعرض
         </button>
       </div>
 
@@ -645,6 +649,10 @@ const AdminTrips = () => {
           </div>
         </div>
       )}
+
+      {/* ══ Gallery Tab ════════════════════════════════════════ */}
+      {activeTab === "gallery" && <GalleryPanel />}
+
     </AdminLayout>
   );
 };
