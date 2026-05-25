@@ -326,6 +326,34 @@ router.put("/:id", protect, async (req, res) => {
     if (clientNotes !== undefined) updateFields.clientNotes = clientNotes;
 
     if (status && status !== oldApp.status) {
+
+      // إذا تم القبول → تحقق أن المقاعد المؤكدة (depositPaid) لم تمتلئ لهذا التاريخ
+      if (status === "accepted") {
+        const trip = await Trip.findById(oldApp.trip);
+        if (trip && oldApp.preferredDate) {
+          const fmt = (d) => {
+            const dt = new Date(d);
+            return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`;
+          };
+          const matchedDate = trip.availableDates?.find(
+            (d) => `${fmt(d.startDate)} - ${fmt(d.endDate)}` === oldApp.preferredDate
+          );
+          if (matchedDate) {
+            const depositedCount = await Application.countDocuments({
+              trip: oldApp.trip,
+              preferredDate: oldApp.preferredDate,
+              depositPaid: true,
+              _id: { $ne: oldApp._id },
+            });
+            if (depositedCount >= matchedDate.spotsTotal) {
+              return res.status(400).json({
+                message: `المقاعد المؤكدة لهذا التاريخ ممتلئة (${depositedCount}/${matchedDate.spotsTotal}) — لا يمكن قبول المزيد`,
+              });
+            }
+          }
+        }
+      }
+
       updateFields.status = status;
 
       // إذا تم الرفض وكان العربون مدفوعاً → نلغي العربون ونُرجع المقعد ونطلب ريفند

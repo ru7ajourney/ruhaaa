@@ -467,7 +467,22 @@ const AdminTrips = () => {
             <div className="app-detail-panel">
               {!selectedApp ? (
                 <div className="app-detail-empty"><p>👈 اختر طلباً لعرض تفاصيله</p></div>
-              ) : (
+              ) : (() => {
+                  // حساب إمكانية القبول بناءً على المقاعد المؤكدة (depositPaid) لهذا التاريخ
+                  const appTripId = selectedApp.trip?._id || selectedApp.trip;
+                  const appTrip   = trips.find((t) => t._id === appTripId);
+                  const fmt       = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
+                  const matchedDate = appTrip?.availableDates?.find(
+                    (d) => `${fmt(d.startDate)} - ${fmt(d.endDate)}` === selectedApp.preferredDate
+                  );
+                  const depositedForDate = applications.filter(
+                    (a) => (a.trip?._id || a.trip) === appTripId &&
+                           a.preferredDate === selectedApp.preferredDate &&
+                           a.depositPaid
+                  ).length;
+                  const dateIsFull = matchedDate ? depositedForDate >= matchedDate.spotsTotal : false;
+
+                  return (
                 <div className="app-detail">
                   <div className="app-detail-header">
                     <h3>{selectedApp.fullName}</h3>
@@ -554,21 +569,42 @@ const AdminTrips = () => {
 
                   <div className="app-detail-section">
                     <div className="detail-label">نقل الطلب إلى</div>
+                    {matchedDate && (
+                      <div style={{
+                        display: "flex", alignItems: "center", gap: "8px",
+                        marginBottom: "10px", fontSize: "0.82rem",
+                        color: dateIsFull ? "#dc2626" : "#16a34a",
+                        background: dateIsFull ? "#fef2f2" : "#f0fdf4",
+                        border: `1px solid ${dateIsFull ? "#fecaca" : "#bbf7d0"}`,
+                        borderRadius: "8px", padding: "6px 12px",
+                      }}>
+                        <span>{dateIsFull ? "🔴" : "🟢"}</span>
+                        <span>
+                          {dateIsFull
+                            ? `المقاعد المؤكدة ممتلئة — ${depositedForDate}/${matchedDate.spotsTotal} دفعوا العربون`
+                            : `${depositedForDate}/${matchedDate.spotsTotal} دفعوا العربون — ${matchedDate.spotsTotal - depositedForDate} مقعد متاح`}
+                        </span>
+                      </div>
+                    )}
                     <div className="status-buttons">
-                      {Object.entries(STATUS_MAP).map(([key, val]) => (
-                        <button
-                          key={key}
-                          className={`status-btn ${selectedApp.status === key ? "status-btn-active" : ""}`}
-                          style={{ "--s-color": val.color, "--s-bg": val.bg }}
-                          disabled={selectedApp.status === key}
-                          onClick={() => handleStatusButtonClick(key, val)}
-                        >
-                          {val.label}
-                          {STATUSES_NEED_REASON.includes(key) && selectedApp.status !== key && (
-                            <span className="status-btn-reason-hint"> ✏️</span>
-                          )}
-                        </button>
-                      ))}
+                      {Object.entries(STATUS_MAP).map(([key, val]) => {
+                        const isAcceptBlocked = key === "accepted" && dateIsFull && selectedApp.status !== "accepted";
+                        return (
+                          <button
+                            key={key}
+                            className={`status-btn ${selectedApp.status === key ? "status-btn-active" : ""} ${isAcceptBlocked ? "status-btn-locked" : ""}`}
+                            style={{ "--s-color": val.color, "--s-bg": val.bg }}
+                            disabled={selectedApp.status === key || isAcceptBlocked}
+                            title={isAcceptBlocked ? "المقاعد المؤكدة ممتلئة لهذا التاريخ" : ""}
+                            onClick={() => handleStatusButtonClick(key, val)}
+                          >
+                            {val.label}
+                            {STATUSES_NEED_REASON.includes(key) && selectedApp.status !== key && (
+                              <span className="status-btn-reason-hint"> ✏️</span>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
 
                     {pendingStatus && (
@@ -666,7 +702,8 @@ const AdminTrips = () => {
                     </button>
                   </div>
                 </div>
-              )}
+                  );
+                })()}
             </div>
           </div>
         </div>
