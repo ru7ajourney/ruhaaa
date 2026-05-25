@@ -72,6 +72,23 @@ export const AuthProvider = ({ children }) => {
 
   const isSuper = admin?.role === "super";
 
+  // Ping server on real user activity (throttled to once per minute)
+  useEffect(() => {
+    if (!admin) return;
+
+    let lastPing = 0;
+    const handleActivity = () => {
+      const now = Date.now();
+      if (now - lastPing < 60_000) return;
+      lastPing = now;
+      authAPI.ping().catch(() => {});
+    };
+
+    const events = ["click", "keydown", "mousemove", "scroll", "touchstart"];
+    events.forEach((e) => window.addEventListener(e, handleActivity, { passive: true }));
+    return () => events.forEach((e) => window.removeEventListener(e, handleActivity));
+  }, [admin]);
+
   return (
     <AuthContext.Provider value={{ admin, loading, login, logout, isSuper }}>
       {children}

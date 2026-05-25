@@ -83,4 +83,13 @@ router.post("/refresh", protect, (req, res) => {
   res.json({ token: generateToken(req.admin._id) });
 });
 
+// ==============================
+// POST /api/auth/ping
+// تحديث lastSeen عند النشاط الفعلي فقط
+// ==============================
+router.post("/ping", protect, async (req, res) => {
+  await Admin.findByIdAndUpdate(req.admin._id, { lastSeen: new Date() });
+  res.json({ ok: true });
+});
+
 module.exports = router;

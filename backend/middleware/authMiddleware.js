@@ -20,11 +20,7 @@ const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.ADMIN_JWT_SECRET || process.env.JWT_SECRET);
 
       // أضف بيانات الآدمن للـ request (بدون كلمة المرور)
-      req.admin = await Admin.findByIdAndUpdate(
-        decoded.id,
-        { lastSeen: new Date() },
-        { new: true, select: "-password" }
-      );
+      req.admin = await Admin.findById(decoded.id).select("-password");
 
       if (!req.admin) {
         return res.status(401).json({ message: "غير مصرح - ليس آدمن" });
