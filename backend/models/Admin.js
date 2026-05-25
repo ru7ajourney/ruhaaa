@@ -28,6 +28,11 @@ const AdminSchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    role: {
+      type: String,
+      enum: ["super", "admin"],
+      default: "admin",
+    },
   },
   { timestamps: true }
 );

@@ -70,8 +70,10 @@ export const AuthProvider = ({ children }) => {
     stopRefreshTimer();
   };
 
+  const isSuper = admin?.role === "super";
+
   return (
-    <AuthContext.Provider value={{ admin, loading, login, logout }}>
+    <AuthContext.Provider value={{ admin, loading, login, logout, isSuper }}>
       {children}
     </AuthContext.Provider>
   );

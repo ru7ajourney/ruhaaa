@@ -38,4 +38,15 @@ const protect = async (req, res, next) => {
   }
 };
 
-module.exports = { protect };
+const protectSuper = async (req, res, next) => {
+  await new Promise((resolve) => {
+    protect(req, res, resolve);
+  });
+  if (res.headersSent) return;
+  if (req.admin?.role !== "super") {
+    return res.status(403).json({ message: "هذا الإجراء مخصص للمدير الأعلى فقط" });
+  }
+  next();
+};
+
+module.exports = { protect, protectSuper };

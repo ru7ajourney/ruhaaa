@@ -1,0 +1,289 @@
+/* AdminManagement.css */
+
+/* ── Add Button ── */
+.adm-add-btn {
+  padding: 10px 22px;
+  background: var(--color-primary, #c8622a);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: var(--font-arabic, sans-serif);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.adm-add-btn:hover { background: #b05520; }
+
+/* ── Loading / Empty ── */
+.adm-loading,
+.adm-empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--color-text-light, #718096);
+  font-size: 1rem;
+}
+
+/* ── Table ── */
+.adm-table-wrap {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.06);
+  overflow: hidden;
+}
+
+.adm-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.93rem;
+}
+
+.adm-table thead tr {
+  background: #f7f8fa;
+  border-bottom: 1px solid #e8eaf0;
+}
+
+.adm-table th {
+  padding: 14px 18px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--color-secondary, #2d3748);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.adm-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f2f5;
+  color: #444;
+  vertical-align: middle;
+}
+
+.adm-table tbody tr:last-child td { border-bottom: none; }
+.adm-table tbody tr:hover { background: #fafbfc; }
+
+.adm-row--self td { background: #fffbf5; }
+
+.adm-self-tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 8px;
+  background: var(--color-primary, #c8622a);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* ── Role Badge ── */
+.adm-role-badge {
+  display: inline-block;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+.adm-role-badge--super {
+  background: #ede9fe;
+  color: #4f46e5;
+}
+.adm-role-badge--admin {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+/* ── Actions ── */
+.adm-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.adm-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: none;
+  font-size: 0.85rem;
+  font-family: var(--font-arabic, sans-serif);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.adm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.adm-btn--edit   { background: #f0f4ff; color: #4f46e5; }
+.adm-btn--edit:hover { background: #e0e7ff; }
+
+.adm-btn--delete { background: #fff0f0; color: #dc2626; }
+.adm-btn--delete:hover { background: #fee2e2; }
+
+.adm-btn--save   { background: var(--color-primary, #c8622a); color: #fff; }
+.adm-btn--save:hover { background: #b05520; }
+
+.adm-btn--cancel { background: #f0f2f5; color: #555; }
+.adm-btn--cancel:hover { background: #e4e6ea; }
+
+/* ── Modal Overlay ── */
+.adm-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  padding: 16px;
+}
+
+.adm-modal {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+  overflow: hidden;
+  direction: rtl;
+}
+
+.adm-modal--sm { max-width: 400px; }
+
+.adm-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.adm-modal-header h2 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-secondary, #2d3748);
+  margin: 0;
+}
+
+.adm-modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: none;
+  background: #f0f2f5;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #666;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+.adm-modal-close:hover { background: #e4e6ea; }
+
+.adm-modal-body {
+  padding: 20px 24px;
+}
+
+.adm-modal-footer {
+  padding: 16px 24px 20px;
+  border-top: 1px solid #f0f2f5;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* ── Form ── */
+.adm-error {
+  background: #fff0f0;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  margin-bottom: 16px;
+}
+
+.adm-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.adm-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #555;
+}
+
+.adm-label--full { grid-column: 1 / -1; }
+
+.adm-optional {
+  font-weight: 400;
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.adm-input {
+  padding: 9px 12px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: var(--font-arabic, sans-serif);
+  color: #2d3748;
+  transition: border-color 0.15s;
+  outline: none;
+}
+.adm-input:focus { border-color: var(--color-primary, #c8622a); }
+
+/* ── Role Toggle ── */
+.adm-role-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.adm-role-btn {
+  flex: 1;
+  padding: 9px 16px;
+  border-radius: 9px;
+  border: 2px solid #e2e8f0;
+  background: #fff;
+  font-size: 0.9rem;
+  font-family: var(--font-arabic, sans-serif);
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.adm-role-btn:hover { border-color: #c8d0dc; background: #f9fafb; }
+
+.adm-role-btn--active {
+  border-color: #4f46e5;
+  background: #ede9fe;
+  color: #4f46e5;
+}
+
+.adm-role-btn--super.adm-role-btn--active {
+  border-color: var(--color-primary, #c8622a);
+  background: #fff4ed;
+  color: var(--color-primary, #c8622a);
+}
+
+/* ── Delete Confirm ── */
+.adm-confirm-text {
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .adm-form-grid { grid-template-columns: 1fr; }
+  .adm-table th:nth-child(3),
+  .adm-table td:nth-child(3),
+  .adm-table th:nth-child(5),
+  .adm-table td:nth-child(5) { display: none; }
+}

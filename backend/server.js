@@ -14,6 +14,7 @@ const galleryRoutes = require("./routes/gallery");
 const subscribersRoutes = require("./routes/subscribers");
 const policyVersionsRoutes = require("./routes/policyVersions");
 const userRoutes = require("./routes/users");
+const adminsRoutes = require("./routes/admins");
 
 const path = require("path");
 const app = express();
@@ -56,6 +57,7 @@ app.use("/api/gallery", galleryRoutes);
 app.use("/api/subscribers", subscribersRoutes);
 app.use("/api/policy-versions", policyVersionsRoutes);
 app.use("/api/users", userRoutes);
+app.use("/api/admins", adminsRoutes);
 
 // مسار للتأكد من تشغيل السيرفر
 app.get("/", (req, res) => {

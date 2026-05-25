@@ -14,7 +14,7 @@ const NAV = [
 ];
 
 const AdminLayout = ({ children }) => {
-  const { admin, logout } = useAuth();
+  const { admin, logout, isSuper } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -52,6 +52,15 @@ const AdminLayout = ({ children }) => {
               <span className="sidebar-link-label">{item.label}</span>
             </Link>
           ))}
+          {isSuper && (
+            <Link
+              to="/admin/admins"
+              className={`sidebar-link ${isActive("/admin/admins") ? "sidebar-link--active" : ""}`}
+            >
+              <span className="sidebar-link-icon">🛡️</span>
+              <span className="sidebar-link-label">المديرون</span>
+            </Link>
+          )}
         </nav>
 
         <div className="admin-sidebar-footer">

@@ -33,6 +33,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminLegal from "./pages/admin/AdminLegal";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
+import AdminManagement from "./pages/admin/AdminManagement";
 import UserAuth from "./pages/UserAuth";
 import MyApplications from "./pages/MyApplications";
 import Checkout from "./pages/Checkout";
@@ -142,6 +143,7 @@ function App() {
           <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
           <Route path="/admin/legal" element={<ProtectedRoute><AdminLegal /></ProtectedRoute>} />
           <Route path="/admin/subscribers" element={<ProtectedRoute><AdminSubscribers /></ProtectedRoute>} />
+          <Route path="/admin/admins" element={<ProtectedRoute><AdminManagement /></ProtectedRoute>} />
 
           {/* صفحات المستخدم */}
           <Route path="/my-account" element={<UserAuth />} />

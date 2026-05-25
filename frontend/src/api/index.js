@@ -123,4 +123,14 @@ export const userAPI = {
   capturePaypalOrder: (id, data) => userApi.post(`/users/applications/${id}/capture-paypal-order`, data),
 };
 
+// ==============================
+// Admins API (super only)
+// ==============================
+export const adminsAPI = {
+  getAll:  ()            => api.get("/admins"),
+  create:  (data)        => api.post("/admins", data),
+  update:  (id, data)    => api.patch(`/admins/${id}`, data),
+  delete:  (id)          => api.delete(`/admins/${id}`),
+};
+
 export default api;
