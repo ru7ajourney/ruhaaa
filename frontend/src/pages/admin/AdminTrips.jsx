@@ -142,7 +142,7 @@ const TripDetail = ({ trip, applications, onDelete, isSuper }) => {
           <div className="trip-dates-list">
             {trip.availableDates.map((d, i) => {
               const dateLabel = `${fmtDate(d.startDate)} - ${fmtDate(d.endDate)}`;
-              const taken    = tripApps.filter((a) => a.preferredDate === dateLabel && a.depositPaid).length;
+              const taken    = tripApps.filter((a) => a.preferredDate === dateLabel && a.status === "accepted" && a.depositPaid).length;
               const total    = d.spotsTotal || 0;
               const avail    = total - taken;
               const pct      = total > 0 ? Math.round((taken / total) * 100) : 0;
@@ -480,6 +480,7 @@ const AdminTrips = () => {
                   const depositedForDate = applications.filter(
                     (a) => (a.trip?._id || a.trip) === appTripId &&
                            a.preferredDate === selectedApp.preferredDate &&
+                           a.status === "accepted" &&
                            a.depositPaid
                   ).length;
                   const dateIsFull = matchedDate ? depositedForDate >= matchedDate.spotsTotal : false;
@@ -631,8 +632,8 @@ const AdminTrips = () => {
                     )}
                   </div>
 
-                  {/* تأكيد العربون */}
-                  {selectedApp.status !== "rejected" && !selectedApp.depositPaid && (
+                  {/* تأكيد العربون — فقط بعد القبول */}
+                  {selectedApp.status === "accepted" && !selectedApp.depositPaid && (
                     <div className="app-detail-section">
                       <button className="btn-confirm-deposit" onClick={() => handleConfirmDeposit(selectedApp._id)}>
                         💳 تأكيد دفع العربون

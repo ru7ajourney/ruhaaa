@@ -100,7 +100,7 @@ const TripStats = () => {
             <div className="ts-qs-divider" />
             <div className="ts-qs-item">
               <span className="ts-qs-num" style={{ color: "#16a34a" }}>
-                {applications.filter((a) => a.depositPaid).length}
+                {applications.filter((a) => a.status === "accepted" && a.depositPaid).length}
               </span>
               <span className="ts-qs-label">دفعوا العربون</span>
             </div>
@@ -129,7 +129,7 @@ const TripStats = () => {
                 const apps     = appsForDate(d);
                 const past     = isPast(d);
                 const label    = dateLabel(d);
-                const confirmed = apps.filter((a) => a.depositPaid).length;
+                const confirmed = apps.filter((a) => a.status === "accepted" && a.depositPaid).length;
                 const available = d.spotsTotal - confirmed;
                 const fillPct  = d.spotsTotal > 0 ? Math.round((confirmed / d.spotsTotal) * 100) : 0;
                 const isOpen   = openDate === idx;

@@ -280,8 +280,8 @@ router.post("/:id/confirm-deposit", protect, async (req, res) => {
     const application = await Application.findById(req.params.id);
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
 
-    if (application.status === "rejected") {
-      return res.status(400).json({ message: "لا يمكن تأكيد العربون لطلب مرفوض" });
+    if (application.status !== "accepted") {
+      return res.status(400).json({ message: "لا يمكن تأكيد العربون إلا بعد قبول الطلب" });
     }
     if (application.depositPaid) {
       return res.status(400).json({ message: "العربون مؤكد بالفعل" });
@@ -342,6 +342,7 @@ router.put("/:id", protect, async (req, res) => {
             const depositedCount = await Application.countDocuments({
               trip: oldApp.trip,
               preferredDate: oldApp.preferredDate,
+              status: "accepted",
               depositPaid: true,
               _id: { $ne: oldApp._id },
             });
