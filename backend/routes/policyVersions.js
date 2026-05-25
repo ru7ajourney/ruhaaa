@@ -1,6 +1,6 @@
 const express = require("express");
 const PolicyVersion = require("../models/PolicyVersion");
-const { protectSuperSuper } = require("../middleware/authMiddleware");
+const { protectSuper } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
