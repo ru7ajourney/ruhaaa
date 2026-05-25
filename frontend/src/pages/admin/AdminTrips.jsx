@@ -8,23 +8,18 @@ import GalleryPanel from "./GalleryPanel";
 import "./AdminStyles.css";
 
 const STATUS_MAP = {
-  pending:         { label: "قيد المراجعة",     color: "#f59e0b", bg: "#fffbeb" },
-  reviewed:        { label: "تمت المراجعة",     color: "#3b82f6", bg: "#eff6ff" },
-  accepted:        { label: "تم القبول",         color: "#16a34a", bg: "#f0fdf4" },
-  rejected:        { label: "تم الرفض",          color: "#dc2626", bg: "#fef2f2" },
-  payment_pending: { label: "انتظار الدفع",      color: "#7c3aed", bg: "#ede9fe" },
-  confirmed:       { label: "مسجّل رسمياً",     color: "#065f46", bg: "#d1fae5" },
+  pending:  { label: "قيد المراجعة", color: "#f59e0b", bg: "#fffbeb" },
+  accepted: { label: "تم القبول",    color: "#16a34a", bg: "#f0fdf4" },
+  rejected: { label: "تم الرفض",     color: "#dc2626", bg: "#fef2f2" },
 };
 
 const APP_FOLDERS = [
-  { key: "pending",   label: "قيد المراجعة",   emoji: "🕐" },
-  { key: "reviewed",  label: "تمت المراجعة",  emoji: "📋" },
-  { key: "accepted",  label: "تم القبول",      emoji: "✅" },
-  { key: "rejected",  label: "تم الرفض",       emoji: "❌" },
-  { key: "confirmed", label: "مسجّلون رسمياً", emoji: "⭐" },
+  { key: "pending",  label: "قيد المراجعة", emoji: "🕐" },
+  { key: "accepted", label: "تم القبول",    emoji: "✅" },
+  { key: "rejected", label: "تم الرفض",     emoji: "❌" },
 ];
 
-const STATUSES_NEED_REASON = ["reviewed", "accepted", "rejected"];
+const STATUSES_NEED_REASON = ["rejected"];
 
 const fmtDate = (d) => {
   const date = new Date(d);
@@ -88,7 +83,7 @@ const TripDetail = ({ trip, applications, onDelete }) => {
   const tripApps = applications.filter(
     (a) => (a.trip?._id || a.trip) === trip._id
   );
-  const confirmedCount = tripApps.filter((a) => a.status === "confirmed").length;
+  const confirmedCount = tripApps.filter((a) => a.depositPaid).length;
   const pendingCount   = tripApps.filter((a) => a.status === "pending").length;
 
   return (
@@ -130,9 +125,9 @@ const TripDetail = ({ trip, applications, onDelete }) => {
           <span className="trip-ds-num">{pendingCount}</span>
           <span className="trip-ds-label">طلبات جديدة</span>
         </div>
-        <div className="trip-ds-item" style={{ color: "#065f46" }}>
+        <div className="trip-ds-item" style={{ color: "#16a34a" }}>
           <span className="trip-ds-num">{confirmedCount}</span>
-          <span className="trip-ds-label">مسجّلون رسمياً</span>
+          <span className="trip-ds-label">دفعوا العربون</span>
         </div>
       </div>
 
@@ -224,7 +219,6 @@ const AdminTrips = () => {
 
   const handleUpdateStatus = async (appId, newStatus, notes) => {
     const app = applications.find((a) => a._id === appId);
-    const oldStatus = app?.status;
     try {
       const payload = { status: newStatus };
       if (notes !== undefined) payload.adminNotes = notes;
@@ -239,18 +233,13 @@ const AdminTrips = () => {
         status: newStatus,
         ...(notes !== undefined && { adminNotes: notes }),
         history: [...(app.history || []), newHistoryEntry],
+        // إذا رُفض وكان دفع العربون → ينتظر ريفند
+        ...(newStatus === "rejected" && app.depositPaid
+          ? { depositPaid: false, refundStatus: "required" }
+          : {}),
       };
       setApplications((prev) => prev.map((a) => a._id === appId ? { ...a, ...localUpdate } : a));
       if (selectedApp?._id === appId) setSelectedApp((prev) => ({ ...prev, ...localUpdate }));
-
-      if (oldStatus !== newStatus) {
-        const tripId = app?.trip?._id || app?.trip;
-        if (newStatus === "confirmed" && oldStatus !== "confirmed") {
-          setTrips((prev) => prev.map((t) => t._id === tripId ? { ...t, bookedSpots: (t.bookedSpots || 0) + 1 } : t));
-        } else if (oldStatus === "confirmed" && newStatus !== "confirmed") {
-          setTrips((prev) => prev.map((t) => t._id === tripId ? { ...t, bookedSpots: Math.max(0, (t.bookedSpots || 0) - 1) } : t));
-        }
-      }
     } catch { alert("فشل تحديث الحالة"); }
   };
 
@@ -270,13 +259,42 @@ const AdminTrips = () => {
     setStatusReason("");
   };
 
+  const handleConfirmDeposit = async (appId) => {
+    try {
+      await applicationsAPI.confirmDeposit(appId);
+      const update = { depositPaid: true };
+      setApplications((prev) => prev.map((a) => a._id === appId ? { ...a, ...update } : a));
+      if (selectedApp?._id === appId) setSelectedApp((prev) => ({ ...prev, ...update }));
+    } catch (err) {
+      alert(err?.response?.data?.message || "فشل تأكيد العربون");
+    }
+  };
+
+  const handleCompleteRefund = async (appId) => {
+    try {
+      await applicationsAPI.completeRefund(appId);
+      const update = { refundStatus: "completed" };
+      setApplications((prev) => prev.map((a) => a._id === appId ? { ...a, ...update } : a));
+      if (selectedApp?._id === appId) setSelectedApp((prev) => ({ ...prev, ...update }));
+    } catch (err) {
+      alert(err?.response?.data?.message || "فشل تحديث الريفند");
+    }
+  };
+
   const handleDeleteApp = async (appId) => {
+    const app = applications.find((a) => a._id === appId);
+    if (app?.refundStatus === "required") {
+      alert("لا يمكن حذف هذا الطلب قبل إتمام الريفند");
+      return;
+    }
     if (!window.confirm("هل أنت متأكد من حذف هذا الطلب؟")) return;
     try {
       await applicationsAPI.delete(appId);
       setApplications((prev) => prev.filter((a) => a._id !== appId));
       if (selectedApp?._id === appId) setSelectedApp(null);
-    } catch { alert("فشل حذف الطلب"); }
+    } catch (err) {
+      alert(err?.response?.data?.message || "فشل حذف الطلب");
+    }
   };
 
   const pendingCount = applications.filter((a) => a.status === "pending").length;
@@ -418,7 +436,15 @@ const AdminTrips = () => {
                             <div className="app-name">{app.fullName}</div>
                             <div className="app-trip">{app.tripTitle}</div>
                           </div>
-                          <span className="app-status-badge" style={{ color: s.color, background: s.bg }}>{s.label}</span>
+                          <div style={{ display: "flex", flexDirection: "column", gap: "4px", alignItems: "flex-end" }}>
+                            <span className="app-status-badge" style={{ color: s.color, background: s.bg }}>{s.label}</span>
+                            {app.depositPaid && (
+                              <span style={{ background: "#f0fdf4", color: "#16a34a", fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: "12px" }}>💳 دفع العربون</span>
+                            )}
+                            {app.refundStatus === "required" && (
+                              <span style={{ background: "#fef2f2", color: "#dc2626", fontSize: "0.75rem", fontWeight: 700, padding: "2px 8px", borderRadius: "12px" }}>⚠️ ريفند مطلوب</span>
+                            )}
+                          </div>
                         </div>
                         <div className="app-card-bottom">
                           <span>📍 {app.country} - {app.city}</span>
@@ -522,39 +548,35 @@ const AdminTrips = () => {
                   <div className="app-detail-section">
                     <div className="detail-label">نقل الطلب إلى</div>
                     <div className="status-buttons">
-                      {Object.entries(STATUS_MAP).map(([key, val]) => {
-                        const isConfirmedLocked = key === "confirmed" && selectedApp.status !== "accepted";
-                        const isPendingLocked   = key === "pending"   && selectedApp.status !== "pending";
-                        return (
-                          <button
-                            key={key}
-                            className={`status-btn ${selectedApp.status === key ? "status-btn-active" : ""} ${isConfirmedLocked || isPendingLocked ? "status-btn-locked" : ""}`}
-                            style={{ "--s-color": val.color, "--s-bg": val.bg }}
-                            disabled={isConfirmedLocked || isPendingLocked || selectedApp.status === key}
-                            onClick={() => handleStatusButtonClick(key, val)}
-                          >
-                            {val.label}
-                            {STATUSES_NEED_REASON.includes(key) && selectedApp.status !== key && (
-                              <span className="status-btn-reason-hint"> ✏️</span>
-                            )}
-                          </button>
-                        );
-                      })}
+                      {Object.entries(STATUS_MAP).map(([key, val]) => (
+                        <button
+                          key={key}
+                          className={`status-btn ${selectedApp.status === key ? "status-btn-active" : ""}`}
+                          style={{ "--s-color": val.color, "--s-bg": val.bg }}
+                          disabled={selectedApp.status === key}
+                          onClick={() => handleStatusButtonClick(key, val)}
+                        >
+                          {val.label}
+                          {STATUSES_NEED_REASON.includes(key) && selectedApp.status !== key && (
+                            <span className="status-btn-reason-hint"> ✏️</span>
+                          )}
+                        </button>
+                      ))}
                     </div>
 
                     {pendingStatus && (
                       <div className="status-reason-box" style={{ "--r-color": pendingStatus.color, "--r-bg": pendingStatus.bg }}>
-                        <div className="status-reason-title">سبب النقل إلى "{pendingStatus.label}" *</div>
+                        <div className="status-reason-title">سبب الرفض *</div>
                         <textarea
                           className="status-reason-textarea"
                           value={statusReason}
                           onChange={(e) => setStatusReason(e.target.value)}
-                          placeholder="اكتب السبب هنا..."
+                          placeholder="اكتب سبب الرفض هنا..."
                           rows={3} autoFocus
                         />
                         <div className="status-reason-actions">
                           <button className="btn-reason-confirm" style={{ background: pendingStatus.color }} onClick={handleConfirmWithReason} disabled={!statusReason.trim()}>
-                            تأكيد النقل
+                            تأكيد الرفض
                           </button>
                           <button className="btn btn-secondary" onClick={() => { setPendingStatus(null); setStatusReason(""); }}>
                             إلغاء
@@ -564,11 +586,48 @@ const AdminTrips = () => {
                     )}
                   </div>
 
-                  {selectedApp.status === "accepted" && (
+                  {/* تأكيد العربون */}
+                  {selectedApp.status !== "rejected" && !selectedApp.depositPaid && (
                     <div className="app-detail-section">
-                      <button className="btn-confirm-deposit" onClick={() => handleUpdateStatus(selectedApp._id, "confirmed")}>
-                        💰 تأكيد دفع العربون — تسجيل رسمي
+                      <button className="btn-confirm-deposit" onClick={() => handleConfirmDeposit(selectedApp._id)}>
+                        💳 تأكيد دفع العربون
                       </button>
+                    </div>
+                  )}
+
+                  {/* حالة العربون */}
+                  {selectedApp.depositPaid && (
+                    <div className="app-detail-section">
+                      <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "10px", padding: "12px 16px", display: "flex", alignItems: "center", gap: "10px" }}>
+                        <span style={{ fontSize: "1.2rem" }}>✅</span>
+                        <span style={{ color: "#16a34a", fontWeight: 700 }}>تم دفع العربون</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* ريفند مطلوب */}
+                  {selectedApp.refundStatus === "required" && (
+                    <div className="app-detail-section">
+                      <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: "10px", padding: "12px 16px" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "10px" }}>
+                          <span style={{ fontSize: "1.1rem" }}>⚠️</span>
+                          <span style={{ color: "#dc2626", fontWeight: 700 }}>العربون بانتظار الريفند</span>
+                        </div>
+                        <button
+                          style={{ background: "#dc2626", color: "#fff", border: "none", borderRadius: "8px", padding: "8px 18px", fontWeight: 700, cursor: "pointer", fontSize: "0.9rem" }}
+                          onClick={() => handleCompleteRefund(selectedApp._id)}
+                        >
+                          ✓ تأكيد إتمام الريفند
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {selectedApp.refundStatus === "completed" && (
+                    <div className="app-detail-section">
+                      <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "10px 16px", color: "#64748b", fontSize: "0.9rem" }}>
+                        ✓ تم إتمام الريفند
+                      </div>
                     </div>
                   )}
 
@@ -590,7 +649,12 @@ const AdminTrips = () => {
                       📱 واتساب
                     </a>
                     <a href={`mailto:${selectedApp.email}`} className="btn btn-secondary">📧 إيميل</a>
-                    <button className="btn-action btn-delete" onClick={() => handleDeleteApp(selectedApp._id)} style={{ padding: "10px 16px" }}>
+                    <button
+                      className="btn-action btn-delete"
+                      onClick={() => handleDeleteApp(selectedApp._id)}
+                      style={{ padding: "10px 16px", opacity: selectedApp.refundStatus === "required" ? 0.4 : 1, cursor: selectedApp.refundStatus === "required" ? "not-allowed" : "pointer" }}
+                      title={selectedApp.refundStatus === "required" ? "أتمم الريفند أولاً" : ""}
+                    >
                       حذف الطلب
                     </button>
                   </div>
