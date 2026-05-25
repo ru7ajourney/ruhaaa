@@ -16,7 +16,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const trips = await Trip.find({ isActive: true }).select(
-      "title destination country shortDescription duration price currency coverImage isFeatured slug availableDates totalSpots bookedSpots"
+      "title destination country shortDescription duration price currency coverImage isFeatured slug availableDates"
     );
     res.json(trips);
   } catch (error) {
@@ -29,7 +29,7 @@ router.get("/", async (req, res) => {
 router.get("/featured", async (req, res) => {
   try {
     const trips = await Trip.find({ isActive: true, isFeatured: true }).select(
-      "title destination country shortDescription duration price currency coverImage slug availableDates totalSpots bookedSpots"
+      "title destination country shortDescription duration price currency coverImage slug availableDates"
     );
     res.json(trips);
   } catch (error) {
@@ -98,7 +98,6 @@ router.post("/", protectSuper, async (req, res) => {
 router.put("/:id", protectSuper, async (req, res) => {
   try {
     const updateData = { ...req.body };
-    delete updateData.bookedSpots; // محمي - لا يتغير إلا عند تأكيد عربون
     const trip = await Trip.findByIdAndUpdate(
       req.params.id,
       updateData,

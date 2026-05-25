@@ -303,7 +303,6 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
       changedAt: new Date(),
     });
     await application.save();
-    await Trip.findByIdAndUpdate(application.trip, { $inc: { bookedSpots: 1 } });
 
     res.json({ message: "تم الدفع بنجاح، شكراً لك!" });
   } catch (err) {
@@ -337,7 +336,6 @@ router.post("/applications/:id/pay", protectUser, async (req, res) => {
       changedAt: new Date(),
     });
     await application.save();
-    await Trip.findByIdAndUpdate(application.trip, { $inc: { bookedSpots: 1 } });
 
     res.json({ message: "تم إرسال تأكيد الدفع، شكراً لك!", application });
   } catch (err) {

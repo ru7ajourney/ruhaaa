@@ -78,14 +78,6 @@ const TripSchema = new mongoose.Schema(
     availableDates: [AvailableDateSchema], // التواريخ المتاحة
     includes: [String],   // ماذا يشمل السعر - مثل ["السكن", "المواصلات"]
     excludes: [String],   // ماذا لا يشمل - مثل ["تذاكر الطيران"]
-    totalSpots: {
-      type: Number,
-      default: 0,
-    },
-    bookedSpots: {
-      type: Number,
-      default: 0,
-    },
     isActive: {
       type: Boolean,
       default: true,  // هل الرحلة ظاهرة للزوار؟

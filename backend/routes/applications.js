@@ -296,8 +296,6 @@ router.post("/:id/confirm-deposit", protect, async (req, res) => {
     });
     await application.save();
 
-    await Trip.findByIdAndUpdate(application.trip, { $inc: { bookedSpots: 1 } });
-
     res.json({ message: "تم تأكيد دفع العربون", application });
   } catch (error) {
     res.status(500).json({ message: "خطأ في تأكيد العربون", error: error.message });
@@ -361,7 +359,6 @@ router.put("/:id", protect, async (req, res) => {
       if (status === "rejected" && oldApp.depositPaid) {
         updateFields.depositPaid = false;
         updateFields.refundStatus = "required";
-        await Trip.findByIdAndUpdate(oldApp.trip, { $inc: { bookedSpots: -1 } });
       }
 
       updateFields.$push = {
