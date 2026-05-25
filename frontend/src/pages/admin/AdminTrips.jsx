@@ -141,7 +141,8 @@ const TripDetail = ({ trip, applications, onDelete, isSuper }) => {
           <div className="trip-detail-section-title">📅 التواريخ المتاحة</div>
           <div className="trip-dates-list">
             {trip.availableDates.map((d, i) => {
-              const taken    = d.spotsTaken || 0;
+              const dateLabel = `${fmtDate(d.startDate)} - ${fmtDate(d.endDate)}`;
+              const taken    = tripApps.filter((a) => a.preferredDate === dateLabel && a.depositPaid).length;
               const total    = d.spotsTotal || 0;
               const avail    = total - taken;
               const pct      = total > 0 ? Math.round((taken / total) * 100) : 0;
@@ -159,8 +160,9 @@ const TripDetail = ({ trip, applications, onDelete, isSuper }) => {
                       <div className="trip-spots-fill" style={{ width: `${pct}%`, background: isFull ? "#dc2626" : pct > 70 ? "#f59e0b" : "#16a34a" }} />
                     </div>
                     <span className="trip-spots-text">
-                      <strong style={{ color: isFull ? "#dc2626" : "#16a34a" }}>{avail}</strong>
-                      <span style={{ color: "#a0aec0" }}> / {total} متاح</span>
+                      <strong style={{ color: isFull ? "#dc2626" : "#16a34a" }}>{taken}</strong>
+                      <span style={{ color: "#a0aec0" }}> / {total} 💳</span>
+                      {!isFull && <span style={{ color: "#a0aec0", marginRight: "6px" }}>({avail} متاح)</span>}
                     </span>
                   </div>
                 </div>
