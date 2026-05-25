@@ -110,8 +110,14 @@ const ApplicationSchema = new mongoose.Schema(
     // ==============================
     status: {
       type: String,
-      enum: ["pending", "reviewed", "accepted", "rejected", "payment_pending", "confirmed"],
+      enum: ["pending", "accepted", "rejected"],
       default: "pending",
+    },
+
+    // هل تم دفع العربون؟
+    depositPaid: {
+      type: Boolean,
+      default: false,
     },
 
     // سبب القرار (مرتبط بتغيير الحالة)

@@ -273,25 +273,32 @@ router.get("/:id", protect, async (req, res) => {
 
 // ==============================
 // POST /api/applications/:id/confirm-deposit (آدمن فقط)
-// تأكيد دفع العربون - ينقل الطلب لمسجّل رسمياً ويقلل الأماكن المتاحة
+// تأكيد دفع العربون
 // ==============================
 router.post("/:id/confirm-deposit", protect, async (req, res) => {
   try {
     const application = await Application.findById(req.params.id);
-    if (!application) {
-      return res.status(404).json({ message: "الطلب غير موجود" });
+    if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
+
+    if (application.status === "rejected") {
+      return res.status(400).json({ message: "لا يمكن تأكيد العربون لطلب مرفوض" });
     }
-    if (application.status !== "accepted") {
-      return res.status(400).json({ message: "يجب أن يكون الطلب في حالة مقبول أولاً" });
+    if (application.depositPaid) {
+      return res.status(400).json({ message: "العربون مؤكد بالفعل" });
     }
 
-    application.status = "confirmed";
-    application.history.push({ status: "confirmed", reason: "تم تأكيد دفع العربون", changedBy: req.admin?.username || req.admin?.name || "", changedAt: new Date() });
+    application.depositPaid = true;
+    application.history.push({
+      status: application.status,
+      reason: "تم تأكيد دفع العربون",
+      changedBy: req.admin?.username || req.admin?.name || "",
+      changedAt: new Date(),
+    });
     await application.save();
 
     await Trip.findByIdAndUpdate(application.trip, { $inc: { bookedSpots: 1 } });
 
-    res.json({ message: "تم تأكيد دفع العربون وتسجيل الشخص رسمياً", application });
+    res.json({ message: "تم تأكيد دفع العربون", application });
   } catch (error) {
     res.status(500).json({ message: "خطأ في تأكيد العربون", error: error.message });
   }
@@ -306,31 +313,27 @@ router.put("/:id", protect, async (req, res) => {
     const { status, adminNotes, clientNotes } = req.body;
 
     const oldApp = await Application.findById(req.params.id);
-    if (!oldApp) {
-      return res.status(404).json({ message: "الطلب غير موجود" });
-    }
+    if (!oldApp) return res.status(404).json({ message: "الطلب غير موجود" });
 
-    // لا يمكن العودة إلى pending بعد مغادرتها
-    if (status === "pending" && oldApp.status !== "pending") {
-      return res.status(400).json({ message: "لا يمكن إعادة الطلب إلى قيد المراجعة بعد مغادرتها" });
-    }
-
-    // إدارة الأماكن عند التنقل من/إلى confirmed
-    if (status && status !== oldApp.status) {
-      if (status === "confirmed" && oldApp.status !== "confirmed") {
-        await Trip.findByIdAndUpdate(oldApp.trip, { $inc: { bookedSpots: 1 } });
-      } else if (oldApp.status === "confirmed" && status !== "confirmed") {
-        await Trip.findByIdAndUpdate(oldApp.trip, { $inc: { bookedSpots: -1 } });
-      }
+    // الحالات المسموحة: pending ↔ accepted ↔ rejected (الأدمن يتحكم بالكامل)
+    const VALID = ["pending", "accepted", "rejected"];
+    if (status && !VALID.includes(status)) {
+      return res.status(400).json({ message: "حالة غير صالحة" });
     }
 
     const updateFields = {};
-    if (status !== undefined) updateFields.status = status;
     if (adminNotes !== undefined) updateFields.adminNotes = adminNotes;
     if (clientNotes !== undefined) updateFields.clientNotes = clientNotes;
 
-    // أضف entry للـ history إذا تغيرت الحالة
     if (status && status !== oldApp.status) {
+      updateFields.status = status;
+
+      // إذا تم الرفض وكان العربون مدفوعاً → نلغي العربون ونُرجع المقعد
+      if (status === "rejected" && oldApp.depositPaid) {
+        updateFields.depositPaid = false;
+        await Trip.findByIdAndUpdate(oldApp.trip, { $inc: { bookedSpots: -1 } });
+      }
+
       updateFields.$push = {
         history: {
           status,
@@ -341,12 +344,7 @@ router.put("/:id", protect, async (req, res) => {
       };
     }
 
-    const application = await Application.findByIdAndUpdate(
-      req.params.id,
-      updateFields,
-      { new: true }
-    );
-
+    const application = await Application.findByIdAndUpdate(req.params.id, updateFields, { new: true });
     res.json({ message: "تم تحديث الطلب بنجاح", application });
   } catch (error) {
     res.status(400).json({ message: "خطأ في تحديث الطلب", error: error.message });
