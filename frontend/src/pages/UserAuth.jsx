@@ -35,7 +35,7 @@ const UserAuth = () => {
       try {
         const { data } = await userAPI.googleAuth(tokenResponse.access_token);
         login(data.token, data.user);
-        navigate("/my-applications");
+        navigate("/trips");
       } catch (err) {
         setError(err.response?.data?.message || "فشل تسجيل الدخول بجوجل");
       } finally {
@@ -54,7 +54,7 @@ const UserAuth = () => {
       if (tab === "login") {
         const { data } = await userAPI.login({ email: form.email, password: form.password });
         login(data.token, data.user);
-        navigate("/my-applications");
+        navigate("/trips");
       } else {
         await userAPI.register(form);
         setPendingEmail(form.email);
@@ -85,7 +85,7 @@ const UserAuth = () => {
     try {
       const { data } = await userAPI.verifyEmail({ email: pendingEmail, otp });
       login(data.token, data.user);
-      navigate("/my-applications");
+      navigate("/trips");
     } catch (err) {
       setError(err.response?.data?.message || "الكود غير صحيح");
     } finally {
