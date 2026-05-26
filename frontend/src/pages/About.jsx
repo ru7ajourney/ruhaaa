@@ -54,7 +54,7 @@ const About = () => {
             <LightboxImage
               src="https://res.cloudinary.com/du3swcegt/image/upload/v1779522951/WhatsApp_Image_2026-05-14_at_19.38.52_1_w9mlqb.jpg"
               alt="إيطاليا"
-              caption="أدهم في توسكانا، إيطاليا — البداية الحقيقية لرُحى"
+              caption="من رحلة ذياب الاستكشافية بين الجبال في فرنسا"
             />
           </div>
         </section>

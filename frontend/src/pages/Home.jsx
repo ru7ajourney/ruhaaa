@@ -272,7 +272,7 @@ const Home = () => {
             <LightboxImage
               src="https://res.cloudinary.com/du3swcegt/image/upload/v1779528975/7d3770d1-3272-4145-8a41-129f731d24b5_kbopud.jpg"
               alt="إيطاليا"
-              caption="مكالمة غيّرت كل شيء — بداية قصة رُحى"
+              caption="من تطوع أدهم في مزرعة بطبيعة توسكانا في إيطاليا"
             />
           </div>
         </div>
