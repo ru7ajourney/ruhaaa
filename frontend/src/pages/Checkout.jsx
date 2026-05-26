@@ -13,6 +13,7 @@ const Checkout = () => {
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [done, setDone] = useState(false);
+  const [fullyPaid, setFullyPaid] = useState(false);
   const [error, setError] = useState("");
   const [customAmount, setCustomAmount] = useState("");
   const [showPaypal, setShowPaypal] = useState(false);
@@ -63,9 +64,8 @@ const Checkout = () => {
 
   const onApprove = async (data) => {
     try {
-      await userAPI.capturePaypalOrder(id, {
-        orderId: data.orderID,
-      });
+      const res = await userAPI.capturePaypalOrder(id, { orderId: data.orderID });
+      setFullyPaid(res.data?.fullyPaid || false);
       setDone(true);
     } catch (err) {
       setError(err.response?.data?.message || "فشل تأكيد الدفع، تواصل معنا");
@@ -80,12 +80,17 @@ const Checkout = () => {
     return (
       <div className="checkout-page">
         <div className="checkout-success">
-          <div className="checkout-success-icon">✅</div>
-          <h2>{isRemainingMode ? "تم الدفع بنجاح!" : "تم الدفع بنجاح!"}</h2>
-          <p>{isRemainingMode
-            ? "تم تسجيل دفعتك، يمكنك مراجعة طلبك لمعرفة المبلغ المتبقي."
-            : "تم تأكيد دفعك عبر PayPal وحُجز مقعدك تلقائياً."
+          <div className="checkout-success-icon">{fullyPaid ? "🎉" : "✅"}</div>
+          <h2>{fullyPaid ? "اكتمل دفعك! 🎉" : "تم الدفع بنجاح!"}</h2>
+          <p>{fullyPaid
+            ? "تم استلام كامل مبلغ الرحلة. سيتواصل معك الفريق قريباً لمشاركة التفاصيل."
+            : isRemainingMode
+              ? "تم تسجيل دفعتك. يمكنك دفع المبلغ المتبقي في أي وقت من صفحة طلباتي."
+              : "تم تأكيد دفعك عبر PayPal وحُجز مقعدك تلقائياً."
           }</p>
+          <p style={{ fontSize: "0.9rem", color: "#6b7280", margin: "8px 0 20px" }}>
+            📧 تم إرسال تأكيد الدفع على بريدك الإلكتروني.
+          </p>
           <Link to="/my-applications" className="btn btn-primary">العودة لطلباتي</Link>
         </div>
       </div>

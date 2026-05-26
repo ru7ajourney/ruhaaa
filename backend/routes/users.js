@@ -14,6 +14,200 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
 
+const sendPaymentConfirmationEmail = async ({ email, fullName, tripTitle, amountPaid, currency, totalPaid, tripPrice, fullyPaid, isDeposit }) => {
+  if (!process.env.RESEND_API_KEY) return;
+  const year = new Date().getFullYear();
+  const remaining = Math.max(0, (tripPrice || 0) - (totalPaid || 0));
+  const paymentType = isDeposit ? "العربون" : fullyPaid ? "إكمال الدفع بالكامل" : "دفعة جزئية";
+  const headerColor = fullyPaid ? "linear-gradient(145deg,#15803d 0%,#166534 100%)" : "linear-gradient(145deg,#c8622a 0%,#a04e20 100%)";
+  const headerIcon = fullyPaid ? "🎉" : "💳";
+
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    to: email,
+    subject: fullyPaid
+      ? `🎉 تم إكمال دفع رحلتك — ${tripTitle}`
+      : `💳 تم استلام دفعتك — ${tripTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background:#f0ede8;font-family:Arial,Helvetica,sans-serif;direction:rtl;">
+
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;padding:48px 16px;">
+  <tr><td align="center">
+    <table width="520" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.10);">
+
+      <!-- HEADER -->
+      <tr>
+        <td align="center" style="background:${headerColor};padding:44px 40px 36px;">
+          <p style="margin:0;font-family:'Aref Ruqaa',Georgia,serif;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">رُحى</p>
+          <p style="margin:8px 0 0;font-size:16px;color:rgba(255,255,255,0.75);letter-spacing:3px;">سفر &nbsp;•&nbsp; تطوع &nbsp;•&nbsp; اكتشاف</p>
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
+            <tr>
+              <td style="background:rgba(255,255,255,0.15);border-radius:20px;padding:8px 24px;">
+                <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.95);">${headerIcon} ${paymentType}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- GREETING -->
+      <tr>
+        <td align="center" style="padding:44px 48px 8px;">
+          <p style="margin:0 0 12px;font-size:24px;font-weight:700;color:#2c4a3e;text-align:center;">
+            ${fullyPaid ? "مبروك! 🎉 اكتمل دفعك" : `أهلاً، ${fullName}!`}
+          </p>
+          <p style="margin:0;font-size:16px;color:#555;line-height:2;text-align:center;">
+            ${fullyPaid
+              ? `تم استلام كامل مبلغ رحلة <strong>${tripTitle}</strong><br>نحن متحمسون لرحلتك القادمة!`
+              : `تم استلام دفعتك لرحلة <strong>${tripTitle}</strong><br>شكراً لثقتك بنا.`
+            }
+          </p>
+        </td>
+      </tr>
+
+      <!-- DIVIDER -->
+      <tr>
+        <td align="center" style="padding:28px 48px 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0">
+            <tr><td style="border-top:1px solid #ece8e1;"></td></tr>
+          </table>
+        </td>
+      </tr>
+
+      <!-- PAYMENT DETAILS -->
+      <tr>
+        <td style="padding:32px 48px;">
+          <p style="margin:0 0 20px;font-size:15px;font-weight:700;color:#2c4a3e;">تفاصيل الدفعة</p>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#faf8f5;border-radius:12px;border:1px solid #ece8e1;">
+            <tr>
+              <td style="padding:14px 20px;border-bottom:1px solid #ece8e1;color:#888;font-size:14px;">المبلغ المدفوع الآن</td>
+              <td style="padding:14px 20px;border-bottom:1px solid #ece8e1;text-align:left;font-size:18px;font-weight:800;color:#c8622a;">${amountPaid} ${currency}</td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;border-bottom:1px solid #ece8e1;color:#888;font-size:14px;">إجمالي المدفوع</td>
+              <td style="padding:14px 20px;border-bottom:1px solid #ece8e1;text-align:left;font-size:15px;font-weight:700;color:#2c4a3e;">${totalPaid} ${currency}</td>
+            </tr>
+            ${tripPrice ? `
+            <tr>
+              <td style="padding:14px 20px;border-bottom:1px solid #ece8e1;color:#888;font-size:14px;">سعر الرحلة الكلي</td>
+              <td style="padding:14px 20px;border-bottom:1px solid #ece8e1;text-align:left;font-size:14px;color:#555;">${tripPrice} ${currency}</td>
+            </tr>
+            <tr>
+              <td style="padding:14px 20px;color:#888;font-size:14px;">المبلغ المتبقي</td>
+              <td style="padding:14px 20px;text-align:left;font-size:15px;font-weight:700;color:${remaining > 0 ? "#b45309" : "#15803d"};">${remaining > 0 ? `${remaining} ${currency}` : "✅ مكتمل"}</td>
+            </tr>` : ""}
+          </table>
+        </td>
+      </tr>
+
+      ${fullyPaid ? `
+      <!-- CONGRATS -->
+      <tr>
+        <td align="center" style="padding:0 48px 40px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;border:1px solid #bbf7d0;">
+            <tr>
+              <td align="center" style="padding:20px 24px;">
+                <p style="margin:0;font-size:15px;color:#15803d;line-height:2;text-align:center;">
+                  🎉 &nbsp;تم إكمال دفع رحلتك بالكامل!<br>
+                  سيتواصل معك الفريق قريباً لمشاركة تفاصيل الرحلة.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>` : `
+      <!-- REMINDER -->
+      <tr>
+        <td align="center" style="padding:0 48px 40px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#fdf6f0;border-radius:12px;border:1px solid #f5dece;">
+            <tr>
+              <td align="center" style="padding:18px 24px;">
+                <p style="margin:0;font-size:14px;color:#b06030;line-height:2.2;text-align:center;">
+                  ${isDeposit ? "✅ &nbsp;تم حجز مقعدك رسمياً في الرحلة." : ""}
+                  ${remaining > 0 ? `<br>💰 &nbsp;المبلغ المتبقي <strong>${remaining} ${currency}</strong> — يمكنك دفعه على دفعات.` : ""}
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>`}
+
+      <!-- FOOTER -->
+      <tr>
+        <td align="center" style="background:#faf8f5;padding:24px 48px;border-top:1px solid #ece8e1;">
+          <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
+          <p style="margin:0;font-size:14px;color:#999;line-height:2.2;text-align:center;">
+            © ${year} رُحى &nbsp;·&nbsp; جميع الحقوق محفوظة
+          </p>
+        </td>
+      </tr>
+
+    </table>
+  </td></tr>
+</table>
+
+</body>
+</html>`,
+  });
+};
+
+const notifyAdminFullPayment = async ({ fullName, email, tripTitle, totalPaid, currency }) => {
+  const to = process.env.ADMIN_EMAIL_NOTIFY || process.env.ADMIN_EMAIL;
+  if (!to || !process.env.RESEND_API_KEY) return;
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    to,
+    subject: `💰 إكمال دفع كامل — ${fullName} — ${tripTitle}`,
+    html: `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><meta charset="UTF-8"/></head>
+<body style="margin:0;padding:0;background:#f4f4f5;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:40px 0;">
+    <tr><td align="center">
+      <table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,0.08);">
+        <tr>
+          <td style="background:linear-gradient(135deg,#15803d 0%,#166534 100%);padding:36px 40px;text-align:center;">
+            <h1 style="margin:0;color:#ffffff;font-size:24px;font-weight:700;">💰 إكمال دفع كامل</h1>
+            <p style="margin:10px 0 0;color:#bbf7d0;font-size:16px;">${tripTitle}</p>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:36px 40px;">
+            <table width="100%" cellpadding="0" cellspacing="0">
+              <tr>
+                <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;color:#718096;font-size:14px;width:160px;">الاسم</td>
+                <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;color:#1a202c;font-size:14px;font-weight:600;">${fullName}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;color:#718096;font-size:14px;">الإيميل</td>
+                <td style="padding:10px 0;border-bottom:1px solid #f0f0f0;color:#1a202c;font-size:14px;">${email}</td>
+              </tr>
+              <tr>
+                <td style="padding:10px 0;color:#718096;font-size:14px;">إجمالي المدفوع</td>
+                <td style="padding:10px 0;font-size:18px;font-weight:800;color:#15803d;">${totalPaid} ${currency}</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+        <tr>
+          <td style="background:#f0fdf4;padding:20px 40px;border-top:1px solid #bbf7d0;text-align:center;">
+            <p style="margin:0;color:#15803d;font-size:14px;font-weight:600;">✅ أكمل هذا المتقدم دفع كامل مبلغ الرحلة</p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
+  </table>
+</body>
+</html>`,
+  });
+};
+
 const sendOtpEmail = async (email, otp, fullName) => {
   const year = new Date().getFullYear();
   await resend.emails.send({
@@ -429,7 +623,7 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
     const application = await Application.findOne({
       _id: req.params.id,
       $or: [{ userId: req.user._id }, { email: req.user.email }],
-    }).populate("trip", "price");
+    }).populate("trip", "price title currency");
 
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
     if (application.fullyPaid) return res.status(400).json({ message: "تم دفع كامل مبلغ الرحلة بالفعل" });
@@ -480,6 +674,33 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
     }
 
     await application.save();
+
+    const tripPrice = application.trip?.price || 0;
+    const currency = application.paidCurrency || application.trip?.currency || "USD";
+
+    // إيميل تأكيد للمستخدم
+    sendPaymentConfirmationEmail({
+      email: application.email,
+      fullName: application.fullName,
+      tripTitle: application.tripTitle,
+      amountPaid: capturedAmount,
+      currency,
+      totalPaid: application.paidAmount,
+      tripPrice,
+      fullyPaid: application.fullyPaid,
+      isDeposit: !application.depositPaid || (application.depositPaid && application.paidAmount === capturedAmount),
+    }).catch((e) => console.error("Payment email failed:", e.message));
+
+    // إشعار للأدمن عند إكمال الدفع كاملاً
+    if (application.fullyPaid) {
+      notifyAdminFullPayment({
+        fullName: application.fullName,
+        email: application.email,
+        tripTitle: application.tripTitle,
+        totalPaid: application.paidAmount,
+        currency,
+      }).catch((e) => console.error("Admin payment notification failed:", e.message));
+    }
 
     res.json({
       message: application.fullyPaid ? "تم إكمال الدفع بالكامل! 🎉" : "تم الدفع بنجاح، حُجز مقعدك!",
