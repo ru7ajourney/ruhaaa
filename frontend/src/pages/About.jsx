@@ -3,6 +3,7 @@
 
 import { Link } from "react-router-dom";
 import PageHero from "../components/PageHero";
+import LightboxImage from "../components/LightboxImage";
 import "./About.css";
 
 const About = () => {
@@ -50,9 +51,10 @@ const About = () => {
             </p>
           </div>
           <div className="about-story-img">
-            <img
-                          src="https://res.cloudinary.com/du3swcegt/image/upload/v1779522951/WhatsApp_Image_2026-05-14_at_19.38.52_1_w9mlqb.jpg"
+            <LightboxImage
+              src="https://res.cloudinary.com/du3swcegt/image/upload/v1779522951/WhatsApp_Image_2026-05-14_at_19.38.52_1_w9mlqb.jpg"
               alt="إيطاليا"
+              caption="أدهم في توسكانا، إيطاليا — البداية الحقيقية لرُحى"
             />
           </div>
         </section>

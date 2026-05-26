@@ -1,0 +1,128 @@
+.lbx-trigger {
+  display: block;
+  position: relative;
+  cursor: zoom-in;
+  overflow: hidden;
+}
+
+/* ── إيحاء الضغط ── */
+.lbx-hint {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  border-radius: inherit;
+}
+
+.lbx-trigger:hover .lbx-hint {
+  opacity: 1;
+}
+
+.lbx-hint svg {
+  width: 42px;
+  height: 42px;
+  color: #fff;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
+  transform: scale(0.85);
+  transition: transform 0.25s ease;
+}
+
+.lbx-trigger:hover .lbx-hint svg {
+  transform: scale(1);
+}
+
+/* ── overlay ── */
+.lbx-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: lbxFadeIn 0.2s ease;
+}
+
+@keyframes lbxFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── زر إغلاق ── */
+.lbx-close {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 10000;
+  font-family: inherit;
+}
+
+.lbx-close:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+/* ── الصورة الكاملة ── */
+.lbx-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  animation: lbxZoomIn 0.25s ease;
+}
+
+@keyframes lbxZoomIn {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.lbx-full-img {
+  max-width: min(90vw, 860px);
+  max-height: 78vh;
+  object-fit: contain;
+  border-radius: 14px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  display: block;
+}
+
+/* ── العنوان ── */
+.lbx-caption {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  text-align: center;
+  max-width: 560px;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0 12px;
+}
+
+@media (max-width: 768px) {
+  .lbx-full-img {
+    max-width: 95vw;
+    max-height: 72vh;
+    border-radius: 10px;
+  }
+
+  .lbx-close {
+    top: 12px;
+    right: 12px;
+  }
+}

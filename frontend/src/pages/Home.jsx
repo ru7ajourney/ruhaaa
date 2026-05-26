@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { tripsAPI, galleryAPI } from "../api";
 import TripCard from "../components/TripCard";
+import LightboxImage from "../components/LightboxImage";
 import { getCropImgStyle } from "../utils/cropStyle";
 import "./Home.css";
 
@@ -227,7 +228,12 @@ const Home = () => {
           <div className="fp-grid">
             {featuredPhotos.map((photo) => (
               <div key={photo._id} className="fp-item">
-                <img src={photo.imageUrl} alt={photo.title || "صورة من رحلة"} style={getCropImgStyle(photo.cropArea)} />
+                <LightboxImage
+                  src={photo.imageUrl}
+                  alt={photo.title || "صورة من رحلة"}
+                  caption={photo.title}
+                  style={getCropImgStyle(photo.cropArea)}
+                />
                 {photo.title && <div className="fp-caption">{photo.title}</div>}
               </div>
             ))}
@@ -263,9 +269,10 @@ const Home = () => {
             </Link>
           </div>
           <div className="story-image">
-            <img
-                          src="https://res.cloudinary.com/du3swcegt/image/upload/v1779528975/7d3770d1-3272-4145-8a41-129f731d24b5_kbopud.jpg"
+            <LightboxImage
+              src="https://res.cloudinary.com/du3swcegt/image/upload/v1779528975/7d3770d1-3272-4145-8a41-129f731d24b5_kbopud.jpg"
               alt="إيطاليا"
+              caption="مكالمة غيّرت كل شيء — بداية قصة رُحى"
             />
           </div>
         </div>

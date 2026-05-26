@@ -414,6 +414,18 @@
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* LightboxImage wrapper inside featured photo grid */
+.fp-item .lbx-trigger {
+  position: absolute;
+  inset: 0;
+}
+
+/* LightboxImage wrapper inside story section */
+.story-image .lbx-trigger {
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
 .fp-item:hover {
   transform: scale(1.04);
   box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
