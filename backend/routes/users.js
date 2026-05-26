@@ -675,7 +675,6 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
 
     await application.save();
 
-    const tripPrice = application.trip?.price || 0;
     const currency = application.paidCurrency || application.trip?.currency || "USD";
 
     // إيميل تأكيد للمستخدم
