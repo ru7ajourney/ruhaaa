@@ -82,6 +82,7 @@ export const applicationsAPI = {
   getById: (id) => api.get(`/applications/${id}`),
   updateStatus: (id, data) => api.put(`/applications/${id}`, data),
   confirmDeposit: (id) => api.post(`/applications/${id}/confirm-deposit`),
+  migratePaypalPayments: () => api.post("/applications/migrate/paypal-payments"),
   completeRefund: (id) => api.post(`/applications/${id}/complete-refund`),
   delete: (id) => api.delete(`/applications/${id}`),
 };

@@ -21,6 +21,8 @@ const Dashboard = () => {
   });
   const [loading, setLoading] = useState(true);
   const [recentApps, setRecentApps] = useState([]);
+  const [migrating, setMigrating] = useState(false);
+  const [migrateResult, setMigrateResult] = useState(null);
 
   useEffect(() => {
     const load = async () => {
@@ -60,6 +62,19 @@ const Dashboard = () => {
     };
     load();
   }, []);
+
+  const runMigration = async () => {
+    if (!window.confirm("سيتم تحديث كل الطلبات المدفوعة قديماً لإضافة paymentMethod=paypal. تأكيد؟")) return;
+    setMigrating(true);
+    try {
+      const { data } = await applicationsAPI.migratePaypalPayments();
+      setMigrateResult(data);
+    } catch (err) {
+      setMigrateResult({ message: err.response?.data?.message || "حدث خطأ" });
+    } finally {
+      setMigrating(false);
+    }
+  };
 
   const STATUS_COLORS = {
     pending:         { color: "#f59e0b", bg: "#fffbeb", label: "قيد المراجعة" },
@@ -143,6 +158,22 @@ const Dashboard = () => {
                   <Link to="/admin/legal" className="dash-quick-btn">📜 السياسات</Link>
                   <Link to="/admin/calculator" className="dash-quick-btn">🧮 حاسبة التكاليف</Link>
                   <Link to="/admin/admins" className="dash-quick-btn">🛡️ المديرون</Link>
+                  <button
+                    className="dash-quick-btn"
+                    style={{ background: "#fef3c7", border: "1px solid #fcd34d", cursor: "pointer", color: "#92400e" }}
+                    onClick={runMigration}
+                    disabled={migrating}
+                  >
+                    {migrating ? "جاري التحديث..." : "🔄 ترحيل مدفوعات PayPal القديمة"}
+                  </button>
+                  {migrateResult && (
+                    <div style={{ gridColumn: "1/-1", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", padding: "10px 14px", fontSize: "0.9rem", color: "#15803d" }}>
+                      ✅ {migrateResult.message}
+                      {migrateResult.applications?.map((a, i) => (
+                        <div key={i} style={{ color: "#374151", fontSize: "0.85rem" }}>• {a.name} — {a.trip} — {a.paid} USD</div>
+                      ))}
+                    </div>
+                  )}
                 </>
               )}
             </div>

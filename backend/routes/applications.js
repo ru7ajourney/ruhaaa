@@ -426,4 +426,31 @@ router.delete("/:id", protect, async (req, res) => {
   }
 });
 
+// POST /api/applications/migrate/paypal-payments — مؤقت، يُحذف بعد الاستخدام
+router.post("/migrate/paypal-payments", protect, async (req, res) => {
+  try {
+    const toUpdate = await Application.find({
+      depositPaid: true,
+      paymentMethod: { $in: [null, undefined] },
+    });
+
+    if (toUpdate.length === 0) {
+      return res.json({ message: "لا يوجد طلبات تحتاج تحديث", updated: 0 });
+    }
+
+    const result = await Application.updateMany(
+      { depositPaid: true, paymentMethod: { $in: [null, undefined] } },
+      { $set: { paymentMethod: "paypal" } }
+    );
+
+    res.json({
+      message: `تم تحديث ${result.modifiedCount} طلب بنجاح`,
+      updated: result.modifiedCount,
+      applications: toUpdate.map((a) => ({ name: a.fullName, trip: a.tripTitle, paid: a.paidAmount })),
+    });
+  } catch (err) {
+    res.status(500).json({ message: "خطأ", error: err.message });
+  }
+});
+
 module.exports = router;
