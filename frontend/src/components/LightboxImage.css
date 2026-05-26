@@ -9,46 +9,50 @@
 .lbx-hint {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.28);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  background: transparent;
   border-radius: inherit;
+  transition: background 0.3s ease;
 }
 
 .lbx-trigger:hover .lbx-hint {
-  opacity: 1;
+  background: rgba(0, 0, 0, 0.28);
 }
 
+/* الـ pill: دايماً ظاهرة في الأسفل */
 .lbx-hint-pill {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  transition: bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.48);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.25);
   color: #fff;
   font-size: 0.88rem;
   font-weight: 600;
   font-family: inherit;
   padding: 9px 18px;
   border-radius: 100px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-  transform: translateY(6px);
-  transition: transform 0.25s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
   direction: rtl;
 }
 
+/* عند الـ hover: تتحرك للمنتصف */
 .lbx-trigger:hover .lbx-hint-pill {
-  transform: translateY(0);
+  bottom: 50%;
+  transform: translateX(-50%) translateY(50%);
 }
 
 .lbx-hint-pill svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   color: #fff;
   flex-shrink: 0;
 }
@@ -133,22 +137,17 @@
 }
 
 @media (max-width: 768px) {
-  /* على الموبايل: pill ثابتة في الأسفل بدون hover */
-  .lbx-hint {
-    background: transparent;
-    align-items: flex-end;
-    justify-content: center;
-    opacity: 1;
-    pointer-events: none;
-    padding-bottom: 12px;
-  }
-
+  /* الموبايل: pill ثابتة في الأسفل، بدون حركة */
   .lbx-hint-pill {
-    transform: translateY(0);
+    bottom: 12px;
     font-size: 0.78rem;
     padding: 6px 14px;
-    background: rgba(0, 0, 0, 0.52);
-    border-color: rgba(255, 255, 255, 0.2);
+    transition: none;
+  }
+
+  .lbx-trigger:hover .lbx-hint-pill {
+    bottom: 12px;
+    transform: translateX(-50%);
   }
 
   .lbx-full-img {
