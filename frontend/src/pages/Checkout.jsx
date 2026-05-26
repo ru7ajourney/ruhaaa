@@ -22,6 +22,11 @@ const Checkout = () => {
   }, [user, authLoading]);
 
   useEffect(() => {
+    document.body.style.overflow = showPaypal ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [showPaypal]);
+
+  useEffect(() => {
     userAPI.getMyApplications()
       .then(({ data }) => {
         const app = data.find((a) => a._id === id);
