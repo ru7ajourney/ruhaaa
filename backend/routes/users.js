@@ -378,7 +378,7 @@ router.get("/my-applications", protectUser, async (req, res) => {
     const applications = await Application.find({
       $or: [{ userId: req.user._id }, { email: req.user.email }],
     })
-      .populate("trip", "title destination coverImage duration price currency slug")
+      .populate("trip", "title destination coverImage duration price currency slug availableDates")
       .sort({ createdAt: -1 });
     res.json(applications);
   } catch (err) {
@@ -398,15 +398,21 @@ router.post("/applications/:id/create-paypal-order", protectUser, async (req, re
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
     if (application.status === "rejected")
       return res.status(400).json({ message: "لا يمكن الدفع لطلب مرفوض" });
-    if (application.depositPaid)
-      return res.status(400).json({ message: "تم دفع العربون بالفعل" });
+    if (application.fullyPaid)
+      return res.status(400).json({ message: "تم دفع كامل مبلغ الرحلة بالفعل" });
 
     const tripPrice = application.trip?.price || 0;
-    const minDeposit = Math.round(tripPrice * 0.3);
     const requestedAmount = Number(amount);
 
-    if (!requestedAmount || requestedAmount < minDeposit) {
-      return res.status(400).json({ message: `الحد الأدنى للعربون هو ${minDeposit} USD` });
+    if (!application.depositPaid) {
+      const minDeposit = Math.round(tripPrice * 0.3);
+      if (!requestedAmount || requestedAmount < minDeposit) {
+        return res.status(400).json({ message: `الحد الأدنى للعربون هو ${minDeposit} USD` });
+      }
+    } else {
+      if (!requestedAmount || requestedAmount < 1) {
+        return res.status(400).json({ message: "المبلغ يجب أن يكون 1 USD على الأقل" });
+      }
     }
 
     const order = await createOrder(requestedAmount, currency || "USD", application._id.toString());
@@ -426,7 +432,7 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
     }).populate("trip", "price");
 
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
-    if (application.depositPaid) return res.status(400).json({ message: "تم دفع العربون بالفعل" });
+    if (application.fullyPaid) return res.status(400).json({ message: "تم دفع كامل مبلغ الرحلة بالفعل" });
 
     const capture = await captureOrder(orderId);
 
@@ -434,35 +440,51 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
       return res.status(400).json({ message: "لم يتم تأكيد الدفع من PayPal" });
     }
 
-    // اقرأ المبلغ الحقيقي من PayPal مش من الـ client
     const capturedAmount = parseFloat(
       capture.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || "0"
     );
     const capturedCurrency =
       capture.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.currency_code || "USD";
 
-    // تحقق أن المبلغ المدفوع >= الحد الأدنى
     const tripPrice = application.trip?.price || 0;
-    const minDeposit = Math.round(tripPrice * 0.3);
-    if (capturedAmount < minDeposit) {
-      return res.status(400).json({
-        message: `المبلغ المدفوع (${capturedAmount}) أقل من الحد الأدنى للعربون (${minDeposit})`,
+
+    if (!application.depositPaid) {
+      // أول دفعة — العربون
+      const minDeposit = Math.round(tripPrice * 0.3);
+      if (capturedAmount < minDeposit) {
+        return res.status(400).json({
+          message: `المبلغ المدفوع (${capturedAmount}) أقل من الحد الأدنى للعربون (${minDeposit})`,
+        });
+      }
+      application.depositPaid = true;
+      application.paidAmount = capturedAmount;
+      application.paidCurrency = capturedCurrency;
+      application.paymentMethod = "paypal";
+      application.status = "accepted";
+      application.history.push({
+        status: "accepted",
+        reason: `تم حجز المقعد تلقائياً بعد الدفع عبر PayPal — ${capturedAmount} ${capturedCurrency} — Order: ${orderId}`,
+        changedAt: new Date(),
+      });
+    } else {
+      // دفعة إضافية — إكمال المبلغ
+      application.paidAmount = Math.round(((application.paidAmount || 0) + capturedAmount) * 100) / 100;
+      if (tripPrice > 0 && application.paidAmount >= tripPrice) {
+        application.fullyPaid = true;
+      }
+      application.history.push({
+        status: application.status,
+        reason: `دفعة إضافية عبر PayPal — ${capturedAmount} ${capturedCurrency} — إجمالي المدفوع: ${application.paidAmount} — Order: ${orderId}`,
+        changedAt: new Date(),
       });
     }
 
-    application.depositPaid = true;
-    application.paidAmount = capturedAmount;
-    application.paidCurrency = capturedCurrency;
-    application.paymentMethod = "paypal";
-    application.status = "accepted";
-    application.history.push({
-      status: "accepted",
-      reason: `تم حجز المقعد تلقائياً بعد الدفع عبر PayPal — ${capturedAmount} ${capturedCurrency} — Order: ${orderId}`,
-      changedAt: new Date(),
-    });
     await application.save();
 
-    res.json({ message: "تم الدفع بنجاح، حُجز مقعدك!" });
+    res.json({
+      message: application.fullyPaid ? "تم إكمال الدفع بالكامل! 🎉" : "تم الدفع بنجاح، حُجز مقعدك!",
+      fullyPaid: application.fullyPaid,
+    });
   } catch (err) {
     res.status(500).json({ message: "خطأ في تأكيد الدفع", error: err.message });
   }

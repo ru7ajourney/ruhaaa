@@ -36,6 +36,21 @@ const MyApplications = () => {
     return `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
   };
 
+  const getDeadlineInfo = (app) => {
+    const dates = app.trip?.availableDates;
+    if (!dates?.length) return null;
+    const now = new Date();
+    const upcoming = dates
+      .map((d) => new Date(d.startDate))
+      .filter((d) => d > now)
+      .sort((a, b) => a - b);
+    if (!upcoming.length) return null;
+    const deadline = new Date(upcoming[0]);
+    deadline.setDate(deadline.getDate() - 15);
+    const daysLeft = Math.ceil((deadline - now) / (1000 * 60 * 60 * 24));
+    return { date: formatDate(deadline), daysLeft };
+  };
+
   return (
     <div className="my-apps-page">
       <PageHero title="طلباتي" subtitle={`أهلاً ${user?.fullName?.split(" ")[0]} — هنا تجد كل طلباتك`} icon="📋" />
@@ -77,11 +92,56 @@ const MyApplications = () => {
                       <p className="app-rejected-msg">نشكر اهتمامك، يمكنك التقديم على رحلة أخرى.</p>
                     )}
 
-                    {app.status === "accepted" && (
+                    {app.status === "accepted" && !app.depositPaid && (
                       <Link to={`/checkout/${app._id}`} className="btn btn-primary checkout-btn">
                         💳 دفع العربون
                       </Link>
                     )}
+
+                    {app.status === "accepted" && app.depositPaid && (() => {
+                      const tripPrice = app.trip?.price || 0;
+                      const paid = app.paidAmount || 0;
+                      const remaining = Math.max(0, tripPrice - paid);
+                      const deadline = getDeadlineInfo(app);
+                      return (
+                        <div className="deposit-receipt">
+                          <div className="deposit-receipt-header">
+                            <span className="deposit-receipt-icon">✅</span>
+                            <span>تم استلام العربون وحُجز مقعدك</span>
+                          </div>
+                          <div className="deposit-receipt-row">
+                            <span>المدفوع حتى الآن</span>
+                            <strong>{paid} {app.paidCurrency || "USD"}</strong>
+                          </div>
+                          {tripPrice > 0 && (
+                            <div className="deposit-receipt-row">
+                              <span>السعر الكلي للرحلة</span>
+                              <strong>{tripPrice} {app.trip?.currency || "USD"}</strong>
+                            </div>
+                          )}
+                          {remaining > 0 && (
+                            <>
+                              <div className="deposit-receipt-row deposit-receipt-remaining">
+                                <span>المبلغ المتبقي</span>
+                                <strong>{remaining} {app.trip?.currency || "USD"}</strong>
+                              </div>
+                              {deadline && (
+                                <p className="deposit-deadline" style={{ color: deadline.daysLeft <= 7 ? "#dc2626" : "#d97706" }}>
+                                  ⏰ آخر موعد للدفع: {deadline.date}
+                                  {deadline.daysLeft > 0 ? ` (${deadline.daysLeft} يوم متبقي)` : " (انتهى الموعد)"}
+                                </p>
+                              )}
+                              <Link to={`/checkout/${app._id}`} className="btn btn-primary checkout-btn" style={{ marginTop: "12px" }}>
+                                💳 أكمل الدفع
+                              </Link>
+                            </>
+                          )}
+                          {app.fullyPaid && (
+                            <p className="fully-paid-msg">🎉 تم إكمال الدفع بالكامل!</p>
+                          )}
+                        </div>
+                      );
+                    })()}
 
                     {app.status === "payment_pending" && (
                       <p className="payment-pending-msg">✅ تم استلام تأكيدك، جاري المراجعة من الفريق.</p>

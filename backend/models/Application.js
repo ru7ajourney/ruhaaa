@@ -120,6 +120,12 @@ const ApplicationSchema = new mongoose.Schema(
       default: false,
     },
 
+    // هل تم دفع كامل المبلغ؟
+    fullyPaid: {
+      type: Boolean,
+      default: false,
+    },
+
     // طريقة الدفع (paypal أو cash)
     paymentMethod: {
       type: String,

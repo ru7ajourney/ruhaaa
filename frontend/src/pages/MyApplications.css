@@ -126,6 +126,61 @@
   margin: 4px 0 0;
 }
 
+.deposit-receipt {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.deposit-receipt-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: #15803d;
+  font-size: 0.95rem;
+}
+
+.deposit-receipt-icon {
+  font-size: 1.1rem;
+}
+
+.deposit-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: var(--color-text);
+  border-top: 1px solid #dcfce7;
+  padding-top: 6px;
+}
+
+.deposit-receipt-remaining {
+  color: #b45309;
+}
+
+.deposit-receipt-remaining strong {
+  color: #b45309;
+}
+
+.deposit-deadline {
+  font-size: 0.82rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.fully-paid-msg {
+  font-size: 0.95rem;
+  color: #065f46;
+  font-weight: 700;
+  margin: 4px 0 0;
+  text-align: center;
+}
+
 @media (max-width: 600px) {
   .app-card { flex-direction: column; }
   .app-card-img { width: 100%; height: 160px; }

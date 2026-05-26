@@ -38,11 +38,19 @@ const Checkout = () => {
   }, [id]);
 
   const trip = application?.trip;
-  const minDeposit = trip?.price ? Math.round(trip.price * 0.3) : 0;
-  const finalAmount = customAmount && Number(customAmount) >= minDeposit
-    ? Number(customAmount)
-    : minDeposit;
-  const isValidAmount = !customAmount || Number(customAmount) >= minDeposit;
+  const isRemainingMode = application?.depositPaid === true;
+  const tripPrice = trip?.price || 0;
+  const alreadyPaid = application?.paidAmount || 0;
+  const remainingAmount = Math.max(0, tripPrice - alreadyPaid);
+  const minDeposit = tripPrice ? Math.round(tripPrice * 0.3) : 0;
+
+  const finalAmount = isRemainingMode
+    ? (customAmount && Number(customAmount) >= 1 ? Number(customAmount) : remainingAmount || 1)
+    : (customAmount && Number(customAmount) >= minDeposit ? Number(customAmount) : minDeposit);
+
+  const isValidAmount = isRemainingMode
+    ? (!customAmount || Number(customAmount) >= 1)
+    : (!customAmount || Number(customAmount) >= minDeposit);
 
   const createOrder = async () => {
     setError("");
@@ -73,8 +81,11 @@ const Checkout = () => {
       <div className="checkout-page">
         <div className="checkout-success">
           <div className="checkout-success-icon">✅</div>
-          <h2>تم الدفع بنجاح!</h2>
-          <p>تم تأكيد دفعك عبر PayPal، سيقوم الفريق بتأكيد تسجيلك رسمياً قريباً.</p>
+          <h2>{isRemainingMode ? "تم الدفع بنجاح!" : "تم الدفع بنجاح!"}</h2>
+          <p>{isRemainingMode
+            ? "تم تسجيل دفعتك، يمكنك مراجعة طلبك لمعرفة المبلغ المتبقي."
+            : "تم تأكيد دفعك عبر PayPal وحُجز مقعدك تلقائياً."
+          }</p>
           <Link to="/my-applications" className="btn btn-primary">العودة لطلباتي</Link>
         </div>
       </div>
@@ -85,7 +96,7 @@ const Checkout = () => {
     <div className="checkout-page">
       <div className="checkout-container">
         <Link to="/my-applications" className="checkout-back">← العودة لطلباتي</Link>
-        <h1>دفع العربون</h1>
+        <h1>{isRemainingMode ? "إكمال الدفع" : "دفع العربون"}</h1>
 
         {/* ملخص الرحلة */}
         <div className="checkout-trip-card">
@@ -101,34 +112,65 @@ const Checkout = () => {
         <div className="checkout-payment-box">
           <h3>تفاصيل الدفع</h3>
 
-          <div className="checkout-amount-row">
-            <span>الحد الأدنى للعربون (30%)</span>
-            <span className="checkout-amount">{minDeposit} USD</span>
-          </div>
-
-          <div className="checkout-custom-amount">
-            <label>المبلغ الذي ستدفعه</label>
-            <div className="amount-input-wrapper">
-              <input
-                type="number"
-                min={minDeposit}
-                value={customAmount}
-                onChange={(e) => setCustomAmount(e.target.value)}
-                placeholder={`${minDeposit} (الحد الأدنى)`}
-              />
-              <span className="amount-currency">USD</span>
-            </div>
-            {customAmount && !isValidAmount && (
-              <p className="amount-error">⚠️ المبلغ يجب أن يكون {minDeposit} USD على الأقل</p>
-            )}
-            {isValidAmount && customAmount && Number(customAmount) > minDeposit && (
-              <p className="amount-extra">✅ ستدفع {Number(customAmount) - minDeposit} USD إضافية من السعر الكلي</p>
-            )}
-          </div>
+          {isRemainingMode ? (
+            <>
+              <div className="checkout-amount-row">
+                <span>المدفوع حتى الآن</span>
+                <span className="checkout-amount">{alreadyPaid} {trip?.currency || "USD"}</span>
+              </div>
+              <div className="checkout-amount-row">
+                <span>السعر الكلي للرحلة</span>
+                <span className="checkout-amount">{tripPrice} {trip?.currency || "USD"}</span>
+              </div>
+              <div className="checkout-amount-row" style={{ color: "#16a34a", fontWeight: 700 }}>
+                <span>المبلغ المتبقي</span>
+                <span className="checkout-amount">{remainingAmount} {trip?.currency || "USD"}</span>
+              </div>
+              <div className="checkout-custom-amount">
+                <label>المبلغ الذي ستدفعه الآن</label>
+                <div className="amount-input-wrapper">
+                  <input
+                    type="number"
+                    min={1}
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    placeholder={`${remainingAmount} (المتبقي كاملاً)`}
+                  />
+                  <span className="amount-currency">{trip?.currency || "USD"}</span>
+                </div>
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="checkout-amount-row">
+                <span>الحد الأدنى للعربون (30%)</span>
+                <span className="checkout-amount">{minDeposit} USD</span>
+              </div>
+              <div className="checkout-custom-amount">
+                <label>المبلغ الذي ستدفعه</label>
+                <div className="amount-input-wrapper">
+                  <input
+                    type="number"
+                    min={minDeposit}
+                    value={customAmount}
+                    onChange={(e) => setCustomAmount(e.target.value)}
+                    placeholder={`${minDeposit} (الحد الأدنى)`}
+                  />
+                  <span className="amount-currency">USD</span>
+                </div>
+                {customAmount && !isValidAmount && (
+                  <p className="amount-error">⚠️ المبلغ يجب أن يكون {minDeposit} USD على الأقل</p>
+                )}
+                {isValidAmount && customAmount && Number(customAmount) > minDeposit && (
+                  <p className="amount-extra">✅ ستدفع {Number(customAmount) - minDeposit} USD إضافية من السعر الكلي</p>
+                )}
+              </div>
+            </>
+          )}
 
           <div className="checkout-total-row">
             <span>المبلغ الإجمالي</span>
-            <strong>{finalAmount} USD</strong>
+            <strong>{finalAmount} {trip?.currency || "USD"}</strong>
           </div>
         </div>
 
