@@ -6,7 +6,7 @@ import { authAPI } from "../api";
 
 const AuthContext = createContext(null);
 
-const REFRESH_INTERVAL = 25 * 60 * 1000; // 25 دقيقة
+const REFRESH_INTERVAL = 23 * 60 * 60 * 1000; // 23 ساعة
 
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
