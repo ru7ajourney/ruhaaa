@@ -39,8 +39,8 @@ const PageHero = ({ title, subtitle, icon, children, waveColor = "#faf8f5" }) =>
       </div>
 
       <div className="page-hero-wave" aria-hidden="true">
-        <svg viewBox="0 0 1440 50" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M0,25 C240,50 480,0 720,25 C960,50 1200,0 1440,25 L1440,50 L0,50 Z" fill={waveColor}/>
+        <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M0,40 C200,80 500,0 720,40 C940,80 1240,0 1440,40 L1440,80 L0,80 Z" fill={waveColor}/>
         </svg>
       </div>
     </div>
