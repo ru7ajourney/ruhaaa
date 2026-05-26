@@ -388,11 +388,12 @@
   .hbg-cloud--1,
   .hbg-cloud--2 { display: none; }
 
-  /* الجبال: اجعلها أعرض من الشاشة فتنقطع من الجنبين بدل التمطيط */
+  /* الجبال: أعرض من الشاشة + crop من الأعلى لإخفاء الطبقات الخلفية */
   .hbg-mountains {
     width: 200%;
     left: -50%;
     right: auto;
+    clip-path: inset(38% 0 0 0);
   }
 
   .trips-grid {
