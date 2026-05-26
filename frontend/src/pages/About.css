@@ -89,7 +89,7 @@
 @media (max-width: 768px) {
   .about-story { grid-template-columns: 1fr; gap: 32px; }
   .about-story-img { order: -1; }
-  .about-story-img img { height: 280px; min-height: unset; width: 100%; object-position: top center; }
+  .about-story-img img { height: 280px; min-height: unset; width: 100%; object-position: center 30px; }
   .what-grid { grid-template-columns: 1fr 1fr; }
   .about-cta { padding: 40px 24px; }
 }
