@@ -341,38 +341,6 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
   }
 });
 
-// POST /api/users/applications/:id/pay — المستخدم يؤكد إرسال العربون
-router.post("/applications/:id/pay", protectUser, async (req, res) => {
-  try {
-    const { amount, currency } = req.body;
-    const application = await Application.findOne({
-      _id: req.params.id,
-      $or: [{ userId: req.user._id }, { email: req.user.email }],
-    });
-
-    if (!application)
-      return res.status(404).json({ message: "الطلب غير موجود" });
-
-    if (application.status === "rejected")
-      return res.status(400).json({ message: "لا يمكن الدفع لطلب مرفوض" });
-    if (application.depositPaid)
-      return res.status(400).json({ message: "تم دفع العربون بالفعل" });
-
-    application.depositPaid = true;
-    application.paidAmount = amount || 0;
-    application.paidCurrency = currency || "";
-    application.history.push({
-      status: application.status,
-      reason: `أرسل المتقدم تأكيد الدفع بمبلغ ${amount} ${currency}`,
-      changedAt: new Date(),
-    });
-    await application.save();
-
-    res.json({ message: "تم إرسال تأكيد الدفع، شكراً لك!", application });
-  } catch (err) {
-    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
-  }
-});
 
 // POST /api/users/google-auth — تسجيل دخول / اشتراك بجوجل
 router.post("/google-auth", async (req, res) => {
