@@ -20,6 +20,21 @@ const stars = [
   { x: "52%", y: "16%", size: "3px", dur: "3.2s", delay: "2.5s" },
 ];
 
+const fireflies = [
+  { x: "8%",  y: "72%", dur: "6s",   delay: "0s",   dx: "18px",  dy: "-14px" },
+  { x: "17%", y: "80%", dur: "8s",   delay: "1.3s", dx: "-12px", dy: "-20px" },
+  { x: "26%", y: "68%", dur: "7s",   delay: "2.8s", dx: "22px",  dy: "-10px" },
+  { x: "35%", y: "76%", dur: "9s",   delay: "0.6s", dx: "-16px", dy: "-18px" },
+  { x: "46%", y: "70%", dur: "6.5s", delay: "3.5s", dx: "14px",  dy: "-22px" },
+  { x: "55%", y: "82%", dur: "7.5s", delay: "1.8s", dx: "-20px", dy: "-12px" },
+  { x: "63%", y: "67%", dur: "8.5s", delay: "4s",   dx: "16px",  dy: "-16px" },
+  { x: "72%", y: "78%", dur: "6s",   delay: "2.2s", dx: "-10px", dy: "-24px" },
+  { x: "81%", y: "73%", dur: "7s",   delay: "0.9s", dx: "20px",  dy: "-14px" },
+  { x: "90%", y: "79%", dur: "9s",   delay: "3.1s", dx: "-14px", dy: "-18px" },
+  { x: "13%", y: "86%", dur: "8s",   delay: "5s",   dx: "12px",  dy: "-20px" },
+  { x: "48%", y: "85%", dur: "7.5s", delay: "4.5s", dx: "-18px", dy: "-10px" },
+];
+
 
 const Home = () => {
   const [featuredTrips, setFeaturedTrips]   = useState([]);
@@ -112,6 +127,17 @@ const Home = () => {
             <path d="M0,240 L0,185 L140,118 L280,172 L440,105 L600,170 L760,115 L920,165 L1080,120 L1240,158 L1440,128 L1440,240 Z" fill="#2d6a4f" opacity="0.65"/>
             <path d="M0,240 L0,210 L200,165 L400,205 L600,160 L800,200 L1000,162 L1200,198 L1440,168 L1440,240 Z" fill="#40916c" opacity="0.75"/>
           </svg>
+
+          {/* يرعات */}
+          {fireflies.map((f, i) => (
+            <div key={i} className="hbg-firefly" style={{
+              left: f.x, top: f.y,
+              animationDuration: f.dur,
+              animationDelay: f.delay,
+              "--dx": f.dx,
+              "--dy": f.dy,
+            }} />
+          ))}
         </div>
 
         {/* تعتيم خفيف */}
