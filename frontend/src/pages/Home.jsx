@@ -175,8 +175,8 @@ const Home = () => {
 
         {/* موجة سفلية */}
         <div className="hero-wave" aria-hidden="true">
-          <svg viewBox="0 0 1440 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,55 C200,110 500,0 720,55 C940,110 1240,0 1440,55 L1440,110 L0,110 Z" fill="#ffffff"/>
+          <svg viewBox="0 0 1440 140" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,70 C200,140 500,0 720,70 C940,140 1240,0 1440,70 L1440,140 L0,140 Z" fill="#ffffff"/>
           </svg>
         </div>
       </section>
