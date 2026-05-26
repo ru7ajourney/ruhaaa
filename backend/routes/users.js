@@ -262,7 +262,7 @@ router.post("/applications/:id/create-paypal-order", protectUser, async (req, re
     const application = await Application.findOne({
       _id: req.params.id,
       $or: [{ userId: req.user._id }, { email: req.user.email }],
-    });
+    }).populate("trip", "price");
 
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
     if (application.status === "rejected")
@@ -270,7 +270,15 @@ router.post("/applications/:id/create-paypal-order", protectUser, async (req, re
     if (application.depositPaid)
       return res.status(400).json({ message: "تم دفع العربون بالفعل" });
 
-    const order = await createOrder(amount, currency || "USD");
+    const tripPrice = application.trip?.price || 0;
+    const minDeposit = Math.round(tripPrice * 0.3);
+    const requestedAmount = Number(amount);
+
+    if (!requestedAmount || requestedAmount < minDeposit) {
+      return res.status(400).json({ message: `الحد الأدنى للعربون هو ${minDeposit} USD` });
+    }
+
+    const order = await createOrder(requestedAmount, currency || "USD", application._id.toString());
     res.json({ orderId: order.id });
   } catch (err) {
     res.status(500).json({ message: "خطأ في إنشاء طلب الدفع", error: err.message });
@@ -280,13 +288,14 @@ router.post("/applications/:id/create-paypal-order", protectUser, async (req, re
 // POST /api/users/applications/:id/capture-paypal-order
 router.post("/applications/:id/capture-paypal-order", protectUser, async (req, res) => {
   try {
-    const { orderId, amount, currency } = req.body;
+    const { orderId } = req.body;
     const application = await Application.findOne({
       _id: req.params.id,
       $or: [{ userId: req.user._id }, { email: req.user.email }],
-    });
+    }).populate("trip", "price");
 
     if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
+    if (application.depositPaid) return res.status(400).json({ message: "تم دفع العربون بالفعل" });
 
     const capture = await captureOrder(orderId);
 
@@ -294,12 +303,34 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
       return res.status(400).json({ message: "لم يتم تأكيد الدفع من PayPal" });
     }
 
+    // تحقق أن الـ order مرتبط بهذا الطلب تحديداً
+    const customId = capture.purchase_units?.[0]?.custom_id;
+    if (customId !== application._id.toString()) {
+      return res.status(400).json({ message: "طلب الدفع لا يتطابق مع هذا الطلب" });
+    }
+
+    // اقرأ المبلغ الحقيقي من PayPal مش من الـ client
+    const capturedAmount = parseFloat(
+      capture.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || "0"
+    );
+    const capturedCurrency =
+      capture.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.currency_code || "USD";
+
+    // تحقق أن المبلغ المدفوع >= الحد الأدنى
+    const tripPrice = application.trip?.price || 0;
+    const minDeposit = Math.round(tripPrice * 0.3);
+    if (capturedAmount < minDeposit) {
+      return res.status(400).json({
+        message: `المبلغ المدفوع (${capturedAmount}) أقل من الحد الأدنى للعربون (${minDeposit})`,
+      });
+    }
+
     application.depositPaid = true;
-    application.paidAmount = amount || 0;
-    application.paidCurrency = currency || "USD";
+    application.paidAmount = capturedAmount;
+    application.paidCurrency = capturedCurrency;
     application.history.push({
       status: application.status,
-      reason: `تم الدفع عبر PayPal بمبلغ ${amount} ${currency} — Order: ${orderId}`,
+      reason: `تم الدفع عبر PayPal بمبلغ ${capturedAmount} ${capturedCurrency} — Order: ${orderId}`,
       changedAt: new Date(),
     });
     await application.save();

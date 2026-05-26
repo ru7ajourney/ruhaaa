@@ -18,7 +18,7 @@ async function getAccessToken() {
   return data.access_token;
 }
 
-async function createOrder(amount, currency = "USD") {
+async function createOrder(amount, currency = "USD", applicationId = "") {
   const token = await getAccessToken();
   const res = await fetch(`${PAYPAL_BASE}/v2/checkout/orders`, {
     method: "POST",
@@ -30,6 +30,7 @@ async function createOrder(amount, currency = "USD") {
       intent: "CAPTURE",
       purchase_units: [
         {
+          custom_id: applicationId,
           amount: {
             currency_code: currency,
             value: String(Number(amount).toFixed(2)),

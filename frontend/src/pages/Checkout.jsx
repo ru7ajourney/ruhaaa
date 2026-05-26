@@ -52,8 +52,6 @@ const Checkout = () => {
     try {
       await userAPI.capturePaypalOrder(id, {
         orderId: data.orderID,
-        amount: finalAmount,
-        currency: "USD",
       });
       setDone(true);
     } catch (err) {
