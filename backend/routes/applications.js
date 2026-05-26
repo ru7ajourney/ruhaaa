@@ -412,7 +412,7 @@ router.post("/:id/complete-refund", protect, async (req, res) => {
 // ==============================
 // PATCH /api/applications/:id/assign-date (آدمن فقط)
 // تعيين أو تغيير تاريخ الرحلة للمتقدم
-router.patch("/:id/assign-date", protect, async (req, res) => {
+router.post("/:id/assign-date", protect, async (req, res) => {
   try {
     const { dateId } = req.body;
     if (!dateId) return res.status(400).json({ message: "dateId مطلوب" });
@@ -424,7 +424,7 @@ router.patch("/:id/assign-date", protect, async (req, res) => {
     const trip = await Trip.findById(application.trip);
     if (!trip) return res.status(404).json({ message: "الرحلة غير موجودة" });
 
-    const selectedDate = trip.availableDates.id(dateId);
+    const selectedDate = trip.availableDates.find((d) => d._id.toString() === String(dateId));
     if (!selectedDate) return res.status(404).json({ message: "التاريخ غير موجود في هذه الرحلة" });
 
     const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
