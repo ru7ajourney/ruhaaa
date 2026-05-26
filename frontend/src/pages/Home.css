@@ -395,8 +395,8 @@
     right: auto;
   }
 
-  /* خبي الطبقة الخلفية على الموبايل لتخفيف الازدحام */
-  .hbg-mtn--back { display: none; }
+  /* الطبقة الخلفية تظهر بخفوت على الموبايل */
+  .hbg-mtn--back { opacity: 0.25; }
 
   .trips-grid {
     grid-template-columns: 1fr;
