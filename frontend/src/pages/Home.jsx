@@ -123,9 +123,9 @@ const Home = () => {
 
           {/* جبال */}
           <svg className="hbg-mountains" viewBox="0 0 1440 240" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M0,240 L0,155 L90,85  L180,145 L300,55  L420,130 L540,80  L660,148 L780,58  L900,118 L1020,72 L1140,138 L1260,88 L1380,120 L1440,100 L1440,240 Z" fill="#1e5e45" opacity="0.55"/>
-            <path d="M0,240 L0,185 L140,118 L280,172 L440,105 L600,170 L760,115 L920,165 L1080,120 L1240,158 L1440,128 L1440,240 Z" fill="#2d6a4f" opacity="0.65"/>
-            <path d="M0,240 L0,210 L200,165 L400,205 L600,160 L800,200 L1000,162 L1200,198 L1440,168 L1440,240 Z" fill="#40916c" opacity="0.75"/>
+            <path className="hbg-mtn--back" d="M0,240 L0,155 L90,85  L180,145 L300,55  L420,130 L540,80  L660,148 L780,58  L900,118 L1020,72 L1140,138 L1260,88 L1380,120 L1440,100 L1440,240 Z" fill="#1e5e45" opacity="0.55"/>
+            <path className="hbg-mtn--mid"  d="M0,240 L0,185 L140,118 L280,172 L440,105 L600,170 L760,115 L920,165 L1080,120 L1240,158 L1440,128 L1440,240 Z" fill="#2d6a4f" opacity="0.65"/>
+            <path className="hbg-mtn--front" d="M0,240 L0,210 L200,165 L400,205 L600,160 L800,200 L1000,162 L1200,198 L1440,168 L1440,240 Z" fill="#40916c" opacity="0.75"/>
           </svg>
 
           {/* يرعات */}
