@@ -236,9 +236,12 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GET /api/users/me
+// GET /api/users/me — يرجع بيانات المستخدم + token جديد (نافذة منزلقة 7 أيام)
 router.get("/me", protectUser, (req, res) => {
-  res.json({ user: { id: req.user._id, fullName: req.user.fullName, email: req.user.email } });
+  res.json({
+    user: { id: req.user._id, fullName: req.user.fullName, email: req.user.email },
+    token: generateToken(req.user._id),
+  });
 });
 
 // GET /api/users/my-applications — جلب طلبات المستخدم بالإيميل

@@ -12,9 +12,12 @@ export const UserAuthProvider = ({ children }) => {
     const token = localStorage.getItem("ruha_user_token");
     if (!token) { setLoading(false); return; }
     userAPI.getMe()
-      .then(({ data }) => setUser(data.user))
+      .then(({ data }) => {
+        setUser(data.user);
+        // جدد الـ token لإعادة حساب 7 أيام من الآن
+        if (data.token) localStorage.setItem("ruha_user_token", data.token);
+      })
       .catch((err) => {
-        // فقط احذف التوكن إذا كان الرد 401 (توكن منتهي أو غير صالح)
         if (err.response?.status === 401) {
           localStorage.removeItem("ruha_user_token");
         }
