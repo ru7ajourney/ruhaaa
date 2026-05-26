@@ -114,6 +114,12 @@ const ApplicationSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    // التاريخ المحدد من الأدمن (ObjectId لتاريخ من availableDates في الرحلة)
+    selectedDateId: {
+      type: mongoose.Schema.Types.ObjectId,
+      default: null,
+    },
+
     // هل تم دفع العربون؟
     depositPaid: {
       type: Boolean,

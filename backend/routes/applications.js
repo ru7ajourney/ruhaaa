@@ -410,6 +410,42 @@ router.post("/:id/complete-refund", protect, async (req, res) => {
 // DELETE /api/applications/:id (آدمن فقط)
 // حذف طلب — ممنوع إذا كان الريفند لم يتم بعد
 // ==============================
+// PATCH /api/applications/:id/assign-date (آدمن فقط)
+// تعيين أو تغيير تاريخ الرحلة للمتقدم
+router.patch("/:id/assign-date", protect, async (req, res) => {
+  try {
+    const { dateId } = req.body;
+    if (!dateId) return res.status(400).json({ message: "dateId مطلوب" });
+
+    const application = await Application.findById(req.params.id);
+    if (!application) return res.status(404).json({ message: "الطلب غير موجود" });
+
+    const Trip = require("../models/Trip");
+    const trip = await Trip.findById(application.trip);
+    if (!trip) return res.status(404).json({ message: "الرحلة غير موجودة" });
+
+    const selectedDate = trip.availableDates.id(dateId);
+    if (!selectedDate) return res.status(404).json({ message: "التاريخ غير موجود في هذه الرحلة" });
+
+    const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
+    const dateLabel = `${fmt(selectedDate.startDate)} - ${fmt(selectedDate.endDate)}`;
+
+    const oldDate = application.selectedDateId?.toString();
+    application.selectedDateId = dateId;
+    application.preferredDate  = dateLabel;
+    application.history.push({
+      status:    application.status,
+      reason:    `تم تعيين التاريخ: ${dateLabel}${oldDate ? " (تغيير)" : ""}`,
+      changedAt: new Date(),
+    });
+
+    await application.save();
+    res.json({ message: "تم تعيين التاريخ بنجاح", preferredDate: dateLabel, selectedDateId: dateId });
+  } catch (err) {
+    res.status(500).json({ message: "خطأ في تعيين التاريخ", error: err.message });
+  }
+});
+
 router.delete("/:id", protect, async (req, res) => {
   try {
     const application = await Application.findById(req.params.id);

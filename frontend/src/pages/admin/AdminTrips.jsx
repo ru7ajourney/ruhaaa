@@ -78,6 +78,62 @@ const ClientNotesSection = ({ app, onSave }) => {
   );
 };
 
+// ── Assign Date Section ───────────────────────────────────
+const AssignDateSection = ({ app, availableDates = [], onAssign }) => {
+  const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
+  const [selectedId, setSelectedId] = useState(app.selectedDateId || "");
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => { setSelectedId(app.selectedDateId || ""); }, [app._id, app.selectedDateId]);
+
+  const handleSave = async () => {
+    if (!selectedId) return;
+    const date = availableDates.find((d) => d._id === selectedId);
+    if (!date) return;
+    setSaving(true);
+    await onAssign(app._id, selectedId, `${fmt(date.startDate)} - ${fmt(date.endDate)}`);
+    setSaving(false);
+  };
+
+  const currentLabel = app.preferredDate || "غير محدد";
+  const isAssigned = !!app.selectedDateId;
+
+  return (
+    <div className="app-detail-section">
+      <div className="detail-label">
+        📅 التاريخ المفضّل
+        {isAssigned && <span style={{ marginRight: "8px", background: "#dcfce7", color: "#16a34a", fontSize: "0.72rem", padding: "2px 8px", borderRadius: "10px", fontWeight: 700 }}>مُعيَّن</span>}
+      </div>
+      <div className="detail-value" style={{ marginBottom: "10px", color: isAssigned ? "#16a34a" : "#f59e0b", fontWeight: isAssigned ? 700 : 400 }}>
+        {currentLabel}
+      </div>
+      {availableDates.length > 0 && (
+        <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
+          <select
+            value={selectedId}
+            onChange={(e) => setSelectedId(e.target.value)}
+            style={{ flex: 1, padding: "7px 10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.88rem", background: "#fff" }}
+          >
+            <option value="">— اختر تاريخاً —</option>
+            {availableDates.map((d) => (
+              <option key={d._id} value={d._id}>
+                {fmt(d.startDate)} — {fmt(d.endDate)} ({d.spotsTotal} مقعد)
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={handleSave}
+            disabled={!selectedId || saving || selectedId === app.selectedDateId}
+            style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: "8px", padding: "7px 14px", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", whiteSpace: "nowrap", opacity: (!selectedId || saving || selectedId === app.selectedDateId) ? 0.5 : 1 }}
+          >
+            {saving ? "..." : "تعيين"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+};
+
 // ── Trip Detail Panel ─────────────────────────────────────
 const TripDetail = ({ trip, applications, onDelete, isSuper }) => {
   const tripApps = applications.filter(
@@ -284,6 +340,17 @@ const AdminTrips = () => {
       if (selectedApp?._id === appId) setSelectedApp((prev) => ({ ...prev, ...update }));
     } catch (err) {
       alert(err?.response?.data?.message || "فشل تحديث الريفند");
+    }
+  };
+
+  const handleAssignDate = async (appId, dateId, dateLabel) => {
+    try {
+      await applicationsAPI.assignDate(appId, { dateId });
+      const update = { preferredDate: dateLabel, selectedDateId: dateId };
+      setApplications((prev) => prev.map((a) => a._id === appId ? { ...a, ...update } : a));
+      if (selectedApp?._id === appId) setSelectedApp((prev) => ({ ...prev, ...update }));
+    } catch (err) {
+      alert(err?.response?.data?.message || "فشل تعيين التاريخ");
     }
   };
 
@@ -548,10 +615,11 @@ const AdminTrips = () => {
                     <div className="detail-label">الرحلة</div>
                     <div className="detail-value">{selectedApp.tripTitle}</div>
                   </div>
-                  <div className="app-detail-section">
-                    <div className="detail-label">التاريخ المفضّل</div>
-                    <div className="detail-value">{selectedApp.preferredDate || "غير محدد"}</div>
-                  </div>
+                  <AssignDateSection
+                    app={selectedApp}
+                    availableDates={appTrip?.availableDates || []}
+                    onAssign={handleAssignDate}
+                  />
 
                   <div className="app-detail-grid">
                     <div className="app-detail-section">
