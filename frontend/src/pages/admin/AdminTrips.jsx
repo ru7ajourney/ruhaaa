@@ -88,10 +88,14 @@ const AssignDateSection = ({ app, availableDates = [], onAssign }) => {
 
   const handleSave = async () => {
     if (!selectedId) return;
-    const date = availableDates.find((d) => d._id === selectedId);
-    if (!date) return;
     setSaving(true);
-    await onAssign(app._id, selectedId, `${fmt(date.startDate)} - ${fmt(date.endDate)}`);
+    if (selectedId === "__unset__") {
+      await onAssign(app._id, "__unset__", "غير متأكد");
+    } else {
+      const date = availableDates.find((d) => d._id === selectedId);
+      if (!date) { setSaving(false); return; }
+      await onAssign(app._id, selectedId, `${fmt(date.startDate)} - ${fmt(date.endDate)}`);
+    }
     setSaving(false);
   };
 
@@ -124,7 +128,8 @@ const AssignDateSection = ({ app, availableDates = [], onAssign }) => {
             onChange={(e) => setSelectedId(e.target.value)}
             style={{ flex: 1, padding: "7px 10px", borderRadius: "8px", border: "1px solid #d1d5db", fontSize: "0.88rem", background: "#fff" }}
           >
-            <option value="">— اختر تاريخاً —</option>
+            <option value="">— اختر —</option>
+            <option value="__unset__">❓ غير متأكد</option>
             {availableDates.map((d) => (
               <option key={d._id} value={d._id}>
                 {fmt(d.startDate)} — {fmt(d.endDate)} ({d.spotsTotal} مقعد)
@@ -133,7 +138,7 @@ const AssignDateSection = ({ app, availableDates = [], onAssign }) => {
           </select>
           <button
             onClick={handleSave}
-            disabled={!selectedId || saving || selectedId === app.selectedDateId}
+            disabled={!selectedId || saving || (selectedId !== "__unset__" && selectedId === app.selectedDateId?.toString()) || (selectedId === "__unset__" && !app.selectedDateId)}
             style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: "8px", padding: "7px 14px", fontWeight: 700, cursor: "pointer", fontSize: "0.85rem", whiteSpace: "nowrap", opacity: (!selectedId || saving || selectedId === app.selectedDateId) ? 0.5 : 1 }}
           >
             {saving ? "..." : "تعيين"}

@@ -424,25 +424,41 @@ router.post("/:id/assign-date", protect, async (req, res) => {
     const trip = await Trip.findById(application.trip);
     if (!trip) return res.status(404).json({ message: "الرحلة غير موجودة" });
 
+    const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
+    const oldPreferredDate = application.preferredDate;
+
+    // إعادة التعيين لـ "غير متأكد"
+    if (dateId === "__unset__") {
+      if (application.depositPaid && application.selectedDateId) {
+        const oldDate = trip.availableDates.find((d) => d._id.toString() === application.selectedDateId.toString());
+        if (oldDate && oldDate.spotsTaken > 0) { oldDate.spotsTaken -= 1; await trip.save(); }
+      }
+      application.selectedDateId = null;
+      application.preferredDate  = "غير متأكد";
+      application.history.push({
+        status:    application.status,
+        reason:    `تم تغيير التاريخ إلى "غير متأكد"${oldPreferredDate && oldPreferredDate !== "غير متأكد" ? ` (كان: ${oldPreferredDate})` : ""}`,
+        changedAt: new Date(),
+      });
+      await application.save();
+      return res.json({ message: "تم التحديث", preferredDate: "غير متأكد", selectedDateId: null });
+    }
+
     const selectedDate = trip.availableDates.find((d) => d._id.toString() === String(dateId));
     if (!selectedDate) return res.status(404).json({ message: "التاريخ غير موجود في هذه الرحلة" });
 
-    const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
     const dateLabel = `${fmt(selectedDate.startDate)} - ${fmt(selectedDate.endDate)}`;
 
     // حدّث spotsTaken إذا كان الشخص دفع العربون
     if (application.depositPaid) {
-      // نزّل من التاريخ القديم
       if (application.selectedDateId) {
         const oldDate = trip.availableDates.find((d) => d._id.toString() === application.selectedDateId.toString());
         if (oldDate && oldDate.spotsTaken > 0) oldDate.spotsTaken -= 1;
       }
-      // أضف للتاريخ الجديد
       selectedDate.spotsTaken = (selectedDate.spotsTaken || 0) + 1;
       await trip.save();
     }
 
-    const oldPreferredDate = application.preferredDate;
     application.selectedDateId = dateId;
     application.preferredDate  = dateLabel;
 
