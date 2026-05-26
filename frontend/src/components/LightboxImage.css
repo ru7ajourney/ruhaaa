@@ -9,7 +9,7 @@
 .lbx-hint {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.22);
+  background: rgba(0, 0, 0, 0.28);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,17 +22,35 @@
   opacity: 1;
 }
 
-.lbx-hint svg {
-  width: 42px;
-  height: 42px;
+.lbx-hint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.35);
   color: #fff;
-  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, 0.5));
-  transform: scale(0.85);
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  padding: 9px 18px;
+  border-radius: 100px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  transform: translateY(6px);
   transition: transform 0.25s ease;
+  direction: rtl;
 }
 
-.lbx-trigger:hover .lbx-hint svg {
-  transform: scale(1);
+.lbx-trigger:hover .lbx-hint-pill {
+  transform: translateY(0);
+}
+
+.lbx-hint-pill svg {
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  flex-shrink: 0;
 }
 
 /* ── overlay ── */
@@ -115,7 +133,7 @@
 }
 
 @media (max-width: 768px) {
-  /* على الموبايل: شريط شفاف في الأسفل مع نص وأيقونة */
+  /* على الموبايل: pill ثابتة في الأسفل بدون hover */
   .lbx-hint {
     background: transparent;
     align-items: flex-end;
@@ -125,27 +143,12 @@
     padding-bottom: 12px;
   }
 
-  .lbx-hint svg {
-    display: none;
-  }
-
-  .lbx-hint::after {
-    content: "اضغط لعرض الصورة  ⤢";
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: rgba(0, 0, 0, 0.55);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    color: #fff;
+  .lbx-hint-pill {
+    transform: translateY(0);
     font-size: 0.78rem;
-    font-weight: 600;
-    font-family: inherit;
     padding: 6px 14px;
-    border-radius: 100px;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
-    letter-spacing: 0.3px;
-    direction: rtl;
+    background: rgba(0, 0, 0, 0.52);
+    border-color: rgba(255, 255, 255, 0.2);
   }
 
   .lbx-full-img {
