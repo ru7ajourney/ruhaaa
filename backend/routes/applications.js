@@ -430,6 +430,18 @@ router.post("/:id/assign-date", protect, async (req, res) => {
     const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
     const dateLabel = `${fmt(selectedDate.startDate)} - ${fmt(selectedDate.endDate)}`;
 
+    // حدّث spotsTaken إذا كان الشخص دفع العربون
+    if (application.depositPaid) {
+      // نزّل من التاريخ القديم
+      if (application.selectedDateId) {
+        const oldDate = trip.availableDates.find((d) => d._id.toString() === application.selectedDateId.toString());
+        if (oldDate && oldDate.spotsTaken > 0) oldDate.spotsTaken -= 1;
+      }
+      // أضف للتاريخ الجديد
+      selectedDate.spotsTaken = (selectedDate.spotsTaken || 0) + 1;
+      await trip.save();
+    }
+
     const oldPreferredDate = application.preferredDate;
     application.selectedDateId = dateId;
     application.preferredDate  = dateLabel;

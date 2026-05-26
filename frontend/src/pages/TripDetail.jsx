@@ -162,13 +162,38 @@ const TripDetail = () => {
                 ).length > 0 ? (
                   trip.availableDates
                     .filter((d) => new Date(d.startDate) > new Date())
-                    .map((date, i) => (
-                      <div key={i} className="date-item">
-                        <div className="date-range">
-                          {formatDate(date.startDate)} - {formatDate(date.endDate)}
+                    .map((date, i) => {
+                      const taken = date.spotsTaken || 0;
+                      const total = date.spotsTotal || 0;
+                      const available = Math.max(0, total - taken);
+                      const isFull = total > 0 && available === 0;
+                      const pct = total > 0 ? Math.round((taken / total) * 100) : 0;
+                      return (
+                        <div key={i} className={`date-item ${isFull ? "date-item--full" : ""}`}>
+                          <div className="date-range">
+                            {formatDate(date.startDate)} — {formatDate(date.endDate)}
+                          </div>
+                          {total > 0 && (
+                            <div className="date-spots">
+                              <div className="date-spots-bar">
+                                <div
+                                  className="date-spots-fill"
+                                  style={{
+                                    width: `${pct}%`,
+                                    background: isFull ? "#dc2626" : pct > 70 ? "#f59e0b" : "#16a34a",
+                                  }}
+                                />
+                              </div>
+                              <span className="date-spots-text">
+                                {isFull
+                                  ? "🔴 المقاعد ممتلئة"
+                                  : `🟢 ${available} مقعد متاح من ${total}`}
+                              </span>
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                 ) : (
                   <p className="no-dates">لا توجد تواريخ متاحة حالياً</p>
                 )}
