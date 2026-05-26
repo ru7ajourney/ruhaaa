@@ -21,18 +21,18 @@ const stars = [
 ];
 
 const fireflies = [
-  { x: "8%",  y: "72%", dur: "6s",   delay: "0s",   dx: "18px",  dy: "-14px" },
-  { x: "17%", y: "80%", dur: "8s",   delay: "1.3s", dx: "-12px", dy: "-20px" },
-  { x: "26%", y: "68%", dur: "7s",   delay: "2.8s", dx: "22px",  dy: "-10px" },
-  { x: "35%", y: "76%", dur: "9s",   delay: "0.6s", dx: "-16px", dy: "-18px" },
-  { x: "46%", y: "70%", dur: "6.5s", delay: "3.5s", dx: "14px",  dy: "-22px" },
-  { x: "55%", y: "82%", dur: "7.5s", delay: "1.8s", dx: "-20px", dy: "-12px" },
-  { x: "63%", y: "67%", dur: "8.5s", delay: "4s",   dx: "16px",  dy: "-16px" },
-  { x: "72%", y: "78%", dur: "6s",   delay: "2.2s", dx: "-10px", dy: "-24px" },
-  { x: "81%", y: "73%", dur: "7s",   delay: "0.9s", dx: "20px",  dy: "-14px" },
-  { x: "90%", y: "79%", dur: "9s",   delay: "3.1s", dx: "-14px", dy: "-18px" },
-  { x: "13%", y: "86%", dur: "8s",   delay: "5s",   dx: "12px",  dy: "-20px" },
-  { x: "48%", y: "85%", dur: "7.5s", delay: "4.5s", dx: "-18px", dy: "-10px" },
+  { x: "8%",  y: "72%", dur: "6s",   delay: "-1.2s", dx: "18px",  dy: "-14px" },
+  { x: "17%", y: "80%", dur: "8s",   delay: "-5.6s", dx: "-12px", dy: "-20px" },
+  { x: "26%", y: "68%", dur: "7s",   delay: "-3.1s", dx: "22px",  dy: "-10px" },
+  { x: "35%", y: "76%", dur: "9s",   delay: "-7.4s", dx: "-16px", dy: "-18px" },
+  { x: "46%", y: "70%", dur: "6.5s", delay: "-4.8s", dx: "14px",  dy: "-22px" },
+  { x: "55%", y: "82%", dur: "7.5s", delay: "-2.3s", dx: "-20px", dy: "-12px" },
+  { x: "63%", y: "67%", dur: "8.5s", delay: "-6.9s", dx: "16px",  dy: "-16px" },
+  { x: "72%", y: "78%", dur: "6s",   delay: "-0.8s", dx: "-10px", dy: "-24px" },
+  { x: "81%", y: "73%", dur: "7s",   delay: "-5.2s", dx: "20px",  dy: "-14px" },
+  { x: "90%", y: "79%", dur: "9s",   delay: "-3.7s", dx: "-14px", dy: "-18px" },
+  { x: "13%", y: "86%", dur: "8s",   delay: "-1.9s", dx: "12px",  dy: "-20px" },
+  { x: "48%", y: "85%", dur: "7.5s", delay: "-6.1s", dx: "-18px", dy: "-10px" },
 ];
 
 
