@@ -17,11 +17,11 @@ const LightboxImage = ({ src, alt, caption, className, style, ...imgProps }) => 
       <div className="lbx-trigger" onClick={() => setOpen(true)}>
         <img src={src} alt={alt} className={className} style={style} {...imgProps} />
         <div className="lbx-hint" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <circle cx="11" cy="11" r="7.5" />
-            <line x1="20" y1="20" x2="15.8" y2="15.8" />
-            <line x1="11" y1="8.5" x2="11" y2="13.5" />
-            <line x1="8.5" y1="11" x2="13.5" y2="11" />
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="15 3 21 3 21 9" />
+            <polyline points="9 21 3 21 3 15" />
+            <line x1="21" y1="3" x2="14" y2="10" />
+            <line x1="3" y1="21" x2="10" y2="14" />
           </svg>
         </div>
       </div>

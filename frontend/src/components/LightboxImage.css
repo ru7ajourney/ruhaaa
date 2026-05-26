@@ -115,6 +115,30 @@
 }
 
 @media (max-width: 768px) {
+  /* شيل التعتيم على الموبايل، خلي الشارة دايماً ظاهرة في الزاوية */
+  .lbx-hint {
+    background: transparent;
+    align-items: flex-end;
+    justify-content: flex-end;
+    padding: 10px;
+    opacity: 1;
+    pointer-events: none;
+  }
+
+  .lbx-hint svg {
+    width: 30px;
+    height: 30px;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.38);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border-radius: 50%;
+    padding: 6px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+    transform: scale(1);
+    filter: none;
+  }
+
   .lbx-full-img {
     max-width: 95vw;
     max-height: 72vh;
