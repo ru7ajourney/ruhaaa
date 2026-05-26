@@ -459,14 +459,15 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
     application.depositPaid = true;
     application.paidAmount = capturedAmount;
     application.paidCurrency = capturedCurrency;
+    application.status = "accepted";
     application.history.push({
-      status: application.status,
-      reason: `تم الدفع عبر PayPal بمبلغ ${capturedAmount} ${capturedCurrency} — Order: ${orderId}`,
+      status: "accepted",
+      reason: `تم حجز المقعد تلقائياً بعد الدفع عبر PayPal — ${capturedAmount} ${capturedCurrency} — Order: ${orderId}`,
       changedAt: new Date(),
     });
     await application.save();
 
-    res.json({ message: "تم الدفع بنجاح، شكراً لك!" });
+    res.json({ message: "تم الدفع بنجاح، حُجز مقعدك!" });
   } catch (err) {
     res.status(500).json({ message: "خطأ في تأكيد الدفع", error: err.message });
   }
