@@ -241,7 +241,7 @@ router.get("/", protect, async (req, res) => {
     if (tripId) filter.trip = tripId;
 
     const applications = await Application.find(filter)
-      .populate("trip", "title destination")
+      .populate("trip", "title destination price currency")
       .sort({ createdAt: -1 }); // الأحدث أولاً
 
     res.json(applications);
@@ -430,17 +430,28 @@ router.patch("/:id/assign-date", protect, async (req, res) => {
     const fmt = (d) => { const dt = new Date(d); return `${dt.getDate()}/${dt.getMonth() + 1}/${dt.getFullYear()}`; };
     const dateLabel = `${fmt(selectedDate.startDate)} - ${fmt(selectedDate.endDate)}`;
 
-    const oldDate = application.selectedDateId?.toString();
+    const oldPreferredDate = application.preferredDate;
     application.selectedDateId = dateId;
     application.preferredDate  = dateLabel;
+
+    const paymentNote = application.depositPaid
+      ? ` — المدفوع: ${application.paidAmount} ${application.paidCurrency || "USD"}${application.fullyPaid ? " (مكتمل)" : `, المتبقي: ${Math.max(0, (application.trip?.price || 0) - application.paidAmount)} ${application.paidCurrency || "USD"}`}`
+      : "";
+
     application.history.push({
       status:    application.status,
-      reason:    `تم تعيين التاريخ: ${dateLabel}${oldDate ? " (تغيير)" : ""}`,
+      reason:    oldPreferredDate && oldPreferredDate !== "غير محدد" && oldPreferredDate !== dateLabel
+        ? `تم نقل التاريخ من "${oldPreferredDate}" إلى "${dateLabel}"${paymentNote}`
+        : `تم تعيين التاريخ: ${dateLabel}${paymentNote}`,
       changedAt: new Date(),
     });
 
     await application.save();
-    res.json({ message: "تم تعيين التاريخ بنجاح", preferredDate: dateLabel, selectedDateId: dateId });
+    res.json({
+      message: "تم تعيين التاريخ بنجاح",
+      preferredDate: dateLabel,
+      selectedDateId: dateId,
+    });
   } catch (err) {
     res.status(500).json({ message: "خطأ في تعيين التاريخ", error: err.message });
   }

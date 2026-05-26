@@ -97,6 +97,7 @@ const AssignDateSection = ({ app, availableDates = [], onAssign }) => {
 
   const currentLabel = app.preferredDate || "غير محدد";
   const isAssigned = !!app.selectedDateId;
+  const hasPaid = app.depositPaid;
 
   return (
     <div className="app-detail-section">
@@ -104,9 +105,18 @@ const AssignDateSection = ({ app, availableDates = [], onAssign }) => {
         📅 التاريخ المفضّل
         {isAssigned && <span style={{ marginRight: "8px", background: "#dcfce7", color: "#16a34a", fontSize: "0.72rem", padding: "2px 8px", borderRadius: "10px", fontWeight: 700 }}>مُعيَّن</span>}
       </div>
-      <div className="detail-value" style={{ marginBottom: "10px", color: isAssigned ? "#16a34a" : "#f59e0b", fontWeight: isAssigned ? 700 : 400 }}>
+      <div className="detail-value" style={{ marginBottom: hasPaid ? "6px" : "10px", color: isAssigned ? "#16a34a" : "#f59e0b", fontWeight: isAssigned ? 700 : 400 }}>
         {currentLabel}
       </div>
+      {hasPaid && (
+        <div style={{ marginBottom: "10px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", padding: "8px 12px", fontSize: "0.83rem", display: "flex", gap: "16px", flexWrap: "wrap" }}>
+          <span style={{ color: "#15803d", fontWeight: 700 }}>💳 مدفوع: {app.paidAmount} {app.paidCurrency || "USD"}</span>
+          {!app.fullyPaid && app.trip?.price && (
+            <span style={{ color: "#b45309" }}>متبقي: {Math.max(0, app.trip.price - app.paidAmount)} {app.paidCurrency || "USD"}</span>
+          )}
+          {app.fullyPaid && <span style={{ color: "#15803d" }}>✅ مكتمل الدفع</span>}
+        </div>
+      )}
       {availableDates.length > 0 && (
         <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
           <select
