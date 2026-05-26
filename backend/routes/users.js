@@ -434,12 +434,6 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
       return res.status(400).json({ message: "لم يتم تأكيد الدفع من PayPal" });
     }
 
-    // تحقق أن الـ order مرتبط بهذا الطلب تحديداً
-    const customId = capture.purchase_units?.[0]?.custom_id;
-    if (customId !== application._id.toString()) {
-      return res.status(400).json({ message: "طلب الدفع لا يتطابق مع هذا الطلب" });
-    }
-
     // اقرأ المبلغ الحقيقي من PayPal مش من الـ client
     const capturedAmount = parseFloat(
       capture.purchase_units?.[0]?.payments?.captures?.[0]?.amount?.value || "0"
