@@ -15,6 +15,13 @@ const UserAuth = () => {
   const [otp, setOtp]                       = useState("");
   const [resendCooldown, setResendCooldown] = useState(0);
 
+  // forgot password
+  const [forgotStep, setForgotStep]     = useState(""); // "" | "email" | "otp" | "newpass"
+  const [forgotEmail, setForgotEmail]   = useState("");
+  const [forgotOtp, setForgotOtp]       = useState("");
+  const [newPassword, setNewPassword]   = useState("");
+  const [forgotCooldown, setForgotCooldown] = useState(0);
+
   const { login } = useUserAuth();
   const navigate  = useNavigate();
 
@@ -106,6 +113,206 @@ const UserAuth = () => {
       });
     }, 1000);
   };
+
+  const startForgotCooldown = () => {
+    setForgotCooldown(60);
+    const interval = setInterval(() => {
+      setForgotCooldown((c) => {
+        if (c <= 1) { clearInterval(interval); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const handleForgotEmail = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      await userAPI.forgotPassword({ email: forgotEmail });
+      setForgotStep("otp");
+      startForgotCooldown();
+    } catch (err) {
+      setError(err.response?.data?.message || "حدث خطأ، حاول مجدداً");
+    } finally { setLoading(false); }
+  };
+
+  const handleForgotOtp = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      // نتحقق من الكود بإرسال كلمة مرور وهمية ليست فارغة — السيرفر بيتحقق من OTP أولاً
+      // بدلاً من ذلك ننتقل للخطوة التالية مباشرة
+      setForgotStep("newpass");
+    } catch (err) {
+      setError(err.response?.data?.message || "الكود غير صحيح");
+    } finally { setLoading(false); }
+  };
+
+  const handleForgotResend = async () => {
+    if (forgotCooldown > 0) return;
+    setError("");
+    try {
+      await userAPI.forgotPassword({ email: forgotEmail });
+      startForgotCooldown();
+    } catch (err) {
+      setError(err.response?.data?.message || "فشل إرسال الكود");
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      await userAPI.resetPassword({ email: forgotEmail, otp: forgotOtp, newPassword });
+      setForgotStep("done");
+    } catch (err) {
+      setError(err.response?.data?.message || "حدث خطأ، تحقق من الكود وحاول مجدداً");
+    } finally { setLoading(false); }
+  };
+
+  // ===== شاشة نسيت كلمة المرور — إيميل =====
+  if (forgotStep === "email") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card">
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">🔑</div>
+          <h2>نسيت كلمة المرور؟</h2>
+          <p className="otp-desc">أدخل إيميلك وسنرسل لك كود لإعادة التعيين</p>
+          <form onSubmit={handleForgotEmail} className="user-auth-form">
+            <div className="auth-field">
+              <label>البريد الإلكتروني</label>
+              <input
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                placeholder="example@email.com"
+                required
+                style={{ direction: "ltr", textAlign: "right" }}
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="auth-submit-btn" disabled={loading}>
+              {loading ? "..." : "إرسال الكود"}
+            </button>
+          </form>
+          <p className="auth-back-link">
+            <button className="otp-back-link" onClick={() => { setForgotStep(""); setError(""); }}>
+              ← العودة لتسجيل الدخول
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== شاشة نسيت كلمة المرور — OTP =====
+  if (forgotStep === "otp") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card">
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">📧</div>
+          <h2>أدخل الكود</h2>
+          <p className="otp-desc">
+            أرسلنا كود مكوّن من 6 أرقام إلى<br />
+            <strong>{forgotEmail}</strong>
+          </p>
+          <form onSubmit={handleForgotOtp} className="user-auth-form">
+            <div className="auth-field">
+              <label>كود إعادة التعيين</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={forgotOtp}
+                onChange={(e) => setForgotOtp(e.target.value.replace(/\D/g, ""))}
+                placeholder="_ _ _ _ _ _"
+                required
+                style={{ direction: "ltr", textAlign: "center", letterSpacing: "8px", fontSize: "1.4rem" }}
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="auth-submit-btn" disabled={loading || forgotOtp.length < 6}>
+              {loading ? "..." : "التالي"}
+            </button>
+          </form>
+          <button className="otp-resend-btn" onClick={handleForgotResend} disabled={forgotCooldown > 0}>
+            {forgotCooldown > 0 ? `إعادة الإرسال بعد ${forgotCooldown}ث` : "إعادة إرسال الكود"}
+          </button>
+          <p className="auth-back-link">
+            <button className="otp-back-link" onClick={() => { setForgotStep("email"); setForgotOtp(""); setError(""); }}>
+              ← تغيير الإيميل
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== شاشة نسيت كلمة المرور — كلمة مرور جديدة =====
+  if (forgotStep === "newpass") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card">
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">🔒</div>
+          <h2>كلمة مرور جديدة</h2>
+          <p className="otp-desc">اختر كلمة مرور جديدة لحسابك</p>
+          <form onSubmit={handleResetPassword} className="user-auth-form">
+            <div className="auth-field">
+              <label>كلمة المرور الجديدة</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="••••••"
+                minLength={6}
+                required
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="auth-submit-btn" disabled={loading || newPassword.length < 6}>
+              {loading ? "..." : "تغيير كلمة المرور"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== شاشة نجاح إعادة التعيين =====
+  if (forgotStep === "done") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card" style={{ textAlign: "center" }}>
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">✅</div>
+          <h2>تم تغيير كلمة المرور!</h2>
+          <p className="otp-desc">يمكنك الآن تسجيل الدخول بكلمة المرور الجديدة</p>
+          <button
+            className="auth-submit-btn"
+            style={{ marginTop: "8px" }}
+            onClick={() => { setForgotStep(""); setError(""); setForgotEmail(""); setForgotOtp(""); setNewPassword(""); }}
+          >
+            تسجيل الدخول
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // ===== شاشة التحقق =====
   if (otpStep) {
@@ -233,6 +440,18 @@ const UserAuth = () => {
           <button type="submit" className="auth-submit-btn" disabled={loading}>
             {loading ? "..." : tab === "login" ? "دخول" : "إنشاء الحساب"}
           </button>
+
+          {tab === "login" && (
+            <p style={{ textAlign: "center", margin: "12px 0 0" }}>
+              <button
+                type="button"
+                className="otp-back-link"
+                onClick={() => { setForgotStep("email"); setError(""); setForgotEmail(form.email); }}
+              >
+                نسيت كلمة المرور؟
+              </button>
+            </p>
+          )}
         </form>
 
         <div className="auth-divider">

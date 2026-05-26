@@ -120,6 +120,90 @@ const sendOtpEmail = async (email, otp, fullName) => {
   });
 };
 
+const sendResetEmail = async (email, otp, fullName) => {
+  const year = new Date().getFullYear();
+  await resend.emails.send({
+    from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
+    to: email,
+    subject: `${otp} — كود إعادة تعيين كلمة المرور في رُحى`,
+    html: `<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body style="margin:0;padding:0;background:#f0ede8;font-family:Arial,Helvetica,sans-serif;direction:rtl;">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f0ede8;padding:48px 16px;">
+  <tr><td align="center">
+    <table width="520" cellpadding="0" cellspacing="0" border="0" style="max-width:520px;width:100%;background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.10);">
+      <tr>
+        <td align="center" style="background:linear-gradient(145deg,#c8622a 0%,#a04e20 100%);padding:44px 40px 36px;">
+          <p style="margin:0;font-family:'Aref Ruqaa',Georgia,serif;font-size:48px;font-weight:700;color:#ffffff;line-height:1;">رُحى</p>
+          <p style="margin:8px 0 0;font-size:16px;color:rgba(255,255,255,0.75);letter-spacing:3px;">سفر &nbsp;•&nbsp; تطوع &nbsp;•&nbsp; اكتشاف</p>
+          <table cellpadding="0" cellspacing="0" border="0" style="margin-top:20px;">
+            <tr>
+              <td style="background:rgba(255,255,255,0.15);border-radius:20px;padding:8px 24px;">
+                <p style="margin:0;font-size:14px;color:rgba(255,255,255,0.95);">إعادة تعيين كلمة المرور</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding:44px 48px 8px;">
+          <p style="margin:0 0 12px;font-size:24px;font-weight:700;color:#2c4a3e;text-align:center;">مرحباً، ${fullName}</p>
+          <p style="margin:0;font-size:17px;color:#555;line-height:2;text-align:center;">
+            تلقينا طلباً لإعادة تعيين كلمة مرور حسابك في رُحى.<br>
+            استخدم الكود أدناه لإتمام العملية.
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding:28px 48px 0;">
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"><tr><td style="border-top:1px solid #ece8e1;"></td></tr></table>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding:32px 48px;">
+          <p style="margin:0 0 20px;font-size:16px;color:#999;text-align:center;letter-spacing:1px;">— كود إعادة التعيين —</p>
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:linear-gradient(135deg,#fff8f4,#faf3ee);border:2px solid #e8b49a;border-radius:16px;">
+            <tr>
+              <td align="center" style="padding:32px 24px;">
+                <p style="margin:0;font-size:52px;font-weight:800;color:#c8622a;letter-spacing:20px;text-align:center;font-family:Arial,Helvetica,sans-serif;">${otp}</p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="padding:0 48px 40px;">
+          <table cellpadding="0" cellspacing="0" border="0" style="width:100%;background:#fdf6f0;border-radius:12px;border:1px solid #f5dece;">
+            <tr>
+              <td align="center" style="padding:18px 24px;">
+                <p style="margin:0;font-size:15px;color:#b06030;line-height:2.2;text-align:center;">
+                  ⏳ &nbsp;صالح لمدة <strong>10 دقائق</strong> فقط.<br>
+                  🔐 &nbsp;إن لم تطلب هذا، تجاهل الرسالة — حسابك بأمان.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td align="center" style="background:#faf8f5;padding:24px 48px;border-top:1px solid #ece8e1;">
+          <p style="margin:0 0 8px;font-size:16px;font-weight:700;color:#c8622a;text-align:center;">رُحى — سفر وتطوع</p>
+          <p style="margin:0;font-size:14px;color:#999;line-height:2.2;text-align:center;">© ${year} رُحى &nbsp;·&nbsp; جميع الحقوق محفوظة</p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`,
+  });
+};
+
 const generateToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
@@ -203,6 +287,50 @@ router.post("/resend-otp", async (req, res) => {
 
     await sendOtpEmail(email, otp, user.fullName);
     res.json({ message: "تم إرسال كود جديد" });
+  } catch (err) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
+  }
+});
+
+// POST /api/users/forgot-password
+router.post("/forgot-password", async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email, isVerified: true });
+    if (!user)
+      return res.status(404).json({ message: "لا يوجد حساب مرتبط بهذا الإيميل" });
+
+    const otp = generateOtp();
+    user.otp = otp;
+    user.otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+    await user.save();
+
+    await sendResetEmail(email, otp, user.fullName);
+    res.json({ message: "تم إرسال كود إعادة التعيين على إيميلك" });
+  } catch (err) {
+    res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
+  }
+});
+
+// POST /api/users/reset-password
+router.post("/reset-password", async (req, res) => {
+  const { email, otp, newPassword } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: "المستخدم غير موجود" });
+    if (!user.otp || user.otp !== otp)
+      return res.status(400).json({ message: "الكود غير صحيح" });
+    if (new Date() > user.otpExpires)
+      return res.status(400).json({ message: "انتهت صلاحية الكود، اطلب كوداً جديداً" });
+    if (!newPassword || newPassword.length < 6)
+      return res.status(400).json({ message: "كلمة المرور يجب أن تكون 6 أحرف على الأقل" });
+
+    user.password = newPassword;
+    user.otp = null;
+    user.otpExpires = null;
+    await user.save();
+
+    res.json({ message: "تم تغيير كلمة المرور بنجاح" });
   } catch (err) {
     res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
   }
