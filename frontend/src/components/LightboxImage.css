@@ -1,7 +1,7 @@
 .lbx-trigger {
   display: block;
   position: relative;
-  cursor: zoom-in;
+  cursor: pointer;
   overflow: hidden;
 }
 
@@ -50,12 +50,6 @@
   transform: translateX(-50%) translateY(50%);
 }
 
-.lbx-hint-pill svg {
-  width: 15px;
-  height: 15px;
-  color: #fff;
-  flex-shrink: 0;
-}
 
 /* ── overlay ── */
 .lbx-overlay {
