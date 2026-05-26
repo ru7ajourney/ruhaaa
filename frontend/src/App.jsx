@@ -57,7 +57,7 @@ const PublicLayout = ({ children, flushFooter }) => (
 
 function App() {
   return (
-    <PayPalScriptProvider options={{ clientId: "AZc2HJEaV0OCt9giyZtoUz0BNTtQeyY_JgomMFR6LcEniqOpycyFCV31eogEWIgNQCmZh4CHdMFTGfn-", currency: "USD", components: "buttons,googlepay" }}>
+    <PayPalScriptProvider options={{ clientId: "BAAmd2xrRvrEKMmVw27ZgqEfOUlaM44AcAxQ2R4RKS4xN9ut1kOWsy7aBWOTDZ67sew1uvbTwtsdUzK2zs", currency: "USD", components: "buttons,googlepay" }}>
     <GoogleOAuthProvider clientId="259401227183-hi6g6bh83g1klvjn5kr39gqf22m2f27u.apps.googleusercontent.com">
     <UserAuthProvider>
     <AuthProvider>
