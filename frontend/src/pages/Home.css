@@ -361,6 +361,17 @@
   .hbg-dots,
   .hbg-paths { display: none; }
 
+  /* خبي غيمتين، خلي 3 */
+  .hbg-cloud--1,
+  .hbg-cloud--2 { display: none; }
+
+  /* الجبال: اجعلها أعرض من الشاشة فتنقطع من الجنبين بدل التمطيط */
+  .hbg-mountains {
+    width: 200%;
+    left: -50%;
+    right: auto;
+  }
+
   .trips-grid {
     grid-template-columns: 1fr;
   }

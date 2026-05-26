@@ -37,6 +37,7 @@
   height: auto;
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  object-fit: cover;
 }
 
 .about-what { margin-bottom: 60px; }
@@ -88,7 +89,7 @@
 @media (max-width: 768px) {
   .about-story { grid-template-columns: 1fr; gap: 32px; }
   .about-story-img { order: -1; }
-  .about-story-img img { height: 280px; min-height: unset; }
+  .about-story-img img { height: 280px; min-height: unset; width: 100%; }
   .what-grid { grid-template-columns: 1fr 1fr; }
   .about-cta { padding: 40px 24px; }
 }
