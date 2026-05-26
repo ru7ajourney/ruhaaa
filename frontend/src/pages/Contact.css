@@ -219,4 +219,6 @@
   .contact-header h1 { font-size: 1.8rem; }
   .contact-quote p   { font-size: 1.1rem; }
   .floating-icon     { opacity: 0.3; }
+
+  .contact-footer-pad { display: none; }
 }
