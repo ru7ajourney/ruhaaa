@@ -685,7 +685,7 @@ const AdminTrips = () => {
                   </div>
 
                   {/* تأكيد العربون — فقط بعد القبول */}
-                  {selectedApp.status === "accepted" && !selectedApp.depositPaid && (
+                  {selectedApp.status === "accepted" && !selectedApp.depositPaid && selectedApp.paymentMethod !== "paypal" && (
                     <div className="app-detail-section">
                       <button className="btn-confirm-deposit" onClick={() => handleConfirmDeposit(selectedApp._id)}>
                         💳 تأكيد دفع العربون

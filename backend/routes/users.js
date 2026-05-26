@@ -453,6 +453,7 @@ router.post("/applications/:id/capture-paypal-order", protectUser, async (req, r
     application.depositPaid = true;
     application.paidAmount = capturedAmount;
     application.paidCurrency = capturedCurrency;
+    application.paymentMethod = "paypal";
     application.status = "accepted";
     application.history.push({
       status: "accepted",

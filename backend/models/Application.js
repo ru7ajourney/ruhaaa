@@ -120,6 +120,13 @@ const ApplicationSchema = new mongoose.Schema(
       default: false,
     },
 
+    // طريقة الدفع (paypal أو cash)
+    paymentMethod: {
+      type: String,
+      enum: ["paypal", "cash", null],
+      default: null,
+    },
+
     // حالة الريفند (none = لا يوجد، required = مطلوب، completed = تم)
     refundStatus: {
       type: String,
