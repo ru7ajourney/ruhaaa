@@ -219,32 +219,26 @@ const Home = () => {
       {/* ==============================
           Featured Trips - الرحلات المميزة
           ============================== */}
-      <section className="featured-trips section">
-        <div className="container">
-          <h2 className="section-title">الرحلات المميزة</h2>
-          <p className="section-subtitle">اكتشف أجمل وجهاتنا الثقافية</p>
+      {!loading && featuredTrips.length > 0 && (
+        <section className="featured-trips section">
+          <div className="container">
+            <h2 className="section-title">الرحلات المميزة</h2>
+            <p className="section-subtitle">اكتشف أجمل وجهاتنا الثقافية</p>
 
-          {loading ? (
-            <div className="page-loading">
-              <div className="spinner" />
-            </div>
-          ) : featuredTrips.length > 0 ? (
             <div className="trips-grid">
               {featuredTrips.map((trip) => (
                 <TripCard key={trip._id} trip={trip} />
               ))}
             </div>
-          ) : (
-            <p className="no-trips">لا توجد رحلات مميزة حالياً</p>
-          )}
 
-          <div className="all-trips-btn">
-            <Link to="/trips" className="btn btn-secondary">
-              شوف كل الرحلات ←
-            </Link>
+            <div className="all-trips-btn">
+              <Link to="/trips" className="btn btn-secondary">
+                شوف كل الرحلات ←
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ==============================
           Featured Photos - من رحلاتنا
