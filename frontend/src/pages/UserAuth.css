@@ -216,10 +216,10 @@
   align-items: stretch;
   border: 1.5px solid var(--color-border);
   border-radius: 10px;
-  overflow: hidden;
   background: var(--color-bg);
   direction: ltr;
   transition: border-color 0.2s;
+  position: relative;
 }
 
 .phone-combo:focus-within {
