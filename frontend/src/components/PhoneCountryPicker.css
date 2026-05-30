@@ -35,7 +35,7 @@
   top: calc(100% + 4px);
   left: 0;
   width: min(320px, 90vw);
-  max-height: 360px;
+  max-height: 216px;
   overflow-y: auto;
   background: var(--color-white);
   border: 1.5px solid var(--color-border);
