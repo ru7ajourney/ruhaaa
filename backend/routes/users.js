@@ -1,8 +1,10 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
+const twilio = require("twilio");
 const { Resend } = require("resend");
 const User = require("../models/User");
+const PhoneOtpTemp = require("../models/PhoneOtpTemp");
 const Application = require("../models/Application");
 const Trip = require("../models/Trip");
 const { protectUser } = require("../middleware/userAuthMiddleware");
@@ -803,6 +805,152 @@ router.delete("/admin/:id", protectAdmin, async (req, res) => {
     res.json({ message: "تم حذف المستخدم" });
   } catch (err) {
     res.status(500).json({ message: "خطأ في السيرفر", error: err.message });
+  }
+});
+
+// ==============================
+// Phone (WhatsApp OTP) Auth
+// ==============================
+
+const normalizePhone = (p) => {
+  let s = String(p).replace(/[\s\-\(\)]/g, "");
+  if (!s.startsWith("+")) s = "+" + s;
+  return s;
+};
+
+const sendWhatsAppOtp = async (phone, otp) => {
+  const sid   = process.env.TWILIO_ACCOUNT_SID;
+  const token = process.env.TWILIO_AUTH_TOKEN;
+  const from  = process.env.TWILIO_WHATSAPP_FROM;
+  if (!sid || !token || !from) throw new Error("Twilio غير مفعّل — أضف متغيرات البيئة");
+  const client = twilio(sid, token);
+  await client.messages.create({
+    from: `whatsapp:${from}`,
+    to:   `whatsapp:${phone}`,
+    body: `كود التحقق لـ *رُحى*: ${otp}\n⏳ ينتهي خلال 10 دقائق.`,
+  });
+};
+
+// POST /api/users/phone-send-otp
+router.post("/phone-send-otp", async (req, res) => {
+  try {
+    const { phone } = req.body;
+    if (!phone) return res.status(400).json({ message: "رقم الهاتف مطلوب" });
+
+    const normalized = normalizePhone(phone);
+    const otp        = generateOtp();
+    const expires    = new Date(Date.now() + 10 * 60 * 1000);
+
+    const existing = await User.findOne({ phone: normalized });
+
+    if (existing) {
+      existing.phoneOtp        = otp;
+      existing.phoneOtpExpires = expires;
+      await existing.save();
+    } else {
+      await PhoneOtpTemp.findOneAndUpdate(
+        { phone: normalized },
+        { otp, createdAt: new Date() },
+        { upsert: true }
+      );
+    }
+
+    await sendWhatsAppOtp(normalized, otp);
+
+    res.json({ message: "تم إرسال الكود على واتساب", exists: !!existing });
+  } catch (err) {
+    console.error("phone-send-otp:", err.message);
+    res.status(500).json({ message: err.message || "فشل إرسال الكود" });
+  }
+});
+
+// POST /api/users/phone-verify-otp
+router.post("/phone-verify-otp", async (req, res) => {
+  try {
+    const { phone, otp } = req.body;
+    if (!phone || !otp) return res.status(400).json({ message: "الهاتف والكود مطلوبان" });
+
+    const normalized = normalizePhone(phone);
+
+    const existing = await User.findOne({ phone: normalized });
+
+    if (existing) {
+      if (!existing.phoneOtp || existing.phoneOtp !== otp)
+        return res.status(400).json({ message: "الكود غير صحيح" });
+      if (new Date() > existing.phoneOtpExpires)
+        return res.status(400).json({ message: "انتهت صلاحية الكود، اطلب كوداً جديداً" });
+      if (existing.isBanned)
+        return res.status(403).json({ message: "تم تعليق هذا الحساب" });
+
+      existing.phoneOtp        = null;
+      existing.phoneOtpExpires = null;
+      await existing.save();
+
+      return res.json({
+        token: generateToken(existing._id),
+        user:  { id: existing._id, fullName: existing.fullName, email: existing.email, phone: existing.phone },
+      });
+    }
+
+    const temp = await PhoneOtpTemp.findOne({ phone: normalized });
+    if (!temp || temp.otp !== otp)
+      return res.status(400).json({ message: "الكود غير صحيح" });
+
+    await PhoneOtpTemp.deleteOne({ phone: normalized });
+
+    const regToken = jwt.sign(
+      { phone: normalized, purpose: "phone-registration" },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
+
+    res.json({ needsName: true, registrationToken: regToken });
+  } catch (err) {
+    console.error("phone-verify-otp:", err.message);
+    res.status(500).json({ message: "خطأ في التحقق" });
+  }
+});
+
+// POST /api/users/phone-complete
+router.post("/phone-complete", async (req, res) => {
+  try {
+    const { registrationToken, fullName } = req.body;
+    if (!registrationToken || !fullName?.trim())
+      return res.status(400).json({ message: "الاسم ورمز التسجيل مطلوبان" });
+
+    let decoded;
+    try {
+      decoded = jwt.verify(registrationToken, process.env.JWT_SECRET);
+    } catch {
+      return res.status(400).json({ message: "انتهت صلاحية جلسة التسجيل، ابدأ من جديد" });
+    }
+    if (decoded.purpose !== "phone-registration")
+      return res.status(400).json({ message: "رمز غير صالح" });
+
+    const { phone } = decoded;
+    const race = await User.findOne({ phone });
+    if (race) {
+      return res.json({
+        token: generateToken(race._id),
+        user:  { id: race._id, fullName: race.fullName, email: race.email, phone: race.phone },
+      });
+    }
+
+    const internalEmail = `phone_${phone.replace(/\+/g, "")}@ruha.internal`;
+    const user = await User.create({
+      fullName:   fullName.trim(),
+      email:      internalEmail,
+      phone,
+      isVerified: true,
+    });
+
+    res.status(201).json({
+      token: generateToken(user._id),
+      user:  { id: user._id, fullName: user.fullName, email: user.email, phone: user.phone },
+    });
+  } catch (err) {
+    console.error("phone-complete:", err.message);
+    res.status(500).json({ message: "خطأ في إنشاء الحساب", error: err.message });
   }
 });
 

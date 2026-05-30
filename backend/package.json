@@ -17,7 +17,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.0.0",
     "multer": "^2.1.1",
-    "resend": "^6.12.3"
+    "resend": "^6.12.3",
+    "twilio": "^6.0.2"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

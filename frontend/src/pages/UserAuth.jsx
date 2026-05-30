@@ -22,6 +22,14 @@ const UserAuth = () => {
   const [newPassword, setNewPassword]   = useState("");
   const [forgotCooldown, setForgotCooldown] = useState(0);
 
+  // phone auth
+  const [phoneStep, setPhoneStep]               = useState(""); // "" | "input" | "otp" | "name"
+  const [phoneNumber, setPhoneNumber]           = useState("");
+  const [phoneOtp, setPhoneOtp]                 = useState("");
+  const [phoneName, setPhoneName]               = useState("");
+  const [phoneRegToken, setPhoneRegToken]       = useState("");
+  const [phoneCooldown, setPhoneCooldown]       = useState(0);
+
   const { login } = useUserAuth();
   const navigate  = useNavigate();
 
@@ -169,6 +177,188 @@ const UserAuth = () => {
       setError(err.response?.data?.message || "حدث خطأ، تحقق من الكود وحاول مجدداً");
     } finally { setLoading(false); }
   };
+
+  const startPhoneCooldown = () => {
+    setPhoneCooldown(60);
+    const interval = setInterval(() => {
+      setPhoneCooldown((c) => {
+        if (c <= 1) { clearInterval(interval); return 0; }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
+  const handlePhoneSend = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      await userAPI.phoneSendOtp({ phone: phoneNumber });
+      setPhoneStep("otp");
+      setPhoneOtp("");
+      startPhoneCooldown();
+    } catch (err) {
+      setError(err.response?.data?.message || "فشل إرسال الكود");
+    } finally { setLoading(false); }
+  };
+
+  const handlePhoneVerify = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      const { data } = await userAPI.phoneVerifyOtp({ phone: phoneNumber, otp: phoneOtp });
+      if (data.needsName) {
+        setPhoneRegToken(data.registrationToken);
+        setPhoneStep("name");
+      } else {
+        login(data.token, data.user);
+        navigate("/trips");
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "الكود غير صحيح");
+    } finally { setLoading(false); }
+  };
+
+  const handlePhoneComplete = async (e) => {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      const { data } = await userAPI.phoneComplete({ registrationToken: phoneRegToken, fullName: phoneName });
+      login(data.token, data.user);
+      navigate("/trips");
+    } catch (err) {
+      setError(err.response?.data?.message || "حدث خطأ، ابدأ من جديد");
+    } finally { setLoading(false); }
+  };
+
+  const handlePhoneResend = async () => {
+    if (phoneCooldown > 0) return;
+    setError("");
+    try {
+      await userAPI.phoneSendOtp({ phone: phoneNumber });
+      startPhoneCooldown();
+    } catch (err) {
+      setError(err.response?.data?.message || "فشل إرسال الكود");
+    }
+  };
+
+  // ===== شاشة phone: إدخال رقم =====
+  if (phoneStep === "input") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card">
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">📱</div>
+          <h2>الدخول برقم الهاتف</h2>
+          <p className="otp-desc">سنرسل لك كود تحقق عبر واتساب</p>
+          <form onSubmit={handlePhoneSend} className="user-auth-form">
+            <div className="auth-field">
+              <label>رقم الهاتف (مع كود الدولة)</label>
+              <input
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+970 59 000 0000"
+                required
+                style={{ direction: "ltr", textAlign: "right" }}
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="auth-submit-btn" disabled={loading || phoneNumber.length < 7}>
+              {loading ? "..." : "إرسال الكود عبر واتساب"}
+            </button>
+          </form>
+          <p className="auth-back-link">
+            <button className="otp-back-link" onClick={() => { setPhoneStep(""); setError(""); }}>
+              ← العودة
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== شاشة phone: إدخال OTP =====
+  if (phoneStep === "otp") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card">
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">💬</div>
+          <h2>أدخل كود واتساب</h2>
+          <p className="otp-desc">
+            أرسلنا كود مكوّن من 6 أرقام عبر واتساب إلى<br />
+            <strong style={{ direction: "ltr", display: "inline-block" }}>{phoneNumber}</strong>
+          </p>
+          <form onSubmit={handlePhoneVerify} className="user-auth-form">
+            <div className="auth-field">
+              <label>كود التحقق</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={phoneOtp}
+                onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, ""))}
+                placeholder="_ _ _ _ _ _"
+                required
+                style={{ direction: "ltr", textAlign: "center", letterSpacing: "8px", fontSize: "1.4rem" }}
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="auth-submit-btn" disabled={loading || phoneOtp.length < 6}>
+              {loading ? "..." : "تحقق"}
+            </button>
+          </form>
+          <button className="otp-resend-btn" onClick={handlePhoneResend} disabled={phoneCooldown > 0}>
+            {phoneCooldown > 0 ? `إعادة الإرسال بعد ${phoneCooldown}ث` : "إعادة إرسال الكود"}
+          </button>
+          <p className="auth-back-link">
+            <button className="otp-back-link" onClick={() => { setPhoneStep("input"); setPhoneOtp(""); setError(""); }}>
+              ← تغيير الرقم
+            </button>
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ===== شاشة phone: إدخال الاسم (مستخدم جديد) =====
+  if (phoneStep === "name") {
+    return (
+      <div className="user-auth-page">
+        <div className="user-auth-card">
+          <div className="user-auth-logo">
+            <span className="logo-arabic">رُحى</span>
+            <span className="logo-tagline">سفر وتطوع</span>
+          </div>
+          <div className="otp-icon">👋</div>
+          <h2>أهلاً بك في رُحى!</h2>
+          <p className="otp-desc">آخر خطوة — أخبرنا باسمك</p>
+          <form onSubmit={handlePhoneComplete} className="user-auth-form">
+            <div className="auth-field">
+              <label>الاسم الكامل</label>
+              <input
+                type="text"
+                value={phoneName}
+                onChange={(e) => setPhoneName(e.target.value)}
+                placeholder="محمد أحمد"
+                required
+              />
+            </div>
+            {error && <p className="auth-error">{error}</p>}
+            <button type="submit" className="auth-submit-btn" disabled={loading || phoneName.trim().length < 2}>
+              {loading ? "..." : "إنشاء الحساب والدخول"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   // ===== شاشة نسيت كلمة المرور — إيميل =====
   if (forgotStep === "email") {
@@ -462,6 +652,16 @@ const UserAuth = () => {
           <button className="google-signin-btn" onClick={() => googleLogin()} disabled={loading}>
             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" width="20" />
             تسجيل الدخول بـ Google
+          </button>
+        </div>
+
+        <div className="google-btn-wrapper" style={{ marginTop: "10px" }}>
+          <button
+            className="google-signin-btn phone-signin-btn"
+            onClick={() => { setPhoneStep("input"); setError(""); setPhoneNumber(""); }}
+            disabled={loading}
+          >
+            📱 الدخول برقم الهاتف (واتساب)
           </button>
         </div>
 

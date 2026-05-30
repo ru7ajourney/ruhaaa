@@ -183,6 +183,11 @@
   cursor: not-allowed;
 }
 
+.phone-signin-btn:hover {
+  border-color: #25d366;
+  box-shadow: 0 2px 8px rgba(37, 211, 102, 0.18);
+}
+
 .auth-back-link {
   margin-top: 20px;
   font-size: 0.88rem;

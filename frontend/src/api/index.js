@@ -127,6 +127,9 @@ export const userAPI = {
   googleAuth: (credential) => userApi.post("/users/google-auth", { credential }),
   createPaypalOrder: (id, data) => userApi.post(`/users/applications/${id}/create-paypal-order`, data),
   capturePaypalOrder: (id, data) => userApi.post(`/users/applications/${id}/capture-paypal-order`, data),
+  phoneSendOtp:   (data) => userApi.post("/users/phone-send-otp",   data),
+  phoneVerifyOtp: (data) => userApi.post("/users/phone-verify-otp", data),
+  phoneComplete:  (data) => userApi.post("/users/phone-complete",   data),
 };
 
 // ==============================
