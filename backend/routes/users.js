@@ -407,7 +407,7 @@ const generateToken = (id) =>
 
 // POST /api/users/register
 router.post("/register", async (req, res) => {
-  const { fullName, email, password } = req.body;
+  const { fullName, email, password, country } = req.body;
   try {
     if (!fullName || !email || !password)
       return res.status(400).json({ message: "جميع الحقول مطلوبة" });
@@ -425,9 +425,10 @@ router.post("/register", async (req, res) => {
       user.password = password;
       user.otp = otp;
       user.otpExpires = otpExpires;
+      if (country) user.country = country;
       await user.save();
     } else {
-      user = await User.create({ fullName, email, password, otp, otpExpires });
+      user = await User.create({ fullName, email, password, otp, otpExpires, country: country || "" });
     }
 
     await sendOtpEmail(email, otp, fullName);
@@ -914,7 +915,7 @@ router.post("/phone-verify-otp", async (req, res) => {
 // POST /api/users/phone-complete
 router.post("/phone-complete", async (req, res) => {
   try {
-    const { registrationToken, fullName } = req.body;
+    const { registrationToken, fullName, country } = req.body;
     if (!registrationToken || !fullName?.trim())
       return res.status(400).json({ message: "الاسم ورمز التسجيل مطلوبان" });
 
@@ -941,6 +942,7 @@ router.post("/phone-complete", async (req, res) => {
       fullName:   fullName.trim(),
       email:      internalEmail,
       phone,
+      country:    country || "",
       isVerified: true,
     });
 

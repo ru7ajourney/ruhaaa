@@ -1,13 +1,23 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useGoogleLogin } from "@react-oauth/google";
 import { userAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
+import useGeo from "../hooks/useGeo";
+import COUNTRIES from "../utils/countries";
 import "./UserAuth.css";
 
 const UserAuth = () => {
+  const geo = useGeo();
   const [tab, setTab]         = useState("login");
-  const [form, setForm]       = useState({ fullName: "", email: "", password: "" });
+  const [form, setForm]       = useState({ fullName: "", email: "", password: "", country: "" });
+
+  // ضبط الدولة تلقائياً بمجرد معرفتها
+  useEffect(() => {
+    if (geo?.country && !form.country) {
+      setForm((p) => ({ ...p, country: geo.country }));
+    }
+  }, [geo]);
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
   const [otpStep, setOtpStep]               = useState(false);
@@ -27,6 +37,7 @@ const UserAuth = () => {
   const [phoneNumber, setPhoneNumber]           = useState("");
   const [phoneOtp, setPhoneOtp]                 = useState("");
   const [phoneName, setPhoneName]               = useState("");
+  const [phoneCountry, setPhoneCountry]         = useState("");
   const [phoneRegToken, setPhoneRegToken]       = useState("");
   const [phoneCooldown, setPhoneCooldown]       = useState(0);
 
@@ -64,7 +75,7 @@ const UserAuth = () => {
         login(data.token, data.user);
         navigate("/trips");
       } else {
-        await userAPI.register(form);
+        await userAPI.register({ fullName: form.fullName, email: form.email, password: form.password, country: form.country });
         setPendingEmail(form.email);
         setOtpStep(true);
         startCooldown();
@@ -208,6 +219,7 @@ const UserAuth = () => {
       const { data } = await userAPI.phoneVerifyOtp({ phone: phoneNumber, otp: phoneOtp });
       if (data.needsName) {
         setPhoneRegToken(data.registrationToken);
+        setPhoneCountry(geo?.country || "");
         setPhoneStep("name");
       } else {
         login(data.token, data.user);
@@ -222,7 +234,7 @@ const UserAuth = () => {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      const { data } = await userAPI.phoneComplete({ registrationToken: phoneRegToken, fullName: phoneName });
+      const { data } = await userAPI.phoneComplete({ registrationToken: phoneRegToken, fullName: phoneName, country: phoneCountry });
       login(data.token, data.user);
       navigate("/trips");
     } catch (err) {
@@ -349,6 +361,19 @@ const UserAuth = () => {
                 placeholder="محمد أحمد"
                 required
               />
+            </div>
+            <div className="auth-field">
+              <label>الدولة</label>
+              <select value={phoneCountry} onChange={(e) => setPhoneCountry(e.target.value)}>
+                <option value="">اختر دولتك</option>
+                {COUNTRIES.map((c, i) =>
+                  c.code === "" ? (
+                    <option key={i} value="" disabled>{c.name}</option>
+                  ) : (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  )
+                )}
+              </select>
             </div>
             {error && <p className="auth-error">{error}</p>}
             <button type="submit" className="auth-submit-btn" disabled={loading || phoneName.trim().length < 2}>
@@ -612,6 +637,26 @@ const UserAuth = () => {
               style={{ direction: "ltr", textAlign: "right" }}
             />
           </div>
+
+          {tab === "register" && (
+            <div className="auth-field">
+              <label>الدولة</label>
+              <select
+                name="country"
+                value={form.country}
+                onChange={handleChange}
+              >
+                <option value="">اختر دولتك</option>
+                {COUNTRIES.map((c, i) =>
+                  c.code === "" ? (
+                    <option key={i} value="" disabled>{c.name}</option>
+                  ) : (
+                    <option key={c.code} value={c.code}>{c.name}</option>
+                  )
+                )}
+              </select>
+            </div>
+          )}
 
           <div className="auth-field">
             <label>كلمة المرور</label>

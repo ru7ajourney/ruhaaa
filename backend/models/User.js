@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema(
     phone:           { type: String, unique: true, sparse: true, trim: true },
     phoneOtp:        { type: String, default: null },
     phoneOtpExpires: { type: Date,   default: null },
+    country:     { type: String, default: "" },
     googleId:    { type: String, default: "" },
     avatar:      { type: String, default: "" },
     isVerified:  { type: Boolean, default: false },
