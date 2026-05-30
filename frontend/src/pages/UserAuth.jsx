@@ -7,17 +7,14 @@ import useGeo from "../hooks/useGeo";
 import COUNTRIES from "../utils/countries";
 import "./UserAuth.css";
 
+// ابحث عن كود الدولة بناءً على كود ISO
+const findDialCode = (isoCode) =>
+  COUNTRIES.find((c) => c.code === isoCode)?.dialCode || "";
+
 const UserAuth = () => {
   const geo = useGeo();
   const [tab, setTab]         = useState("login");
-  const [form, setForm]       = useState({ fullName: "", email: "", password: "", country: "" });
-
-  // ضبط الدولة تلقائياً بمجرد معرفتها
-  useEffect(() => {
-    if (geo?.country && !form.country) {
-      setForm((p) => ({ ...p, country: geo.country }));
-    }
-  }, [geo]);
+  const [form, setForm]       = useState({ fullName: "", email: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState("");
   const [otpStep, setOtpStep]               = useState(false);
@@ -33,13 +30,20 @@ const UserAuth = () => {
   const [forgotCooldown, setForgotCooldown] = useState(0);
 
   // phone auth
-  const [phoneStep, setPhoneStep]               = useState(""); // "" | "input" | "otp" | "name"
-  const [phoneNumber, setPhoneNumber]           = useState("");
-  const [phoneOtp, setPhoneOtp]                 = useState("");
-  const [phoneName, setPhoneName]               = useState("");
-  const [phoneCountry, setPhoneCountry]         = useState("");
-  const [phoneRegToken, setPhoneRegToken]       = useState("");
-  const [phoneCooldown, setPhoneCooldown]       = useState(0);
+  const [phoneStep, setPhoneStep]         = useState(""); // "" | "input" | "otp" | "name"
+  const [phoneDialCode, setPhoneDialCode] = useState("");
+  const [phoneLocal, setPhoneLocal]       = useState("");
+  const [phoneOtp, setPhoneOtp]           = useState("");
+  const [phoneName, setPhoneName]         = useState("");
+  const [phoneRegToken, setPhoneRegToken] = useState("");
+  const [phoneCooldown, setPhoneCooldown] = useState(0);
+
+  // عند معرفة الدولة — ضبط dial code تلقائياً إذا لسه ما اختار
+  useEffect(() => {
+    if (geo?.country && !phoneDialCode) {
+      setPhoneDialCode(findDialCode(geo.country));
+    }
+  }, [geo]);
 
   const { login } = useUserAuth();
   const navigate  = useNavigate();
@@ -75,7 +79,7 @@ const UserAuth = () => {
         login(data.token, data.user);
         navigate("/trips");
       } else {
-        await userAPI.register({ fullName: form.fullName, email: form.email, password: form.password, country: form.country });
+        await userAPI.register({ fullName: form.fullName, email: form.email, password: form.password });
         setPendingEmail(form.email);
         setOtpStep(true);
         startCooldown();
@@ -199,11 +203,16 @@ const UserAuth = () => {
     }, 1000);
   };
 
+  const fullPhone = () => {
+    const local = phoneLocal.replace(/^0+/, ""); // شيل الصفر من البداية
+    return phoneDialCode + local;
+  };
+
   const handlePhoneSend = async (e) => {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      await userAPI.phoneSendOtp({ phone: phoneNumber });
+      await userAPI.phoneSendOtp({ phone: fullPhone() });
       setPhoneStep("otp");
       setPhoneOtp("");
       startPhoneCooldown();
@@ -216,7 +225,7 @@ const UserAuth = () => {
     e.preventDefault();
     setError(""); setLoading(true);
     try {
-      const { data } = await userAPI.phoneVerifyOtp({ phone: phoneNumber, otp: phoneOtp });
+      const { data } = await userAPI.phoneVerifyOtp({ phone: fullPhone(), otp: phoneOtp });
       if (data.needsName) {
         setPhoneRegToken(data.registrationToken);
         setPhoneCountry(geo?.country || "");
@@ -246,7 +255,7 @@ const UserAuth = () => {
     if (phoneCooldown > 0) return;
     setError("");
     try {
-      await userAPI.phoneSendOtp({ phone: phoneNumber });
+      await userAPI.phoneSendOtp({ phone: fullPhone() });
       startPhoneCooldown();
     } catch (err) {
       setError(err.response?.data?.message || "فشل إرسال الكود");
@@ -267,18 +276,45 @@ const UserAuth = () => {
           <p className="otp-desc">سنرسل لك كود تحقق عبر واتساب</p>
           <form onSubmit={handlePhoneSend} className="user-auth-form">
             <div className="auth-field">
-              <label>رقم الهاتف (مع كود الدولة)</label>
-              <input
-                type="tel"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+970 59 000 0000"
+              <label>الدولة</label>
+              <select
+                value={phoneDialCode}
+                onChange={(e) => setPhoneDialCode(e.target.value)}
                 required
-                style={{ direction: "ltr", textAlign: "right" }}
-              />
+              >
+                <option value="">اختر الدولة</option>
+                {COUNTRIES.map((c, i) =>
+                  c.code === "--" ? (
+                    <option key={i} value="" disabled>{c.name}</option>
+                  ) : (
+                    <option key={c.code + i} value={c.dialCode}>
+                      {c.name} ({c.dialCode})
+                    </option>
+                  )
+                )}
+              </select>
+            </div>
+            <div className="auth-field">
+              <label>رقم الهاتف</label>
+              <div className="phone-input-row">
+                <span className="phone-dial-badge">{phoneDialCode || "---"}</span>
+                <input
+                  type="tel"
+                  value={phoneLocal}
+                  onChange={(e) => setPhoneLocal(e.target.value.replace(/[^\d]/g, ""))}
+                  placeholder="591234567"
+                  required
+                  style={{ direction: "ltr" }}
+                />
+              </div>
+              <p className="phone-hint">بدون صفر في البداية — مثال: 591234567</p>
             </div>
             {error && <p className="auth-error">{error}</p>}
-            <button type="submit" className="auth-submit-btn" disabled={loading || phoneNumber.length < 7}>
+            <button
+              type="submit"
+              className="auth-submit-btn"
+              disabled={loading || !phoneDialCode || phoneLocal.length < 6}
+            >
               {loading ? "..." : "إرسال الكود عبر واتساب"}
             </button>
           </form>
@@ -305,7 +341,7 @@ const UserAuth = () => {
           <h2>أدخل كود واتساب</h2>
           <p className="otp-desc">
             أرسلنا كود مكوّن من 6 أرقام عبر واتساب إلى<br />
-            <strong style={{ direction: "ltr", display: "inline-block" }}>{phoneNumber}</strong>
+            <strong style={{ direction: "ltr", display: "inline-block" }}>{fullPhone()}</strong>
           </p>
           <form onSubmit={handlePhoneVerify} className="user-auth-form">
             <div className="auth-field">
@@ -361,19 +397,6 @@ const UserAuth = () => {
                 placeholder="محمد أحمد"
                 required
               />
-            </div>
-            <div className="auth-field">
-              <label>الدولة</label>
-              <select value={phoneCountry} onChange={(e) => setPhoneCountry(e.target.value)}>
-                <option value="">اختر دولتك</option>
-                {COUNTRIES.map((c, i) =>
-                  c.code === "" ? (
-                    <option key={i} value="" disabled>{c.name}</option>
-                  ) : (
-                    <option key={c.code} value={c.code}>{c.name}</option>
-                  )
-                )}
-              </select>
             </div>
             {error && <p className="auth-error">{error}</p>}
             <button type="submit" className="auth-submit-btn" disabled={loading || phoneName.trim().length < 2}>
@@ -637,26 +660,6 @@ const UserAuth = () => {
               style={{ direction: "ltr", textAlign: "right" }}
             />
           </div>
-
-          {tab === "register" && (
-            <div className="auth-field">
-              <label>الدولة</label>
-              <select
-                name="country"
-                value={form.country}
-                onChange={handleChange}
-              >
-                <option value="">اختر دولتك</option>
-                {COUNTRIES.map((c, i) =>
-                  c.code === "" ? (
-                    <option key={i} value="" disabled>{c.name}</option>
-                  ) : (
-                    <option key={c.code} value={c.code}>{c.name}</option>
-                  )
-                )}
-              </select>
-            </div>
-          )}
 
           <div className="auth-field">
             <label>كلمة المرور</label>

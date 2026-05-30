@@ -211,6 +211,52 @@
   box-shadow: 0 2px 8px rgba(37, 211, 102, 0.18);
 }
 
+.phone-input-row {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--color-bg);
+  transition: border-color 0.2s;
+}
+
+.phone-input-row:focus-within {
+  border-color: var(--color-primary);
+  background: var(--color-white);
+}
+
+.phone-dial-badge {
+  padding: 12px 12px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  font-size: 0.9rem;
+  direction: ltr;
+  white-space: nowrap;
+  border-left: 1.5px solid var(--color-border);
+  min-width: 52px;
+  text-align: center;
+}
+
+.phone-input-row input {
+  flex: 1;
+  padding: 12px 12px;
+  border: none !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  outline: none;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--color-text);
+}
+
+.phone-hint {
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
 .auth-back-link {
   margin-top: 20px;
   font-size: 0.88rem;
