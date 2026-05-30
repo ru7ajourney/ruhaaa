@@ -40,8 +40,9 @@ const UserAuth = () => {
 
   // عند معرفة الدولة — ضبط dial code تلقائياً إذا لسه ما اختار
   useEffect(() => {
-    if (geo?.country && !phoneDialCode) {
-      const code = findDialCode(geo.country);
+    if (!phoneDialCode) {
+      const country = geo?.country || "SA"; // SA fallback
+      const code = findDialCode(country);
       if (code) setPhoneDialCode(code);
     }
   }, [geo?.country]);
@@ -708,7 +709,10 @@ const UserAuth = () => {
               setPhoneStep("input");
               setError("");
               setPhoneLocal("");
-              if (!phoneDialCode && geo?.country) setPhoneDialCode(findDialCode(geo.country));
+              if (!phoneDialCode) {
+                const code = findDialCode(geo?.country || "SA");
+                if (code) setPhoneDialCode(code);
+              }
             }}
             disabled={loading}
           >
