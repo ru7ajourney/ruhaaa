@@ -1,6 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import COUNTRIES, { getFlag } from "../utils/countries";
+import COUNTRIES from "../utils/countries";
 import "./PhoneCountryPicker.css";
+
+const FlagImg = ({ code, size = 20 }) => (
+  <img
+    src={`https://flagcdn.com/w${size}/${code.toLowerCase()}.png`}
+    width={size}
+    alt={code}
+    className="pcp-flag-img"
+    onError={(e) => { e.target.style.display = "none"; }}
+  />
+);
 
 const PhoneCountryPicker = ({ value, onChange }) => {
   const [open, setOpen] = useState(false);
@@ -17,7 +27,7 @@ const PhoneCountryPicker = ({ value, onChange }) => {
   return (
     <div className="pcp-wrapper" ref={ref}>
       <button type="button" className="pcp-trigger" onClick={() => setOpen((o) => !o)}>
-        <span className="pcp-flag">{selected ? getFlag(selected.code) : "🌐"}</span>
+        {selected ? <FlagImg code={selected.code} /> : <span>🌐</span>}
         <span className="pcp-code">{selected ? selected.dialCode : "---"}</span>
         <span className="pcp-arrow">{open ? "▲" : "▼"}</span>
       </button>
@@ -33,7 +43,7 @@ const PhoneCountryPicker = ({ value, onChange }) => {
                 className={`pcp-option${c.dialCode === value && c.code === selected?.code ? " pcp-option--selected" : ""}`}
                 onMouseDown={(e) => { e.preventDefault(); onChange(c.dialCode); setOpen(false); }}
               >
-                <span className="pcp-flag">{getFlag(c.code)}</span>
+                <FlagImg code={c.code} />
                 <span className="pcp-name">{c.name}</span>
                 <span className="pcp-dial">{c.dialCode}</span>
               </div>
