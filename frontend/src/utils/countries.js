@@ -65,6 +65,7 @@ const COUNTRIES = [
   { code: "ID", name: "إندونيسيا",           dialCode: "+62"  },
   { code: "IR", name: "إيران",               dialCode: "+98"  },
   { code: "IE", name: "أيرلندا",             dialCode: "+353" },
+  { code: "IL", name: "إسرائيل",             dialCode: "+972" },
   { code: "IT", name: "إيطاليا",             dialCode: "+39"  },
   { code: "JP", name: "اليابان",             dialCode: "+81"  },
   { code: "KZ", name: "كازاخستان",           dialCode: "+7"   },
