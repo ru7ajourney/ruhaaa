@@ -229,9 +229,13 @@ const UserAuth = () => {
     try {
       const { data } = await userAPI.phoneVerifyOtp({ phone: fullPhone(), otp: phoneOtp });
       if (data.needsName) {
-        setPhoneRegToken(data.registrationToken);
-        setPhoneCountry(geo?.country || "");
-        setPhoneStep("name");
+        // الاسم أُخذ مسبقاً — أكمل التسجيل مباشرة
+        const { data: regData } = await userAPI.phoneComplete({
+          registrationToken: data.registrationToken,
+          fullName: phoneName,
+        });
+        login(regData.token, regData.user);
+        navigate("/trips");
       } else {
         login(data.token, data.user);
         navigate("/trips");
@@ -278,6 +282,16 @@ const UserAuth = () => {
           <p className="otp-desc">سنرسل لك كود تحقق عبر واتساب</p>
           <form onSubmit={handlePhoneSend} className="user-auth-form">
             <div className="auth-field">
+              <label>الاسم الكامل</label>
+              <input
+                type="text"
+                value={phoneName}
+                onChange={(e) => setPhoneName(e.target.value)}
+                placeholder="محمد أحمد"
+                required
+              />
+            </div>
+            <div className="auth-field">
               <label>رقم الهاتف</label>
               <div className="phone-combo">
                 <PhoneCountryPicker
@@ -299,7 +313,7 @@ const UserAuth = () => {
             <button
               type="submit"
               className="auth-submit-btn"
-              disabled={loading || !phoneDialCode || phoneLocal.length < 6}
+              disabled={loading || !phoneDialCode || phoneLocal.length < 6 || phoneName.trim().length < 2}
             >
               {loading ? "..." : "إرسال الكود عبر واتساب"}
             </button>
