@@ -1,3 +1,12 @@
+// تحويل كود ISO إلى علم إيموجي
+export const getFlag = (code) => {
+  if (!code || code.length !== 2 || code === "--") return "";
+  return String.fromCodePoint(
+    0x1F1E6 + code.toUpperCase().charCodeAt(0) - 65,
+    0x1F1E6 + code.toUpperCase().charCodeAt(1) - 65
+  );
+};
+
 // قائمة الدول مع كود الاتصال الدولي — الدول العربية أولاً
 const COUNTRIES = [
   { code: "SA", name: "السعودية",            dialCode: "+966" },

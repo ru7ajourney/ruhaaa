@@ -4,7 +4,7 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { userAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
 import useGeo from "../hooks/useGeo";
-import COUNTRIES from "../utils/countries";
+import COUNTRIES, { getFlag } from "../utils/countries";
 import "./UserAuth.css";
 
 // ابحث عن كود الدولة بناءً على كود ISO
@@ -276,29 +276,27 @@ const UserAuth = () => {
           <p className="otp-desc">سنرسل لك كود تحقق عبر واتساب</p>
           <form onSubmit={handlePhoneSend} className="user-auth-form">
             <div className="auth-field">
-              <label>الدولة</label>
-              <select
-                value={phoneDialCode}
-                onChange={(e) => setPhoneDialCode(e.target.value)}
-                required
-              >
-                <option value="">اختر الدولة</option>
-                {COUNTRIES.map((c, i) =>
-                  c.code === "--" ? (
-                    <option key={i} value="" disabled>{c.name}</option>
-                  ) : (
-                    <option key={c.code + i} value={c.dialCode}>
-                      {c.name} ({c.dialCode})
-                    </option>
-                  )
-                )}
-              </select>
-            </div>
-            <div className="auth-field">
               <label>رقم الهاتف</label>
-              <div className="phone-input-row">
-                <span className="phone-dial-badge">{phoneDialCode || "---"}</span>
+              <div className="phone-combo">
+                <select
+                  className="phone-country-select"
+                  value={phoneDialCode}
+                  onChange={(e) => setPhoneDialCode(e.target.value)}
+                  required
+                >
+                  <option value="">الدولة</option>
+                  {COUNTRIES.map((c, i) =>
+                    c.code === "--" ? (
+                      <option key={i} value="" disabled>──────</option>
+                    ) : (
+                      <option key={c.code + i} value={c.dialCode}>
+                        {getFlag(c.code)} {c.name} {c.dialCode}
+                      </option>
+                    )
+                  )}
+                </select>
                 <input
+                  className="phone-local-input"
                   type="tel"
                   value={phoneLocal}
                   onChange={(e) => setPhoneLocal(e.target.value.replace(/[^\d]/g, ""))}
@@ -307,7 +305,6 @@ const UserAuth = () => {
                   style={{ direction: "ltr" }}
                 />
               </div>
-              <p className="phone-hint">بدون صفر في البداية — مثال: 591234567</p>
             </div>
             {error && <p className="auth-error">{error}</p>}
             <button
