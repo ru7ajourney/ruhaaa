@@ -41,9 +41,10 @@ const UserAuth = () => {
   // عند معرفة الدولة — ضبط dial code تلقائياً إذا لسه ما اختار
   useEffect(() => {
     if (geo?.country && !phoneDialCode) {
-      setPhoneDialCode(findDialCode(geo.country));
+      const code = findDialCode(geo.country);
+      if (code) setPhoneDialCode(code);
     }
-  }, [geo]);
+  }, [geo?.country]);
 
   const { login } = useUserAuth();
   const navigate  = useNavigate();
@@ -703,7 +704,12 @@ const UserAuth = () => {
         <div className="google-btn-wrapper" style={{ marginTop: "10px" }}>
           <button
             className="google-signin-btn phone-signin-btn"
-            onClick={() => { setPhoneStep("input"); setError(""); setPhoneNumber(""); }}
+            onClick={() => {
+              setPhoneStep("input");
+              setError("");
+              setPhoneLocal("");
+              if (!phoneDialCode && geo?.country) setPhoneDialCode(findDialCode(geo.country));
+            }}
             disabled={loading}
           >
             📱 الدخول برقم الهاتف (واتساب)
