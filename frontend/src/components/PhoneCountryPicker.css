@@ -1,0 +1,66 @@
+.pcp-wrapper {
+  position: relative;
+  width: 32.5%;
+  flex-shrink: 0;
+}
+
+.pcp-trigger {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 11px 8px;
+  background: var(--color-bg);
+  border: none;
+  border-right: 1.5px solid var(--color-border);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--color-text);
+  cursor: pointer;
+  direction: ltr;
+  white-space: nowrap;
+}
+
+.pcp-trigger:focus { outline: none; }
+
+.pcp-flag  { font-size: 1.1rem; line-height: 1; }
+.pcp-code  { font-weight: 700; font-size: 0.85rem; color: var(--color-primary-dark); }
+.pcp-arrow { font-size: 0.6rem; color: var(--color-text-light); margin-right: 2px; }
+
+.pcp-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  width: 240px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 999;
+  direction: rtl;
+}
+
+.pcp-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.15s;
+}
+
+.pcp-option:hover          { background: var(--color-bg); }
+.pcp-option--selected      { background: var(--color-primary-light); }
+.pcp-option .pcp-name      { flex: 1; }
+.pcp-option .pcp-dial      { color: var(--color-text-light); font-size: 0.8rem; direction: ltr; }
+
+.pcp-divider {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}

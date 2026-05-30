@@ -227,24 +227,6 @@
   background: var(--color-white);
 }
 
-.phone-country-select {
-  border: none !important;
-  border-right: 1.5px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  padding: 11px 6px 11px 4px;
-  background: var(--color-bg);
-  font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--color-text);
-  cursor: pointer;
-  outline: none;
-  width: 32.5%;
-  min-width: 0;
-}
-
-.phone-combo:focus-within .phone-country-select {
-  background: var(--color-white);
-}
 
 .phone-local-input {
   flex: 1;

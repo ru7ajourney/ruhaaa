@@ -4,7 +4,8 @@ import { useGoogleLogin } from "@react-oauth/google";
 import { userAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
 import useGeo from "../hooks/useGeo";
-import COUNTRIES, { getFlag } from "../utils/countries";
+import COUNTRIES from "../utils/countries";
+import PhoneCountryPicker from "../components/PhoneCountryPicker";
 import "./UserAuth.css";
 
 // ابحث عن كود الدولة بناءً على كود ISO
@@ -279,23 +280,10 @@ const UserAuth = () => {
             <div className="auth-field">
               <label>رقم الهاتف</label>
               <div className="phone-combo">
-                <select
-                  className="phone-country-select"
+                <PhoneCountryPicker
                   value={phoneDialCode}
-                  onChange={(e) => setPhoneDialCode(e.target.value)}
-                  required
-                >
-                  <option value="">الدولة</option>
-                  {COUNTRIES.map((c, i) =>
-                    c.code === "--" ? (
-                      <option key={i} value="" disabled>──────</option>
-                    ) : (
-                      <option key={c.code + i} value={c.dialCode}>
-                        {getFlag(c.code)} {c.name} ({c.dialCode})
-                      </option>
-                    )
-                  )}
-                </select>
+                  onChange={(code) => setPhoneDialCode(code)}
+                />
                 <input
                   className="phone-local-input"
                   type="tel"
