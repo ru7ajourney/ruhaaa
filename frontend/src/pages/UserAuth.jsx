@@ -38,14 +38,13 @@ const UserAuth = () => {
   const [phoneRegToken, setPhoneRegToken] = useState("");
   const [phoneCooldown, setPhoneCooldown] = useState(0);
 
-  // عند معرفة الدولة — ضبط dial code تلقائياً إذا لسه ما اختار
+  // عند معرفة الدولة — ضبط dial code تلقائياً
   useEffect(() => {
-    if (!phoneDialCode) {
-      const country = geo?.country || "SA"; // SA fallback
-      const code = findDialCode(country);
-      if (code) setPhoneDialCode(code);
-    }
-  }, [geo?.country]);
+    if (geo === null) return; // لسه بيتحمل — لا تضبط شيء
+    if (phoneDialCode) return; // المستخدم اختار يدوياً
+    const code = findDialCode(geo?.country || "SA");
+    if (code) setPhoneDialCode(code);
+  }, [geo]);
 
   const { login } = useUserAuth();
   const navigate  = useNavigate();
@@ -709,7 +708,8 @@ const UserAuth = () => {
               setPhoneStep("input");
               setError("");
               setPhoneLocal("");
-              if (!phoneDialCode) {
+              // فقط إذا الـ geo تحمّل (مش null) ولسه ما ضبطنا
+              if (!phoneDialCode && geo !== null) {
                 const code = findDialCode(geo?.country || "SA");
                 if (code) setPhoneDialCode(code);
               }
