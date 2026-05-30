@@ -290,7 +290,7 @@ const UserAuth = () => {
                       <option key={i} value="" disabled>──────</option>
                     ) : (
                       <option key={c.code + i} value={c.dialCode}>
-                        {getFlag(c.code)} {c.name} {c.dialCode}
+                        {getFlag(c.code)} {c.name} ({c.dialCode})
                       </option>
                     )
                   )}

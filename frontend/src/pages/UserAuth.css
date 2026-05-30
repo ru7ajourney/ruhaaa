@@ -231,14 +231,15 @@
   border: none !important;
   border-right: 1.5px solid var(--color-border) !important;
   border-radius: 0 !important;
-  padding: 11px 8px 11px 4px;
+  padding: 11px 6px 11px 4px;
   background: var(--color-bg);
   font-family: inherit;
   font-size: 0.9rem;
   color: var(--color-text);
   cursor: pointer;
   outline: none;
-  max-width: 170px;
+  width: 20%;
+  min-width: 0;
 }
 
 .phone-combo:focus-within .phone-country-select {
@@ -247,6 +248,7 @@
 
 .phone-local-input {
   flex: 1;
+  width: 80%;
   padding: 12px 10px;
   border: none !important;
   border-radius: 0 !important;
