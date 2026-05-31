@@ -32,6 +32,7 @@ const UserAuth = () => {
 
   // phone auth
   const [phoneStep, setPhoneStep]         = useState(""); // "" | "input" | "otp" | "name"
+  const [phoneMode, setPhoneMode]         = useState("login"); // "login" | "register"
   const [phoneDialCode, setPhoneDialCode] = useState("");
   const [phoneLocal, setPhoneLocal]       = useState("");
   const [phoneOtp, setPhoneOtp]           = useState("");
@@ -229,6 +230,10 @@ const UserAuth = () => {
     try {
       const { data } = await userAPI.phoneVerifyOtp({ phone: fullPhone(), otp: phoneOtp });
       if (data.needsName) {
+        if (phoneMode === "login") {
+          setError("رقم الهاتف غير مسجّل. اضغط 'حساب جديد' لإنشاء حساب.");
+          return;
+        }
         // الاسم أُخذ مسبقاً — أكمل التسجيل مباشرة
         const { data: regData } = await userAPI.phoneComplete({
           registrationToken: data.registrationToken,
@@ -278,19 +283,21 @@ const UserAuth = () => {
             <span className="logo-tagline">سفر وتطوع</span>
           </div>
           <div className="otp-icon">📱</div>
-          <h2>الدخول برقم الهاتف</h2>
+          <h2>{phoneMode === "register" ? "إنشاء حساب برقم الهاتف" : "الدخول برقم الهاتف"}</h2>
           <p className="otp-desc">سنرسل لك كود تحقق عبر واتساب</p>
           <form onSubmit={handlePhoneSend} className="user-auth-form">
-            <div className="auth-field">
-              <label>الاسم الكامل</label>
-              <input
-                type="text"
-                value={phoneName}
-                onChange={(e) => setPhoneName(e.target.value)}
-                placeholder="محمد أحمد"
-                required
-              />
-            </div>
+            {phoneMode === "register" && (
+              <div className="auth-field">
+                <label>الاسم الكامل</label>
+                <input
+                  type="text"
+                  value={phoneName}
+                  onChange={(e) => setPhoneName(e.target.value)}
+                  placeholder="محمد أحمد"
+                  required
+                />
+              </div>
+            )}
             <div className="auth-field">
               <label>رقم الهاتف</label>
               <div className="phone-combo">
@@ -313,7 +320,7 @@ const UserAuth = () => {
             <button
               type="submit"
               className="auth-submit-btn"
-              disabled={loading || !phoneDialCode || phoneLocal.length < 6 || phoneName.trim().length < 2}
+              disabled={loading || !phoneDialCode || phoneLocal.length < 6 || (phoneMode === "register" && phoneName.trim().length < 2)}
             >
               {loading ? "..." : "إرسال الكود عبر واتساب"}
             </button>
@@ -708,8 +715,10 @@ const UserAuth = () => {
             className="google-signin-btn phone-signin-btn"
             onClick={() => {
               setPhoneStep("input");
+              setPhoneMode(tab); // "login" أو "register"
               setError("");
               setPhoneLocal("");
+              setPhoneName("");
               // فقط إذا الـ geo تحمّل (مش null) ولسه ما ضبطنا
               if (!phoneDialCode && geo !== null) {
                 const code = findDialCode(geo?.country || "SA");
