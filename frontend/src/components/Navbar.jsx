@@ -102,6 +102,9 @@ const Navbar = () => {
             </button>
             {dropdownOpen && (
               <div className="account-dropdown">
+                <Link to="/my-profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
+                  👤 حسابي
+                </Link>
                 <Link to="/my-applications" className="dropdown-item" onClick={() => setDropdownOpen(false)}>
                   📋 طلباتي
                 </Link>
@@ -138,6 +141,7 @@ const Navbar = () => {
             <li><Link to="/contact" onClick={() => setMenuOpen(false)}>تواصل معنا</Link></li>
             {user ? (
               <>
+                <li><Link to="/my-profile" onClick={() => setMenuOpen(false)}>👤 حسابي</Link></li>
                 <li><Link to="/my-applications" onClick={() => setMenuOpen(false)}>📋 طلباتي</Link></li>
                 <li><button className="mobile-logout-btn" onClick={() => { logout(); setMenuOpen(false); navigate("/"); }}>🚪 خروج</button></li>
               </>

@@ -130,6 +130,7 @@ export const userAPI = {
   phoneSendOtp:   (data) => userApi.post("/users/phone-send-otp",   data),
   phoneVerifyOtp: (data) => userApi.post("/users/phone-verify-otp", data),
   phoneComplete:  (data) => userApi.post("/users/phone-complete",   data),
+  updateProfile:  (data) => userApi.put("/users/profile",           data),
 };
 
 // ==============================

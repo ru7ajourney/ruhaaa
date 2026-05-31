@@ -563,10 +563,47 @@ router.post("/login", async (req, res) => {
 
 // GET /api/users/me — يرجع بيانات المستخدم + token جديد (نافذة منزلقة 7 أيام)
 router.get("/me", protectUser, (req, res) => {
+  const isPhoneUser = req.user.email?.endsWith("@ruha.internal");
   res.json({
-    user: { id: req.user._id, fullName: req.user.fullName, email: req.user.email },
+    user: {
+      id:       req.user._id,
+      fullName: req.user.fullName,
+      email:    isPhoneUser ? null : req.user.email,
+      phone:    req.user.phone || null,
+    },
     token: generateToken(req.user._id),
   });
+});
+
+// PUT /api/users/profile — تحديث الاسم أو رقم الهاتف
+router.put("/profile", protectUser, async (req, res) => {
+  try {
+    const { fullName, phone } = req.body;
+    const update = {};
+    if (fullName?.trim()) update.fullName = fullName.trim();
+    if (phone !== undefined) {
+      if (phone === "") {
+        update.phone = null;
+      } else {
+        const normalized = normalizePhone(phone);
+        const taken = await User.findOne({ phone: normalized, _id: { $ne: req.user._id } });
+        if (taken) return res.status(400).json({ message: "هذا الرقم مرتبط بحساب آخر" });
+        update.phone = normalized;
+      }
+    }
+    const updated = await User.findByIdAndUpdate(req.user._id, update, { new: true });
+    const isPhoneUser = updated.email?.endsWith("@ruha.internal");
+    res.json({
+      user: {
+        id:       updated._id,
+        fullName: updated.fullName,
+        email:    isPhoneUser ? null : updated.email,
+        phone:    updated.phone || null,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "خطأ في التحديث" });
+  }
 });
 
 // GET /api/users/my-applications — جلب طلبات المستخدم بالإيميل

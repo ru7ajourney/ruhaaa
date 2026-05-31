@@ -40,6 +40,7 @@ import AdminManagement from "./pages/admin/AdminManagement";
 import UserAuth from "./pages/UserAuth";
 import MyApplications from "./pages/MyApplications";
 import Checkout from "./pages/Checkout";
+import UserProfile from "./pages/UserProfile";
 
 // Global Styles
 import "./styles/global.css";
@@ -163,6 +164,10 @@ function App() {
 
           {/* صفحات المستخدم */}
           <Route path="/my-account" element={<UserAuth />} />
+          <Route
+            path="/my-profile"
+            element={<PublicLayout><UserProfile /></PublicLayout>}
+          />
           <Route
             path="/my-applications"
             element={<PublicLayout><MyApplications /></PublicLayout>}
