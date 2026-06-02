@@ -12,7 +12,7 @@
   border-radius: 16px;
   padding: 40px;
   width: 100%;
-  max-width: 420px;
+  max-width: 460px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.1);
   border: 1px solid var(--color-border);
   text-align: center;
@@ -24,7 +24,7 @@
   border-radius: 50%;
   background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
   color: white;
-  font-size: 2rem;
+  font-size: 1.6rem;
   font-weight: 800;
   display: flex;
   align-items: center;
@@ -32,65 +32,149 @@
   margin: 0 auto 16px;
 }
 
-.profile-name {
-  font-size: 1.3rem;
-  color: var(--color-secondary);
-  margin: 0 0 4px;
-}
+.profile-name     { font-size: 1.3rem; color: var(--color-secondary); margin: 0 0 4px; }
+.profile-subtitle { font-size: 0.85rem; color: var(--color-text-light); margin: 0 0 28px; }
 
-.profile-subtitle {
-  font-size: 0.85rem;
-  color: var(--color-text-light);
-  margin: 0 0 28px;
-}
+/* ===== أقسام ===== */
+.profile-sections { display: flex; flex-direction: column; gap: 0; text-align: right; }
 
-.profile-form {
+.profile-section {
+  padding: 18px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.profile-section:last-child { border-bottom: none; }
+
+.profile-section-header {
   display: flex;
-  flex-direction: column;
-  gap: 16px;
-  text-align: right;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
 }
 
-.profile-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.profile-field label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--color-secondary);
-}
-
-.profile-optional {
-  font-weight: 400;
-  color: var(--color-text-light);
+.profile-section-label {
   font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.profile-field input {
-  padding: 12px 14px;
+.profile-lock-badge {
+  font-size: 0.78rem;
+  color: #92400e;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.profile-edit-btn {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: inherit;
+}
+.profile-edit-btn:hover { text-decoration: underline; }
+
+.profile-value {
+  font-size: 1rem;
+  color: var(--color-text);
+  margin: 0;
+  font-weight: 500;
+}
+.profile-value--muted { color: var(--color-text-light); }
+.profile-value--empty { color: var(--color-text-light); font-style: italic; font-weight: 400; }
+
+/* ===== خانة التعديل ===== */
+.profile-edit-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-input {
+  flex: 1;
+  padding: 10px 12px;
   border: 1.5px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 0.95rem;
   font-family: inherit;
   background: var(--color-bg);
   color: var(--color-text);
-  transition: border-color 0.2s;
   outline: none;
+  min-width: 0;
+  transition: border-color 0.2s;
+}
+.profile-input:focus { border-color: var(--color-primary); background: var(--color-white); }
+
+.profile-otp-input {
+  text-align: center;
+  letter-spacing: 6px;
+  font-size: 1.2rem;
+  direction: ltr;
 }
 
-.profile-field input:focus {
-  border-color: var(--color-primary);
-  background: var(--color-white);
+.profile-save-inline {
+  padding: 10px 16px;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: opacity 0.2s;
+}
+.profile-save-inline:hover    { opacity: 0.88; }
+.profile-save-inline:disabled { opacity: 0.55; cursor: not-allowed; }
+
+.profile-cancel-inline {
+  padding: 10px 12px;
+  background: none;
+  border: 1.5px solid var(--color-border);
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.profile-cancel-inline:hover { border-color: var(--color-text-light); }
+
+.profile-field-error {
+  font-size: 0.84rem;
+  color: #dc2626;
+  margin: 6px 0 0;
 }
 
-.profile-field input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.profile-otp-hint {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  margin: 0 0 10px;
+  line-height: 1.6;
 }
 
+.profile-resend-btn {
+  background: none;
+  border: none;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--color-primary);
+  cursor: pointer;
+  padding: 6px 0 0;
+  display: block;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.profile-resend-btn:disabled { color: var(--color-text-light); text-decoration: none; cursor: default; }
+
+/* ===== الهاتف ===== */
 .profile-phone-combo {
   display: flex;
   align-items: stretch;
@@ -98,73 +182,30 @@
   border-radius: 10px;
   background: var(--color-bg);
   direction: ltr;
-  transition: border-color 0.2s;
   position: relative;
+  transition: border-color 0.2s;
+  margin-bottom: 8px;
 }
-
-.profile-phone-combo:focus-within {
-  border-color: var(--color-primary);
-  background: var(--color-white);
-}
+.profile-phone-combo:focus-within { border-color: var(--color-primary); background: var(--color-white); }
 
 .profile-phone-input {
   flex: 1;
-  padding: 12px 10px;
+  padding: 11px 10px;
   border: none !important;
-  border-radius: 0 !important;
   background: transparent !important;
   outline: none;
   font-size: 0.95rem;
   font-family: inherit;
   color: var(--color-text);
   min-width: 0;
+  border-radius: 0 !important;
 }
 
-.profile-note {
-  font-size: 0.82rem;
-  color: var(--color-text-light);
-  margin: 2px 0 0;
-}
+.profile-inline-actions { display: flex; gap: 8px; }
 
-.profile-error {
-  color: #dc2626;
-  font-size: 0.88rem;
-  background: #fef2f2;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #fecaca;
-  margin: 0;
-}
-
-.profile-success {
-  color: #16a34a;
-  font-size: 0.88rem;
-  background: #f0fdf4;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #bbf7d0;
-  margin: 0;
-}
-
-.profile-save-btn {
-  padding: 13px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  font-family: inherit;
-  transition: opacity 0.2s;
-  margin-top: 4px;
-}
-
-.profile-save-btn:hover   { opacity: 0.9; }
-.profile-save-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-
+/* ===== زر رجوع ===== */
 .profile-back-btn {
-  margin-top: 20px;
+  margin-top: 24px;
   background: none;
   border: none;
   font-family: inherit;
@@ -172,6 +213,8 @@
   color: var(--color-text-light);
   cursor: pointer;
   padding: 0;
+  display: block;
+  width: 100%;
+  text-align: center;
 }
-
 .profile-back-btn:hover { color: var(--color-primary); }

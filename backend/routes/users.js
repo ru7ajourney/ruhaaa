@@ -561,48 +561,117 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// GET /api/users/me — يرجع بيانات المستخدم + token جديد (نافذة منزلقة 7 أيام)
+const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+const daysLeft = (changedAt) => {
+  if (!changedAt) return 0;
+  const diff = THIRTY_DAYS_MS - (Date.now() - new Date(changedAt));
+  return diff > 0 ? Math.ceil(diff / (1000 * 60 * 60 * 24)) : 0;
+};
+const buildUserPayload = (u) => {
+  const isPhoneUser = u.email?.endsWith("@ruha.internal");
+  return {
+    id:       u._id,
+    fullName: u.fullName,
+    email:    isPhoneUser ? null : u.email,
+    phone:    u.phone || null,
+    isPhoneUser,
+    nameChangedAt:  u.nameChangedAt  || null,
+    phoneChangedAt: u.phoneChangedAt || null,
+    nameDaysLeft:   daysLeft(u.nameChangedAt),
+    phoneDaysLeft:  daysLeft(u.phoneChangedAt),
+  };
+};
+
+// GET /api/users/me
 router.get("/me", protectUser, (req, res) => {
-  const isPhoneUser = req.user.email?.endsWith("@ruha.internal");
   res.json({
-    user: {
-      id:       req.user._id,
-      fullName: req.user.fullName,
-      email:    isPhoneUser ? null : req.user.email,
-      phone:    req.user.phone || null,
-    },
+    user:  buildUserPayload(req.user),
     token: generateToken(req.user._id),
   });
 });
 
-// PUT /api/users/profile — تحديث الاسم أو رقم الهاتف
-router.put("/profile", protectUser, async (req, res) => {
+// PUT /api/users/profile/name
+router.put("/profile/name", protectUser, async (req, res) => {
   try {
-    const { fullName, phone } = req.body;
-    const update = {};
-    if (fullName?.trim()) update.fullName = fullName.trim();
-    if (phone !== undefined) {
-      if (phone === "") {
-        update.phone = null;
-      } else {
-        const normalized = normalizePhone(phone);
-        const taken = await User.findOne({ phone: normalized, _id: { $ne: req.user._id } });
-        if (taken) return res.status(400).json({ message: "هذا الرقم مرتبط بحساب آخر" });
-        update.phone = normalized;
-      }
-    }
-    const updated = await User.findByIdAndUpdate(req.user._id, update, { new: true });
-    const isPhoneUser = updated.email?.endsWith("@ruha.internal");
-    res.json({
-      user: {
-        id:       updated._id,
-        fullName: updated.fullName,
-        email:    isPhoneUser ? null : updated.email,
-        phone:    updated.phone || null,
-      },
-    });
+    const { fullName } = req.body;
+    if (!fullName?.trim()) return res.status(400).json({ message: "الاسم مطلوب" });
+    if (daysLeft(req.user.nameChangedAt) > 0)
+      return res.status(400).json({ message: `لا يمكن تغيير الاسم — يتاح بعد ${daysLeft(req.user.nameChangedAt)} يوم` });
+    const updated = await User.findByIdAndUpdate(
+      req.user._id,
+      { fullName: fullName.trim(), nameChangedAt: new Date() },
+      { new: true }
+    );
+    res.json({ user: buildUserPayload(updated) });
   } catch (err) {
-    res.status(500).json({ message: err.message || "خطأ في التحديث" });
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// PUT /api/users/profile/phone  (لمستخدمي الإيميل فقط)
+router.put("/profile/phone", protectUser, async (req, res) => {
+  try {
+    const isPhoneUser = req.user.email?.endsWith("@ruha.internal");
+    if (isPhoneUser) return res.status(400).json({ message: "لا يمكن تغيير رقم الهاتف من هنا" });
+    if (daysLeft(req.user.phoneChangedAt) > 0)
+      return res.status(400).json({ message: `لا يمكن تغيير الرقم — يتاح بعد ${daysLeft(req.user.phoneChangedAt)} يوم` });
+    const { phone } = req.body;
+    let normalized = null;
+    if (phone?.trim()) {
+      normalized = normalizePhone(phone);
+      const taken = await User.findOne({ phone: normalized, _id: { $ne: req.user._id } });
+      if (taken) return res.status(400).json({ message: "هذا الرقم مرتبط بحساب آخر" });
+    }
+    const updated = await User.findByIdAndUpdate(
+      req.user._id,
+      { phone: normalized, phoneChangedAt: new Date() },
+      { new: true }
+    );
+    res.json({ user: buildUserPayload(updated) });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/users/profile/request-email  (لمستخدمي الهاتف لإضافة إيميل)
+router.post("/profile/request-email", protectUser, async (req, res) => {
+  try {
+    const isPhoneUser = req.user.email?.endsWith("@ruha.internal");
+    if (!isPhoneUser) return res.status(400).json({ message: "حسابك مرتبط بإيميل بالفعل" });
+    const { email } = req.body;
+    if (!email?.trim()) return res.status(400).json({ message: "الإيميل مطلوب" });
+    const normalized = email.trim().toLowerCase();
+    const taken = await User.findOne({ email: normalized });
+    if (taken) return res.status(400).json({ message: "هذا الإيميل مستخدم بحساب آخر" });
+    const otp = generateOtp();
+    await User.findByIdAndUpdate(req.user._id, {
+      pendingEmail:           normalized,
+      pendingEmailOtp:        otp,
+      pendingEmailOtpExpires: new Date(Date.now() + 10 * 60 * 1000),
+    });
+    await sendOtpEmail(normalized, otp, req.user.fullName);
+    res.json({ message: "تم إرسال كود التحقق إلى الإيميل" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// POST /api/users/profile/verify-email
+router.post("/profile/verify-email", protectUser, async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const u = await User.findById(req.user._id);
+    if (!u.pendingEmail || !u.pendingEmailOtp) return res.status(400).json({ message: "لا يوجد طلب تحقق نشط" });
+    if (u.pendingEmailOtp !== otp) return res.status(400).json({ message: "الكود غير صحيح" });
+    if (new Date() > u.pendingEmailOtpExpires) return res.status(400).json({ message: "انتهت صلاحية الكود" });
+    const updated = await User.findByIdAndUpdate(
+      u._id,
+      { email: u.pendingEmail, pendingEmail: null, pendingEmailOtp: null, pendingEmailOtpExpires: null },
+      { new: true }
+    );
+    res.json({ user: buildUserPayload(updated) });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
 });
 
