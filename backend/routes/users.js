@@ -966,15 +966,17 @@ router.post("/phone-complete", async (req, res) => {
       return res.status(400).json({ message: "رمز غير صالح" });
 
     const { phone } = decoded;
-    const race = await User.findOne({ phone });
-    if (race) {
+    const internalEmail = `phone_${phone.replace(/\+/g, "")}@ruha.internal`;
+
+    // تحقق من وجود مستخدم بالرقم أو الإيميل الداخلي (يمنع duplicate key)
+    const existing = await User.findOne({ $or: [{ phone }, { email: internalEmail }] });
+    if (existing) {
       return res.json({
-        token: generateToken(race._id),
-        user:  { id: race._id, fullName: race.fullName, email: race.email, phone: race.phone },
+        token: generateToken(existing._id),
+        user:  { id: existing._id, fullName: existing.fullName, email: existing.email, phone: existing.phone },
       });
     }
 
-    const internalEmail = `phone_${phone.replace(/\+/g, "")}@ruha.internal`;
     const user = await User.create({
       fullName:   fullName.trim(),
       email:      internalEmail,
@@ -988,8 +990,11 @@ router.post("/phone-complete", async (req, res) => {
       user:  { id: user._id, fullName: user.fullName, email: user.email, phone: user.phone },
     });
   } catch (err) {
-    console.error("phone-complete:", err.message);
-    res.status(500).json({ message: "خطأ في إنشاء الحساب", error: err.message });
+    console.error("phone-complete error:", err.code, err.message);
+    const msg = err.code === 11000
+      ? "هذا الرقم مرتبط بحساب موجود، حاول تسجيل الدخول"
+      : "خطأ في إنشاء الحساب";
+    res.status(500).json({ message: msg, detail: err.message });
   }
 });
 
