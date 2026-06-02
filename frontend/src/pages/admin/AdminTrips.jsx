@@ -1,4 +1,4 @@
-﻿// src/pages/admin/AdminTrips.jsx
+// src/pages/admin/AdminTrips.jsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { tripsAPI, applicationsAPI } from "../../api";
