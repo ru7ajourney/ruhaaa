@@ -78,17 +78,22 @@ const NameSection = ({ user, onUpdate }) => {
 
 // ===== قسم الإيميل =====
 const EmailSection = ({ user, onUpdate }) => {
-  const [step, setStep]       = useState("view"); // view | enter | otp
-  const [email, setEmail]     = useState("");
-  const [otp, setOtp]         = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState("");
+  const [step, setStep]         = useState("view"); // view | enter | otp
+  const [email, setEmail]       = useState("");
+  const [otp, setOtp]           = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
   const [cooldown, setCooldown] = useState(0);
+
+  const hasEmail = !!user.email;
+  const locked   = hasEmail && user.emailDaysLeft > 0;
 
   const startCooldown = () => {
     setCooldown(60);
     const t = setInterval(() => setCooldown((c) => { if (c <= 1) { clearInterval(t); return 0; } return c - 1; }), 1000);
   };
+
+  const openEnter = () => { setEmail(""); setOtp(""); setError(""); setStep("enter"); };
 
   const sendOtp = async () => {
     setError(""); setLoading(true);
@@ -113,32 +118,21 @@ const EmailSection = ({ user, onUpdate }) => {
     } finally { setLoading(false); }
   };
 
-  // مستخدم إيميل — read only
-  if (!user.isPhoneUser) {
-    return (
-      <div className="profile-section">
-        <div className="profile-section-header">
-          <span className="profile-section-label">البريد الإلكتروني</span>
-        </div>
-        <p className="profile-value profile-value--muted">{user.email}</p>
-      </div>
-    );
-  }
-
-  // مستخدم هاتف — يقدر يضيف إيميل
   return (
     <div className="profile-section">
       <div className="profile-section-header">
         <span className="profile-section-label">البريد الإلكتروني</span>
-        {step === "view" && !user.email && (
-          <button className="profile-edit-btn" onClick={() => { setStep("enter"); setError(""); }}>
-            إضافة
-          </button>
+        {step === "view" && (locked
+          ? <DaysLock days={user.emailDaysLeft} />
+          : <button className="profile-edit-btn" onClick={openEnter}>
+              {hasEmail ? "تعديل" : "إضافة"}
+            </button>
         )}
       </div>
 
       {step === "view" && (
-        <p className="profile-value profile-value--empty">
+        <p className={`profile-value${!hasEmail ? " profile-value--empty" : ""}`}
+           style={{ direction: "ltr", textAlign: "right" }}>
           {user.email || "لم يُضف بعد"}
         </p>
       )}
@@ -155,7 +149,8 @@ const EmailSection = ({ user, onUpdate }) => {
               style={{ direction: "ltr", textAlign: "right" }}
               autoFocus
             />
-            <button className="profile-save-inline" onClick={sendOtp} disabled={loading || !email.includes("@")}>
+            <button className="profile-save-inline" onClick={sendOtp}
+              disabled={loading || !email.includes("@") || !email.includes(".")}>
               {loading ? "..." : "إرسال الكود"}
             </button>
             <button className="profile-cancel-inline" onClick={() => setStep("view")}>إلغاء</button>
@@ -182,11 +177,7 @@ const EmailSection = ({ user, onUpdate }) => {
               {loading ? "..." : "تحقق"}
             </button>
           </div>
-          <button
-            className="profile-resend-btn"
-            onClick={() => { sendOtp(); }}
-            disabled={cooldown > 0}
-          >
+          <button className="profile-resend-btn" onClick={sendOtp} disabled={cooldown > 0}>
             {cooldown > 0 ? `إعادة الإرسال بعد ${cooldown}ث` : "إعادة الإرسال"}
           </button>
           <button className="profile-cancel-inline" style={{ marginTop: 4 }} onClick={() => setStep("enter")}>

@@ -578,8 +578,10 @@ const buildUserPayload = (u) => {
     isPhoneUser,
     nameChangedAt:  u.nameChangedAt  || null,
     phoneChangedAt: u.phoneChangedAt || null,
+    emailChangedAt: u.emailChangedAt || null,
     nameDaysLeft:   daysLeft(u.nameChangedAt),
     phoneDaysLeft:  daysLeft(u.phoneChangedAt),
+    emailDaysLeft:  daysLeft(u.emailChangedAt),
   };
 };
 
@@ -657,15 +659,16 @@ router.post("/profile/verify-phone", protectUser, async (req, res) => {
   }
 });
 
-// POST /api/users/profile/request-email  (لمستخدمي الهاتف لإضافة إيميل)
+// POST /api/users/profile/request-email — إضافة أو تعديل الإيميل مع OTP (مع قفل 30 يوم)
 router.post("/profile/request-email", protectUser, async (req, res) => {
   try {
-    const isPhoneUser = req.user.email?.endsWith("@ruha.internal");
-    if (!isPhoneUser) return res.status(400).json({ message: "حسابك مرتبط بإيميل بالفعل" });
+    const hasRealEmail = req.user.email && !req.user.email.endsWith("@ruha.internal");
+    if (hasRealEmail && daysLeft(req.user.emailChangedAt) > 0)
+      return res.status(400).json({ message: `لا يمكن تعديل الإيميل — يتاح بعد ${daysLeft(req.user.emailChangedAt)} يوم` });
     const { email } = req.body;
     if (!email?.trim()) return res.status(400).json({ message: "الإيميل مطلوب" });
     const normalized = email.trim().toLowerCase();
-    const taken = await User.findOne({ email: normalized });
+    const taken = await User.findOne({ email: normalized, _id: { $ne: req.user._id } });
     if (taken) return res.status(400).json({ message: "هذا الإيميل مستخدم بحساب آخر" });
     const otp = generateOtp();
     await User.findByIdAndUpdate(req.user._id, {
@@ -690,7 +693,11 @@ router.post("/profile/verify-email", protectUser, async (req, res) => {
     if (new Date() > u.pendingEmailOtpExpires) return res.status(400).json({ message: "انتهت صلاحية الكود" });
     const updated = await User.findByIdAndUpdate(
       u._id,
-      { email: u.pendingEmail, pendingEmail: null, pendingEmailOtp: null, pendingEmailOtpExpires: null },
+      {
+        email: u.pendingEmail,
+        emailChangedAt: new Date(),
+        pendingEmail: null, pendingEmailOtp: null, pendingEmailOtpExpires: null,
+      },
       { new: true }
     );
     res.json({ user: buildUserPayload(updated) });

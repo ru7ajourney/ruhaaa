@@ -11,6 +11,7 @@ const UserSchema = new mongoose.Schema(
     phoneOtpExpires: { type: Date,   default: null },
     nameChangedAt:   { type: Date,   default: null },
     phoneChangedAt:  { type: Date,   default: null },
+    emailChangedAt:          { type: Date,   default: null },
     pendingEmail:            { type: String, default: null },
     pendingEmailOtp:         { type: String, default: null },
     pendingEmailOtpExpires:  { type: Date,   default: null },
