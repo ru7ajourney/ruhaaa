@@ -162,7 +162,8 @@ const AdminUsers = () => {
 
   const filteredUsers = users.filter((u) =>
     u.fullName.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+    u.email?.toLowerCase().includes(search.toLowerCase()) ||
+    u.phone?.includes(search)
   );
 
   const filteredApps = applications.filter((a) =>
@@ -212,6 +213,7 @@ const AdminUsers = () => {
                     <th>#</th>
                     <th>المستخدم</th>
                     <th>البريد الإلكتروني</th>
+                    <th>رقم الهاتف</th>
                     <th>طريقة التسجيل</th>
                     <th>الحالة</th>
                     <th>تاريخ الانضمام</th>
@@ -232,9 +234,19 @@ const AdminUsers = () => {
                           <strong>{u.fullName}</strong>
                         </div>
                       </td>
-                      <td style={{ direction: "ltr", textAlign: "right", color: "var(--color-text-light)" }}>{u.email}</td>
+                      <td style={{ direction: "ltr", textAlign: "right", color: "var(--color-text-light)", fontSize: "0.88rem" }}>
+                        {u.email?.endsWith("@ruha.internal") ? <span style={{ color: "#cbd5e0" }}>—</span> : u.email}
+                      </td>
+                      <td style={{ direction: "ltr", textAlign: "right", fontSize: "0.88rem" }}>
+                        {u.phone
+                          ? <span style={{ color: "var(--color-text)" }}>{u.phone}</span>
+                          : <span style={{ color: "#cbd5e0" }}>—</span>
+                        }
+                      </td>
                       <td>
-                        {u.googleId ? (
+                        {u.email?.endsWith("@ruha.internal") ? (
+                          <span style={{ display: "flex", alignItems: "center", gap: 6 }}>📱 هاتف</span>
+                        ) : u.googleId ? (
                           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
                             <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width={16} alt="Google" />
                             Google
