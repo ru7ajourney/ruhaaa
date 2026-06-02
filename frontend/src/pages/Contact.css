@@ -221,4 +221,6 @@
   .floating-icon     { opacity: 0.3; }
 
   .contact-footer-pad { display: none; }
+
+  .contact-note { padding-bottom: 30px; }
 }
