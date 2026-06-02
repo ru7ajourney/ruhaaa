@@ -340,8 +340,10 @@ const UserProfile = () => {
   const { user: ctxUser, login, logout } = useUserAuth();
   const navigate = useNavigate();
   const [user, setUser]           = useState(null);
-  const [deleting, setDeleting]   = useState(false);
+  const [deleting, setDeleting]         = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteCode, setDeleteCode]     = useState("");
+  const [deleteInput, setDeleteInput]   = useState("");
 
   useEffect(() => {
     if (ctxUser) setUser(ctxUser);
@@ -386,17 +388,40 @@ const UserProfile = () => {
 
         <div className="profile-delete-zone">
           {!confirmDelete ? (
-            <button className="profile-delete-btn" onClick={() => setConfirmDelete(true)}>
+            <button className="profile-delete-btn" onClick={() => {
+              const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+              const code  = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
+              setDeleteCode(code);
+              setDeleteInput("");
+              setConfirmDelete(true);
+            }}>
               حذف الحساب
             </button>
           ) : (
             <div className="profile-delete-confirm">
-              <p>هل أنت متأكد؟ سيتم حذف حسابك نهائياً ولا يمكن التراجع.</p>
-              <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
-                <button className="profile-delete-confirm-btn" onClick={handleDeleteAccount} disabled={deleting}>
-                  {deleting ? "جاري الحذف..." : "نعم، احذف حسابي"}
+              <p>لتأكيد الحذف، اكتب الكود التالي:</p>
+              <div className="profile-delete-code">{deleteCode}</div>
+              <input
+                className="profile-input profile-delete-input"
+                type="text"
+                maxLength={6}
+                value={deleteInput}
+                onChange={(e) => setDeleteInput(e.target.value.toUpperCase())}
+                placeholder="اكتب الكود هنا"
+                style={{ textAlign: "center", letterSpacing: "6px", direction: "ltr" }}
+                autoFocus
+              />
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "12px" }}>
+                <button
+                  className="profile-delete-confirm-btn"
+                  onClick={handleDeleteAccount}
+                  disabled={deleting || deleteInput !== deleteCode}
+                >
+                  {deleting ? "جاري الحذف..." : "حذف الحساب"}
                 </button>
-                <button className="profile-cancel-inline" onClick={() => setConfirmDelete(false)}>إلغاء</button>
+                <button className="profile-cancel-inline" onClick={() => { setConfirmDelete(false); setDeleteInput(""); }}>
+                  إلغاء
+                </button>
               </div>
             </div>
           )}
