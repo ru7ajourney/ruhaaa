@@ -15,6 +15,7 @@ const router = express.Router();
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+const safeEmail = (email) => email?.endsWith("@ruha.internal") ? null : email;
 
 const sendPaymentConfirmationEmail = async ({ email, fullName, tripTitle, amountPaid, currency, totalPaid, tripPrice, fullyPaid, isDeposit }) => {
   if (!process.env.RESEND_API_KEY) return;
@@ -1018,7 +1019,7 @@ router.post("/phone-verify-otp", async (req, res) => {
 
       return res.json({
         token: generateToken(existing._id),
-        user:  { id: existing._id, fullName: existing.fullName, email: existing.email, phone: existing.phone },
+        user:  { id: existing._id, fullName: existing.fullName, email: safeEmail(existing.email), phone: existing.phone },
       });
     }
 
@@ -1065,7 +1066,7 @@ router.post("/phone-complete", async (req, res) => {
     if (existing) {
       return res.json({
         token: generateToken(existing._id),
-        user:  { id: existing._id, fullName: existing.fullName, email: existing.email, phone: existing.phone },
+        user:  { id: existing._id, fullName: existing.fullName, email: safeEmail(existing.email), phone: existing.phone },
       });
     }
 
@@ -1079,7 +1080,7 @@ router.post("/phone-complete", async (req, res) => {
 
     res.status(201).json({
       token: generateToken(user._id),
-      user:  { id: user._id, fullName: user.fullName, email: user.email, phone: user.phone },
+      user:  { id: user._id, fullName: user.fullName, email: safeEmail(user.email), phone: user.phone },
     });
   } catch (err) {
     console.error("phone-complete error:", err.code, err.message);
