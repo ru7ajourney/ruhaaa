@@ -67,6 +67,9 @@
 
 
 
+/* ── إخفاء الموجة ──────────────────────────── */
+.contact-page .page-hero-wave { display: none; }
+
 /* ── المحتوى ─────────────────────────────────── */
 .contact-body {
   position: relative;
