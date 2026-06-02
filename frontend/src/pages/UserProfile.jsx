@@ -1,9 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { userAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
 import useGeo from "../hooks/useGeo";
 import COUNTRIES from "../utils/countries";
+import { POLICIES } from "../data/policies";
 import PhoneCountryPicker from "../components/PhoneCountryPicker";
 import "./UserProfile.css";
 
@@ -335,15 +336,57 @@ const PhoneSection = ({ user, onUpdate }) => {
   );
 };
 
+// ===== نافذة السياسات =====
+const PoliciesModal = ({ onClose }) => {
+  const section2Ref = useRef(null);
+  useEffect(() => {
+    setTimeout(() => section2Ref.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+  }, []);
+  return (
+    <div className="pm-overlay" onClick={onClose}>
+      <div className="pm-box" onClick={(e) => e.stopPropagation()}>
+        <div className="pm-header">
+          <h2>سياسات وشروط رُحى</h2>
+          <button className="pm-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="pm-body">
+          {POLICIES.map((policy, index) => (
+            <div
+              key={policy.id}
+              className={`pm-section${policy.id === 2 ? " pm-section--highlight" : ""}`}
+              ref={policy.id === 2 ? section2Ref : null}
+            >
+              <h3 className="pm-section-title">
+                <span className="pm-section-icon">{policy.icon}</span>
+                <span className="pm-section-num">{index + 1}.</span>
+                {policy.title}
+              </h3>
+              <ul className="pm-points">
+                {policy.points.map((point, i) => (
+                  <li key={i}>{point}</li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 // ===== الصفحة الرئيسية =====
 const UserProfile = () => {
   const { user: ctxUser, login, logout } = useUserAuth();
   const navigate = useNavigate();
   const [user, setUser]           = useState(null);
-  const [deleting, setDeleting]         = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
-  const [deleteCode, setDeleteCode]     = useState("");
-  const [deleteInput, setDeleteInput]   = useState("");
+  const [deleting, setDeleting]       = useState(false);
+  const [deleteStep, setDeleteStep]   = useState(""); // "" | "code" | "reason" | "warning" | "done"
+  const [deleteCode, setDeleteCode]   = useState("");
+  const [deleteInput, setDeleteInput] = useState("");
+  const [deleteReason, setDeleteReason] = useState("");
+  const [deleteReasonText, setDeleteReasonText] = useState("");
+  const [applications, setApplications] = useState(null); // null = not loaded yet
+  const [showPolicies, setShowPolicies] = useState(false);
 
   useEffect(() => {
     if (ctxUser) setUser(ctxUser);
@@ -387,19 +430,25 @@ const UserProfile = () => {
         <button className="profile-back-btn" onClick={() => navigate(-1)}>← رجوع</button>
 
         <div className="profile-delete-zone">
-          {!confirmDelete ? (
+
+          {/* زر البداية */}
+          {deleteStep === "" && (
             <button className="profile-delete-btn" onClick={() => {
               const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
               const code  = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join("");
               setDeleteCode(code);
               setDeleteInput("");
-              setConfirmDelete(true);
+              setDeleteStep("code");
             }}>
               حذف الحساب
             </button>
-          ) : (
+          )}
+
+          {/* الخطوة 1: الكود */}
+          {deleteStep === "code" && (
             <div className="profile-delete-confirm">
-              <p>لتأكيد الحذف، اكتب الكود التالي:</p>
+              <p className="delete-step-label">الخطوة 1 من 3 — تأكيد الهوية</p>
+              <p>اكتب الكود التالي للمتابعة:</p>
               <div className="profile-delete-code">{deleteCode}</div>
               <input
                 className="profile-input profile-delete-input"
@@ -407,25 +456,113 @@ const UserProfile = () => {
                 maxLength={6}
                 value={deleteInput}
                 onChange={(e) => setDeleteInput(e.target.value.toUpperCase())}
-                placeholder="اكتب الكود هنا"
+                placeholder="اكتب الكود"
                 style={{ textAlign: "center", letterSpacing: "6px", direction: "ltr" }}
                 autoFocus
               />
               <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "12px" }}>
                 <button
                   className="profile-delete-confirm-btn"
-                  onClick={handleDeleteAccount}
-                  disabled={deleting || deleteInput !== deleteCode}
+                  disabled={deleteInput !== deleteCode}
+                  onClick={() => setDeleteStep("reason")}
                 >
-                  {deleting ? "جاري الحذف..." : "حذف الحساب"}
+                  التالي →
                 </button>
-                <button className="profile-cancel-inline" onClick={() => { setConfirmDelete(false); setDeleteInput(""); }}>
-                  إلغاء
-                </button>
+                <button className="profile-cancel-inline" onClick={() => { setDeleteStep(""); setDeleteInput(""); }}>إلغاء</button>
               </div>
             </div>
           )}
+
+          {/* الخطوة 2: السبب */}
+          {deleteStep === "reason" && (
+            <div className="profile-delete-confirm">
+              <p className="delete-step-label">الخطوة 2 من 3 — استفسار (اختياري)</p>
+              <p>لماذا تريد حذف حسابك؟</p>
+              <div className="delete-reasons">
+                {["لن أستخدم الخدمة", "خصوصيتي", "وجدت بديلاً أفضل", "تجربة غير مرضية", "أسباب أخرى"].map((r) => (
+                  <button
+                    key={r}
+                    className={`delete-reason-btn${deleteReason === r ? " delete-reason-btn--active" : ""}`}
+                    onClick={() => setDeleteReason((prev) => prev === r ? "" : r)}
+                  >
+                    {r}
+                  </button>
+                ))}
+              </div>
+              {deleteReason === "أسباب أخرى" && (
+                <textarea
+                  className="delete-reason-text"
+                  value={deleteReasonText}
+                  onChange={(e) => setDeleteReasonText(e.target.value)}
+                  placeholder="أخبرنا أكثر... (اختياري)"
+                  rows={3}
+                />
+              )}
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "16px" }}>
+                <button
+                  className="profile-delete-confirm-btn"
+                  onClick={async () => {
+                    if (applications === null) {
+                      try {
+                        const { data } = await userAPI.getMyApplications();
+                        setApplications(Array.isArray(data) ? data : []);
+                      } catch { setApplications([]); }
+                    }
+                    setDeleteStep("warning");
+                  }}
+                >
+                  التالي →
+                </button>
+                <button className="profile-cancel-inline" onClick={() => setDeleteStep("code")}>← رجوع</button>
+              </div>
+            </div>
+          )}
+
+          {/* الخطوة 3: التحذير والتأكيد النهائي */}
+          {deleteStep === "warning" && (
+            <div className="profile-delete-confirm">
+              <p className="delete-step-label">الخطوة 3 من 3 — تأكيد نهائي</p>
+              {applications && applications.filter((a) => a.status !== "rejected").length > 0 ? (
+                <div className="delete-warning-box">
+                  <div className="delete-warning-icon">⚠️</div>
+                  <p className="delete-warning-title">
+                    {applications.some((a) => a.depositPaid && a.status !== "rejected")
+                      ? "لديك حجوزات مؤكدة مع دفع عربون!"
+                      : "لديك طلبات تسجيل نشطة!"}
+                  </p>
+                  <p className="delete-warning-body">
+                    حذف حسابك سيُعتبر إلغاءً لمشاركتك في الرحلة.
+                    استرداد المبالغ (إن وُجدت) سيكون وفقاً لـ
+                    <button className="delete-policy-link" onClick={() => setShowPolicies(true)}>
+                      سياسة العربون والإلغاء
+                    </button>
+                    .
+                  </p>
+                </div>
+              ) : (
+                <div className="delete-warning-box delete-warning-box--mild">
+                  <p>سيتم حذف حسابك وجميع بياناتك نهائياً ولا يمكن التراجع.</p>
+                  <button className="delete-policy-link" onClick={() => setShowPolicies(true)}>
+                    اقرأ سياسات رُحى
+                  </button>
+                </div>
+              )}
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "16px" }}>
+                <button
+                  className="profile-delete-confirm-btn"
+                  onClick={handleDeleteAccount}
+                  disabled={deleting}
+                >
+                  {deleting ? "جاري الحذف..." : "حذف حسابي نهائياً"}
+                </button>
+                <button className="profile-cancel-inline" onClick={() => setDeleteStep("reason")}>← رجوع</button>
+              </div>
+            </div>
+          )}
+
         </div>
+
+        {showPolicies && <PoliciesModal onClose={() => setShowPolicies(false)} />}
       </div>
     </div>
   );
