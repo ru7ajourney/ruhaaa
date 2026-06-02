@@ -2,9 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { userAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
+import useGeo from "../hooks/useGeo";
 import COUNTRIES from "../utils/countries";
 import PhoneCountryPicker from "../components/PhoneCountryPicker";
 import "./UserProfile.css";
+
+const findDialCode = (isoCode) =>
+  COUNTRIES.find((c) => c.code === isoCode)?.dialCode || "";
 
 const splitPhone = (fullPhone) => {
   if (!fullPhone) return { dialCode: "", local: "" };
@@ -197,6 +201,7 @@ const EmailSection = ({ user, onUpdate }) => {
 
 // ===== قسم الهاتف =====
 const PhoneSection = ({ user, onUpdate }) => {
+  const geo = useGeo();
   const [editing, setEditing]   = useState(false);
   const [dialCode, setDialCode] = useState("");
   const [local, setLocal]       = useState("");
@@ -205,9 +210,17 @@ const PhoneSection = ({ user, onUpdate }) => {
   const locked = user.phoneDaysLeft > 0;
 
   const startEdit = () => {
-    const { dialCode: d, local: l } = splitPhone(user.phone);
-    setDialCode(d || "+966");
-    setLocal(l);
+    if (user.phone) {
+      // إذا عنده رقم حالي — قسّمه
+      const { dialCode: d, local: l } = splitPhone(user.phone);
+      setDialCode(d || findDialCode(geo?.country || "SA") || "+966");
+      setLocal(l);
+    } else {
+      // رقم جديد — اختر كود الدولة من الـ geo
+      const geoCode = geo !== null ? findDialCode(geo?.country || "SA") : "+966";
+      setDialCode(geoCode || "+966");
+      setLocal("");
+    }
     setEditing(true);
     setError("");
   };
