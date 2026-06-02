@@ -522,8 +522,15 @@ const UserProfile = () => {
           {deleteStep === "warning" && (
             <div className="profile-delete-confirm">
               <p className="delete-step-label">الخطوة 3 من 3 — تأكيد نهائي</p>
-              {applications && applications.filter((a) => a.status !== "rejected").length > 0 ? (
-                <div className="delete-warning-box">
+
+              {/* تحذير عام للجميع */}
+              <div className="delete-warning-box delete-warning-box--mild">
+                <p>🗑️ سيتم حذف حسابك وجميع بياناتك الشخصية نهائياً ولا يمكن التراجع.</p>
+              </div>
+
+              {/* تحذير الرحلات — للجميع الذين عندهم طلبات نشطة */}
+              {applications && applications.filter((a) => a.status !== "rejected").length > 0 && (
+                <div className="delete-warning-box" style={{ marginTop: "10px" }}>
                   <div className="delete-warning-icon">⚠️</div>
                   <p className="delete-warning-title">
                     {applications.some((a) => a.depositPaid && a.status !== "rejected")
@@ -531,28 +538,17 @@ const UserProfile = () => {
                       : "لديك طلبات تسجيل نشطة!"}
                   </p>
                   <p className="delete-warning-body">
-                    حذف حسابك سيُعتبر إلغاءً لمشاركتك في الرحلة.
-                    استرداد المبالغ (إن وُجدت) سيكون وفقاً لـ
+                    سيُعتبر حذف الحساب إلغاءً لمشاركتك في الرحلة. الاسترداد حسب{" "}
                     <button className="delete-policy-link" onClick={() => setShowPolicies(true)}>
                       سياسة العربون والإلغاء
                     </button>
                     .
                   </p>
                 </div>
-              ) : (
-                <div className="delete-warning-box delete-warning-box--mild">
-                  <p>سيتم حذف حسابك وجميع بياناتك نهائياً ولا يمكن التراجع.</p>
-                  <button className="delete-policy-link" onClick={() => setShowPolicies(true)}>
-                    اقرأ سياسات رُحى
-                  </button>
-                </div>
               )}
+
               <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "16px" }}>
-                <button
-                  className="profile-delete-confirm-btn"
-                  onClick={handleDeleteAccount}
-                  disabled={deleting}
-                >
+                <button className="profile-delete-confirm-btn" onClick={handleDeleteAccount} disabled={deleting}>
                   {deleting ? "جاري الحذف..." : "حذف حسابي نهائياً"}
                 </button>
                 <button className="profile-cancel-inline" onClick={() => setDeleteStep("reason")}>← رجوع</button>
