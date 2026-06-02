@@ -66,6 +66,12 @@
 }
 
 
+/* ── wave effect ────────────────────────────── */
+.contact-page .page-hero-wave {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
 /* ── المحتوى ─────────────────────────────────── */
 .contact-body {
   position: relative;
