@@ -41,7 +41,7 @@ const Contact = () => {
         ))}
       </div>
 
-      <PageHero title="تواصل معنا" subtitle="كل رحلة تبدأ بسؤال — لا تتردد" icon="💬" waveColor="rgba(240, 235, 227, 0.78)" />
+      <PageHero title="تواصل معنا" subtitle="كل رحلة تبدأ بسؤال — لا تتردد" icon="💬" waveColor="transparent" />
 
       {/* المحتوى */}
       <div className="container contact-body">
