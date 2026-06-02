@@ -5,9 +5,11 @@ import { useAuth } from "../../context/AuthContext";
 import "./AdminLayout.css";
 
 const NAV = [
-  { path: "/admin/dashboard", icon: "🏠", label: "الرئيسية" },
-  { path: "/admin/trips",     icon: "✈️", label: "الرحلات"  },
-  { path: "/admin/users",     icon: "👥", label: "المستخدمون" },
+  { path: "/admin/dashboard",   icon: "🏠", label: "الرئيسية"       },
+  { path: "/admin/trips",       icon: "✈️", label: "الرحلات"        },
+  { path: "/admin/users",       icon: "👤", label: "المستخدمون"     },
+  { path: "/admin/applicants",  icon: "📩", label: "مسجّلو الرحلات" },
+  { path: "/admin/subscribers", icon: "📋", label: "المشتركون"      },
 ];
 
 const LIBRARY_NAV = [

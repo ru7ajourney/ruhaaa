@@ -31,8 +31,8 @@ import AdminTrips from "./pages/admin/AdminTrips";
 import TripForm from "./pages/admin/TripForm";
 import TripStats from "./pages/admin/TripStats";
 import TripCalculator from "./pages/admin/TripCalculator";
-import AdminUsers from "./pages/admin/AdminUsers";
 import AdminPeople from "./pages/admin/AdminPeople";
+import AdminApplicants from "./pages/admin/AdminApplicants";
 import AdminGallery from "./pages/admin/AdminGallery";
 import AdminLegal from "./pages/admin/AdminLegal";
 import AdminSubscribers from "./pages/admin/AdminSubscribers";
@@ -143,10 +143,11 @@ function App() {
           <Route path="/admin/trips/edit/:id" element={<ProtectedRoute><SuperRoute><TripForm /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/trips/:id/stats" element={<ProtectedRoute><TripStats /></ProtectedRoute>} />
           <Route path="/admin/calculator" element={<ProtectedRoute><SuperRoute><TripCalculator /></SuperRoute></ProtectedRoute>} />
-          <Route path="/admin/users" element={<ProtectedRoute><AdminPeople /></ProtectedRoute>} />
-          <Route path="/admin/gallery" element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
-          <Route path="/admin/legal" element={<ProtectedRoute><SuperRoute><AdminLegal /></SuperRoute></ProtectedRoute>} />
+          <Route path="/admin/users"       element={<ProtectedRoute><AdminPeople /></ProtectedRoute>} />
+          <Route path="/admin/applicants"  element={<ProtectedRoute><AdminApplicants /></ProtectedRoute>} />
           <Route path="/admin/subscribers" element={<ProtectedRoute><AdminSubscribers /></ProtectedRoute>} />
+          <Route path="/admin/gallery"     element={<ProtectedRoute><AdminGallery /></ProtectedRoute>} />
+          <Route path="/admin/legal"       element={<ProtectedRoute><SuperRoute><AdminLegal /></SuperRoute></ProtectedRoute>} />
           <Route path="/admin/admins" element={<ProtectedRoute><SuperRoute><AdminManagement /></SuperRoute></ProtectedRoute>} />
 
           {/* 404 للأدمن — موحد لأي رابط غير معروف تحت /admin */}
