@@ -68,8 +68,7 @@
 
 /* ── wave effect ────────────────────────────── */
 .contact-page .page-hero-wave {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+    background: linear-gradient(150deg, #faf8f5 0%, #f0ebe3 45%, #e8f4f0 100%);
 }
 
 /* ── المحتوى ─────────────────────────────────── */

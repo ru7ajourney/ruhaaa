@@ -179,7 +179,7 @@ const AdminUsers = () => {
         <h1 className="admin-page-title">المستخدمون</h1>
         <input
           type="text"
-          placeholder="🔍 بحث بالاسم أو الإيميل..."
+          placeholder="🔍 بحث بالاسم أو الإيميل أو الهاتف..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           style={{ padding: "10px 16px", border: "1.5px solid var(--color-border)", borderRadius: "10px", fontSize: "0.9rem", fontFamily: "inherit", width: "240px", outline: "none", background: "#fff" }}
@@ -213,7 +213,7 @@ const AdminUsers = () => {
                     <th>#</th>
                     <th>المستخدم</th>
                     <th>البريد الإلكتروني</th>
-                    <th>رقم الهاتف</th>
+                    <th>رقم الهاتف MARKER123</th>
                     <th>طريقة التسجيل</th>
                     <th>الحالة</th>
                     <th>تاريخ الانضمام</th>

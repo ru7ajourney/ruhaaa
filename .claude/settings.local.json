@@ -43,7 +43,10 @@
       "Read(//tmp/**)",
       "Bash(grep -oE 'create\\\\\\([^\\)]{0,200}\\\\\\)' /tmp/deployed.js)",
       "Bash(grep -oE 'Array\\\\.isArray\\\\\\([^\\)]{1,30}\\\\\\)' /tmp/deployed.js)",
-      "Bash(grep -oE 'Array\\\\.isArray\\\\\\([^\\)]{1,30}\\\\\\)' frontend/dist/assets/index-Cu5QBtgh.js)"
+      "Bash(grep -oE 'Array\\\\.isArray\\\\\\([^\\)]{1,30}\\\\\\)' frontend/dist/assets/index-Cu5QBtgh.js)",
+      "Bash(git add *)",
+      "Bash(grep -E \"\\\\.\\(jsx?|tsx?\\)$\")",
+      "Bash(grep -E \"\\\\.jsx$\")"
     ]
   }
 }
