@@ -131,6 +131,7 @@ export const userAPI = {
   phoneVerifyOtp: (data) => userApi.post("/users/phone-verify-otp", data),
   phoneComplete:  (data) => userApi.post("/users/phone-complete",   data),
   updateName:        (data) => userApi.put("/users/profile/name",            data),
+  deleteAccount:     ()     => userApi.delete("/users/me"),
   requestPhone:      (data) => userApi.post("/users/profile/request-phone",  data),
   verifyPhone:       (data) => userApi.post("/users/profile/verify-phone",   data),
   requestEmail:      (data) => userApi.post("/users/profile/request-email",  data),

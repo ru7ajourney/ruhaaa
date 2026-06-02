@@ -337,9 +337,11 @@ const PhoneSection = ({ user, onUpdate }) => {
 
 // ===== الصفحة الرئيسية =====
 const UserProfile = () => {
-  const { user: ctxUser, login } = useUserAuth();
+  const { user: ctxUser, login, logout } = useUserAuth();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
+  const [user, setUser]           = useState(null);
+  const [deleting, setDeleting]   = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   useEffect(() => {
     if (ctxUser) setUser(ctxUser);
@@ -348,6 +350,18 @@ const UserProfile = () => {
   const handleUpdate = (updatedUser) => {
     setUser(updatedUser);
     login(localStorage.getItem("ruha_user_token"), updatedUser);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleting(true);
+    try {
+      await userAPI.deleteAccount();
+      await logout();
+      navigate("/");
+    } catch {
+      alert("حدث خطأ، حاول مجدداً");
+      setDeleting(false);
+    }
   };
 
   if (!ctxUser) { navigate("/my-account"); return null; }
@@ -369,6 +383,24 @@ const UserProfile = () => {
         </div>
 
         <button className="profile-back-btn" onClick={() => navigate(-1)}>← رجوع</button>
+
+        <div className="profile-delete-zone">
+          {!confirmDelete ? (
+            <button className="profile-delete-btn" onClick={() => setConfirmDelete(true)}>
+              حذف الحساب
+            </button>
+          ) : (
+            <div className="profile-delete-confirm">
+              <p>هل أنت متأكد؟ سيتم حذف حسابك نهائياً ولا يمكن التراجع.</p>
+              <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+                <button className="profile-delete-confirm-btn" onClick={handleDeleteAccount} disabled={deleting}>
+                  {deleting ? "جاري الحذف..." : "نعم، احذف حسابي"}
+                </button>
+                <button className="profile-cancel-inline" onClick={() => setConfirmDelete(false)}>إلغاء</button>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

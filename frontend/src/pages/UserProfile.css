@@ -218,3 +218,46 @@
   text-align: center;
 }
 .profile-back-btn:hover { color: var(--color-primary); }
+
+.profile-delete-zone {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.profile-delete-btn {
+  background: none;
+  border: 1.5px solid #fca5a5;
+  color: #dc2626;
+  border-radius: 8px;
+  padding: 9px 20px;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.profile-delete-btn:hover { background: #fef2f2; }
+
+.profile-delete-confirm {
+  text-align: center;
+}
+.profile-delete-confirm p {
+  font-size: 0.88rem;
+  color: #dc2626;
+  margin: 0 0 14px;
+  line-height: 1.6;
+}
+
+.profile-delete-confirm-btn {
+  padding: 10px 18px;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.profile-delete-confirm-btn:disabled { opacity: 0.6; cursor: not-allowed; }

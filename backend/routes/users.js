@@ -706,6 +706,16 @@ router.post("/profile/verify-email", protectUser, async (req, res) => {
   }
 });
 
+// DELETE /api/users/me — حذف الحساب الشخصي
+router.delete("/me", protectUser, async (req, res) => {
+  try {
+    await User.findByIdAndDelete(req.user._id);
+    res.json({ message: "تم حذف الحساب بنجاح" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 // GET /api/users/my-applications — جلب طلبات المستخدم بالإيميل
 router.get("/my-applications", protectUser, async (req, res) => {
   try {
