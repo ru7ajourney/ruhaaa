@@ -130,10 +130,11 @@ export const userAPI = {
   phoneSendOtp:   (data) => userApi.post("/users/phone-send-otp",   data),
   phoneVerifyOtp: (data) => userApi.post("/users/phone-verify-otp", data),
   phoneComplete:  (data) => userApi.post("/users/phone-complete",   data),
-  updateName:        (data) => userApi.put("/users/profile/name",           data),
-  updatePhone:       (data) => userApi.put("/users/profile/phone",          data),
-  requestEmail:      (data) => userApi.post("/users/profile/request-email", data),
-  verifyEmail:       (data) => userApi.post("/users/profile/verify-email",  data),
+  updateName:        (data) => userApi.put("/users/profile/name",            data),
+  requestPhone:      (data) => userApi.post("/users/profile/request-phone",  data),
+  verifyPhone:       (data) => userApi.post("/users/profile/verify-phone",   data),
+  requestEmail:      (data) => userApi.post("/users/profile/request-email",  data),
+  verifyEmail:       (data) => userApi.post("/users/profile/verify-email",   data),
 };
 
 // ==============================

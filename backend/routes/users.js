@@ -608,23 +608,46 @@ router.put("/profile/name", protectUser, async (req, res) => {
   }
 });
 
-// PUT /api/users/profile/phone  (لمستخدمي الإيميل فقط)
-router.put("/profile/phone", protectUser, async (req, res) => {
+// POST /api/users/profile/request-phone — يرسل OTP واتساب للرقم الجديد
+router.post("/profile/request-phone", protectUser, async (req, res) => {
   try {
     const isPhoneUser = req.user.email?.endsWith("@ruha.internal");
     if (isPhoneUser) return res.status(400).json({ message: "لا يمكن تغيير رقم الهاتف من هنا" });
     if (daysLeft(req.user.phoneChangedAt) > 0)
       return res.status(400).json({ message: `لا يمكن تغيير الرقم — يتاح بعد ${daysLeft(req.user.phoneChangedAt)} يوم` });
     const { phone } = req.body;
-    let normalized = null;
-    if (phone?.trim()) {
-      normalized = normalizePhone(phone);
-      const taken = await User.findOne({ phone: normalized, _id: { $ne: req.user._id } });
-      if (taken) return res.status(400).json({ message: "هذا الرقم مرتبط بحساب آخر" });
-    }
+    if (!phone?.trim()) return res.status(400).json({ message: "رقم الهاتف مطلوب" });
+    const normalized = normalizePhone(phone);
+    const taken = await User.findOne({ phone: normalized, _id: { $ne: req.user._id } });
+    if (taken) return res.status(400).json({ message: "هذا الرقم مرتبط بحساب آخر" });
+    const otp = generateOtp();
+    await User.findByIdAndUpdate(req.user._id, {
+      pendingPhone:           normalized,
+      pendingPhoneOtp:        otp,
+      pendingPhoneOtpExpires: new Date(Date.now() + 10 * 60 * 1000),
+    });
+    await sendWhatsAppOtp(normalized, otp);
+    res.json({ message: "تم إرسال كود التحقق عبر واتساب" });
+  } catch (err) {
+    res.status(500).json({ message: err.message || "فشل إرسال الكود" });
+  }
+});
+
+// POST /api/users/profile/verify-phone — يتحقق من الكود ويحفظ الرقم
+router.post("/profile/verify-phone", protectUser, async (req, res) => {
+  try {
+    const { otp } = req.body;
+    const u = await User.findById(req.user._id);
+    if (!u.pendingPhone || !u.pendingPhoneOtp) return res.status(400).json({ message: "لا يوجد طلب تحقق نشط" });
+    if (u.pendingPhoneOtp !== otp) return res.status(400).json({ message: "الكود غير صحيح" });
+    if (new Date() > u.pendingPhoneOtpExpires) return res.status(400).json({ message: "انتهت صلاحية الكود" });
     const updated = await User.findByIdAndUpdate(
-      req.user._id,
-      { phone: normalized, phoneChangedAt: new Date() },
+      u._id,
+      {
+        phone: u.pendingPhone,
+        phoneChangedAt: new Date(),
+        pendingPhone: null, pendingPhoneOtp: null, pendingPhoneOtpExpires: null,
+      },
       { new: true }
     );
     res.json({ user: buildUserPayload(updated) });

@@ -202,38 +202,55 @@ const EmailSection = ({ user, onUpdate }) => {
 // ===== قسم الهاتف =====
 const PhoneSection = ({ user, onUpdate }) => {
   const geo = useGeo();
-  const [editing, setEditing]   = useState(false);
+  const [step, setStep]         = useState("view"); // view | enter | otp
   const [dialCode, setDialCode] = useState("");
   const [local, setLocal]       = useState("");
+  const [otp, setOtp]           = useState("");
   const [loading, setLoading]   = useState(false);
   const [error, setError]       = useState("");
+  const [cooldown, setCooldown] = useState(0);
   const locked = user.phoneDaysLeft > 0;
+
+  const startCooldown = () => {
+    setCooldown(60);
+    const t = setInterval(() => setCooldown((c) => { if (c <= 1) { clearInterval(t); return 0; } return c - 1; }), 1000);
+  };
 
   const startEdit = () => {
     if (user.phone) {
-      // إذا عنده رقم حالي — قسّمه
       const { dialCode: d, local: l } = splitPhone(user.phone);
       setDialCode(d || findDialCode(geo?.country || "SA") || "+966");
       setLocal(l);
     } else {
-      // رقم جديد — اختر كود الدولة من الـ geo
       const geoCode = geo !== null ? findDialCode(geo?.country || "SA") : "+966";
       setDialCode(geoCode || "+966");
       setLocal("");
     }
-    setEditing(true);
+    setStep("enter");
     setError("");
   };
 
-  const save = async () => {
+  const sendOtp = async () => {
     setError(""); setLoading(true);
     try {
-      const phone = local.trim() ? dialCode + local.replace(/^0+/, "") : "";
-      const { data } = await userAPI.updatePhone({ phone });
-      onUpdate(data.user);
-      setEditing(false);
+      const phone = dialCode + local.replace(/^0+/, "");
+      await userAPI.requestPhone({ phone });
+      setStep("otp");
+      setOtp("");
+      startCooldown();
     } catch (err) {
-      setError(err.response?.data?.message || "حدث خطأ");
+      setError(err.response?.data?.message || "فشل إرسال الكود");
+    } finally { setLoading(false); }
+  };
+
+  const verify = async () => {
+    setError(""); setLoading(true);
+    try {
+      const { data } = await userAPI.verifyPhone({ otp });
+      onUpdate(data.user);
+      setStep("view");
+    } catch (err) {
+      setError(err.response?.data?.message || "الكود غير صحيح");
     } finally { setLoading(false); }
   };
 
@@ -251,18 +268,25 @@ const PhoneSection = ({ user, onUpdate }) => {
     );
   }
 
+  const fullPhone = dialCode + local.replace(/^0+/, "");
+
   return (
     <div className="profile-section">
       <div className="profile-section-header">
         <span className="profile-section-label">رقم الهاتف</span>
-        {locked ? <DaysLock days={user.phoneDaysLeft} /> : !editing && (
-          <button className="profile-edit-btn" onClick={startEdit}>
-            {user.phone ? "تعديل" : "إضافة"}
-          </button>
+        {step === "view" && (locked
+          ? <DaysLock days={user.phoneDaysLeft} />
+          : <button className="profile-edit-btn" onClick={startEdit}>{user.phone ? "تعديل" : "إضافة"}</button>
         )}
       </div>
 
-      {editing ? (
+      {step === "view" && (
+        <p className={`profile-value${!user.phone ? " profile-value--empty" : ""}`} style={{ direction: "ltr", textAlign: "right" }}>
+          {user.phone || "لم يُضف بعد"}
+        </p>
+      )}
+
+      {step === "enter" && (
         <>
           <div className="profile-phone-combo">
             <PhoneCountryPicker value={dialCode} onChange={setDialCode} />
@@ -277,17 +301,44 @@ const PhoneSection = ({ user, onUpdate }) => {
             />
           </div>
           <div className="profile-inline-actions">
-            <button className="profile-save-inline" onClick={save} disabled={loading || (!local && !user.phone)}>
-              {loading ? "..." : "حفظ"}
+            <button className="profile-save-inline" onClick={sendOtp} disabled={loading || local.length < 6}>
+              {loading ? "..." : "إرسال الكود عبر واتساب"}
             </button>
-            <button className="profile-cancel-inline" onClick={() => setEditing(false)}>إلغاء</button>
+            <button className="profile-cancel-inline" onClick={() => setStep("view")}>إلغاء</button>
           </div>
         </>
-      ) : (
-        <p className={`profile-value${!user.phone ? " profile-value--empty" : ""}`} style={{ direction: "ltr", textAlign: "right" }}>
-          {user.phone || "لم يُضف بعد"}
-        </p>
       )}
+
+      {step === "otp" && (
+        <>
+          <p className="profile-otp-hint">
+            أرسلنا كود تحقق عبر واتساب إلى{" "}
+            <strong style={{ direction: "ltr", display: "inline-block" }}>{fullPhone}</strong>
+          </p>
+          <div className="profile-edit-row">
+            <input
+              className="profile-input profile-otp-input"
+              type="text"
+              inputMode="numeric"
+              maxLength={6}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
+              placeholder="_ _ _ _ _ _"
+              autoFocus
+            />
+            <button className="profile-save-inline" onClick={verify} disabled={loading || otp.length < 6}>
+              {loading ? "..." : "تحقق"}
+            </button>
+          </div>
+          <button className="profile-resend-btn" onClick={sendOtp} disabled={cooldown > 0}>
+            {cooldown > 0 ? `إعادة الإرسال بعد ${cooldown}ث` : "إعادة الإرسال"}
+          </button>
+          <button className="profile-cancel-inline" style={{ marginTop: 4 }} onClick={() => setStep("enter")}>
+            ← تغيير الرقم
+          </button>
+        </>
+      )}
+
       {error && <p className="profile-field-error">{error}</p>}
     </div>
   );
