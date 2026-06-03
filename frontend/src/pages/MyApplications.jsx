@@ -14,9 +14,59 @@ const STATUS_MAP = {
   confirmed: { label: "مسجّل رسمياً 🎉", color: "#065f46", bg: "#d1fae5" },
 };
 
+const CostModal = ({ app, onClose }) => {
+  const cur = app.trip?.currency || "USD";
+  const basePrice = app.trip?.price || 0;
+  const extras = app.selectedExtras || [];
+  const extrasTotal = app.extrasTotal || 0;
+  const total = basePrice + extrasTotal;
+  const deposit = app.paidAmount || 0;
+  const remaining = Math.max(0, total - deposit);
+
+  return (
+    <div className="cost-modal-overlay" onClick={onClose}>
+      <div className="cost-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="cost-modal-header">
+          <h3>تفاصيل التكاليف</h3>
+          <button className="cost-modal-close" onClick={onClose}>✕</button>
+        </div>
+        <div className="cost-modal-body">
+          <div className="cost-modal-row">
+            <span>✈️ الرحلة الأساسية</span>
+            <span>{basePrice} {cur}</span>
+          </div>
+          {extras.map((e, i) => (
+            <div key={i} className="cost-modal-row cost-modal-row--extra">
+              <span>✨ {e.title}</span>
+              <span>+{e.price} {cur}</span>
+            </div>
+          ))}
+          <div className="cost-modal-row cost-modal-row--total">
+            <span>الإجمالي</span>
+            <strong>{total} {cur}</strong>
+          </div>
+          {deposit > 0 && (
+            <>
+              <div className="cost-modal-row cost-modal-row--paid">
+                <span>✅ المدفوع (عربون)</span>
+                <span>- {deposit} {app.paidCurrency || cur}</span>
+              </div>
+              <div className="cost-modal-row cost-modal-row--remaining">
+                <span>المتبقي</span>
+                <strong>{remaining} {cur}</strong>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const MyApplications = () => {
   const { user, loading: authLoading } = useUserAuth();
   const navigate = useNavigate();
+  const [costModalApp, setCostModalApp] = useState(null);
 
   useEffect(() => {
     if (!authLoading && !user) navigate("/my-account");
@@ -53,6 +103,7 @@ const MyApplications = () => {
 
   return (
     <div className="my-apps-page">
+      {costModalApp && <CostModal app={costModalApp} onClose={() => setCostModalApp(null)} />}
       <PageHero title="طلباتي" subtitle={`أهلاً ${user?.fullName?.split(" ")[0]} — هنا تجد كل طلباتك`} icon="📋" />
       <div className="container my-apps-body">
 
@@ -84,25 +135,16 @@ const MyApplications = () => {
                     </p>
                     <p className="app-date">تاريخ التقديم: {formatDate(app.createdAt)}</p>
 
-                    {/* تفصيل التكاليف */}
-                    {(app.trip?.price > 0 || app.selectedExtras?.length > 0) && (
-                      <div className="app-cost-breakdown">
-                        <div className="app-cost-row">
-                          <span>الرحلة الأساسية</span>
-                          <span>{app.trip?.price} {app.trip?.currency || "USD"}</span>
-                        </div>
-                        {app.selectedExtras?.map((e, i) => (
-                          <div key={i} className="app-cost-row app-cost-row--extra">
-                            <span>➕ {e.title}</span>
-                            <span>+{e.price} {app.trip?.currency || "USD"}</span>
-                          </div>
-                        ))}
-                        {app.selectedExtras?.length > 0 && (
-                          <div className="app-cost-row app-cost-row--total">
-                            <span>الإجمالي</span>
-                            <strong>{(app.trip?.price || 0) + (app.extrasTotal || 0)} {app.trip?.currency || "USD"}</strong>
-                          </div>
-                        )}
+                    {/* التكلفة الإجمالية */}
+                    {app.trip?.price > 0 && (
+                      <div className="app-cost-summary">
+                        <span className="app-cost-label">التكلفة الإجمالية</span>
+                        <span className="app-cost-total">
+                          {(app.trip.price) + (app.extrasTotal || 0)} {app.trip.currency || "USD"}
+                        </span>
+                        <button className="app-cost-details-btn" onClick={() => setCostModalApp(app)}>
+                          عرض التفاصيل
+                        </button>
                       </div>
                     )}
 
