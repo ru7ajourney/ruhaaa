@@ -346,47 +346,6 @@ const Register = () => {
           </div>
 
           {/* ==============================
-              الفعاليات الإضافية
-              ============================== */}
-          {(() => {
-            const currentTrip = trip || trips.find((t) => t._id === form.tripId);
-            if (!currentTrip?.extras?.length) return null;
-            return (
-              <div className="register-section">
-                <h3 className="register-section-title">✨ فعاليات إضافية اختيارية</h3>
-                <p className="questions-note">اختر الفعاليات التي تريد إضافتها — ستُضاف تكلفتها للمبلغ الإجمالي</p>
-                <div className="extras-register-list">
-                  {currentTrip.extras.map((extra) => {
-                    const isSelected = selectedExtras.some((e) => e._id === extra._id);
-                    return (
-                      <label key={extra._id} className={`extras-register-item${isSelected ? " extras-register-item--on" : ""}`}>
-                        <input
-                          type="checkbox"
-                          checked={isSelected}
-                          onChange={() => toggleExtra(extra)}
-                          className="extras-register-check"
-                        />
-                        <div className="extras-register-info">
-                          <span className="extras-register-name">{extra.title}</span>
-                          {extra.description && <span className="extras-register-desc">{extra.description}</span>}
-                          {extra.scheduleDay != null && <span className="extras-register-day">📅 يوم {extra.scheduleDay}</span>}
-                        </div>
-                        <span className="extras-register-price">+{extra.price} {currentTrip.currency}</span>
-                      </label>
-                    );
-                  })}
-                </div>
-                {extrasTotal > 0 && (
-                  <div className="extras-register-total">
-                    <span>السعر الإجمالي</span>
-                    <strong>{currentTrip.price + extrasTotal} {currentTrip.currency}</strong>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-
-          {/* ==============================
               البيانات الشخصية
               ============================== */}
           <div className="register-section">
@@ -638,6 +597,47 @@ const Register = () => {
               <div className="char-count">{form.aboutMe.length} / 1000</div>
             </div>
           </div>
+
+          {/* ==============================
+              الفعاليات الإضافية
+              ============================== */}
+          {(() => {
+            const currentTrip = trip || trips.find((t) => t._id === form.tripId);
+            if (!currentTrip?.extras?.length) return null;
+            return (
+              <div className="register-section">
+                <h3 className="register-section-title">✨ فعاليات إضافية اختيارية</h3>
+                <p className="questions-note">اختر الفعاليات التي تريد إضافتها — ستُضاف تكلفتها للمبلغ الإجمالي</p>
+                <div className="extras-register-list">
+                  {currentTrip.extras.map((extra) => {
+                    const isSelected = selectedExtras.some((e) => e._id === extra._id);
+                    return (
+                      <label key={extra._id} className={`extras-register-item${isSelected ? " extras-register-item--on" : ""}`}>
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => toggleExtra(extra)}
+                          className="extras-register-check"
+                        />
+                        <div className="extras-register-info">
+                          <span className="extras-register-name">{extra.title}</span>
+                          {extra.description && <span className="extras-register-desc">{extra.description}</span>}
+                          {extra.scheduleDay != null && <span className="extras-register-day">📅 يوم {extra.scheduleDay}</span>}
+                        </div>
+                        <span className="extras-register-price">+{extra.price} {currentTrip.currency}</span>
+                      </label>
+                    );
+                  })}
+                </div>
+                {extrasTotal > 0 && (
+                  <div className="extras-register-total">
+                    <span>السعر الإجمالي</span>
+                    <strong>{currentTrip.price + extrasTotal} {currentTrip.currency}</strong>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {/* ==============================
               الموافقة على السياسات

@@ -204,45 +204,6 @@ const TripDetail = () => {
                 )}
               </div>
 
-              {/* الفعاليات الإضافية */}
-              {trip.extras?.length > 0 && (
-                <div className="extras-section">
-                  <h4 className="extras-title">✨ فعاليات إضافية اختيارية</h4>
-                  <div className="extras-list">
-                    {trip.extras.map((extra) => {
-                      const isSelected = selectedExtras.some((e) => e._id === extra._id);
-                      return (
-                        <div key={extra._id} className={`extra-item${isSelected ? " extra-item--selected" : ""}`}>
-                          <div className="extra-info" onClick={() => {
-                            if (extra.scheduleDay != null) {
-                              setProgramOpen(true);
-                              setHighlightDay(extra.scheduleDay);
-                              document.querySelector(".program-accordion-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                            }
-                          }}>
-                            <span className="extra-name">{extra.title}</span>
-                            {extra.description && <span className="extra-desc">{extra.description}</span>}
-                            {extra.scheduleDay != null && (
-                              <span className="extra-day-badge">📅 يوم {extra.scheduleDay}</span>
-                            )}
-                          </div>
-                          <div className="extra-actions">
-                            <span className="extra-price">+{extra.price} {trip.currency}</span>
-                            <button
-                              className={`extra-toggle-btn${isSelected ? " extra-toggle-btn--remove" : ""}`}
-                              onClick={() => toggleExtra(extra)}
-                            >
-                              {isSelected ? "إزالة" : "إضافة"}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-
               {/* التواريخ المتاحة */}
               <div className="booking-dates">
                 <h4>التواريخ المتاحة</h4>
@@ -301,6 +262,54 @@ const TripDetail = () => {
             </div>
           </aside>
         </div>
+        {/* ==============================
+            كرت الفعاليات الإضافية
+            ============================== */}
+        {trip.extras?.length > 0 && (
+          <div className="extras-card">
+            <div className="extras-card-header">
+              <h2>✨ فعاليات إضافية اختيارية</h2>
+              <p>اختر ما يناسبك — ستُضاف تكلفتها للمبلغ الإجمالي</p>
+            </div>
+            <div className="extras-card-list">
+              {trip.extras.map((extra) => {
+                const isSelected = selectedExtras.some((e) => e._id === extra._id);
+                return (
+                  <div key={extra._id} className={`extra-item${isSelected ? " extra-item--selected" : ""}`}>
+                    <div className="extra-info" onClick={() => {
+                      if (extra.scheduleDay != null) {
+                        setProgramOpen(true);
+                        setHighlightDay(extra.scheduleDay);
+                        document.querySelector(".program-accordion-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      }
+                    }}>
+                      <span className="extra-name">{extra.title}</span>
+                      {extra.description && <span className="extra-desc">{extra.description}</span>}
+                      {extra.scheduleDay != null && (
+                        <span className="extra-day-badge">📅 يوم {extra.scheduleDay}</span>
+                      )}
+                    </div>
+                    <div className="extra-actions">
+                      <span className="extra-price">+{extra.price} {trip.currency}</span>
+                      <button
+                        className={`extra-toggle-btn${isSelected ? " extra-toggle-btn--remove" : ""}`}
+                        onClick={() => toggleExtra(extra)}
+                      >
+                        {isSelected ? "إزالة" : "إضافة"}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {extrasTotal > 0 && (
+              <div className="extras-card-total">
+                <span>الإجمالي مع الإضافات</span>
+                <strong>{trip.price + extrasTotal} {trip.currency}</strong>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -302,17 +302,58 @@
 /* ==============================
    الفعاليات الإضافية
    ============================== */
-.extras-section {
-  border-top: 1px solid var(--color-border);
-  padding-top: 16px;
-  margin-bottom: 16px;
+/* ==============================
+   كرت الفعاليات الإضافية (مستقل)
+   ============================== */
+.extras-card {
+  margin-top: 32px;
+  background: var(--color-white);
+  border-radius: var(--radius-lg);
+  border: 1.5px solid var(--color-border);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
 }
 
-.extras-title {
-  font-size: 0.88rem;
-  font-weight: 700;
+.extras-card-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.extras-card-header h2 {
+  font-size: 1.15rem;
+  font-weight: 800;
   color: var(--color-secondary);
-  margin: 0 0 12px;
+  margin: 0 0 4px;
+}
+
+.extras-card-header p {
+  font-size: 0.88rem;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.extras-card-list {
+  padding: 16px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.extras-card-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-top: 1px solid var(--color-border);
+  background: var(--color-primary-light);
+  font-size: 0.95rem;
+  color: var(--color-text);
+}
+
+.extras-card-total strong {
+  font-size: 1.1rem;
+  color: var(--color-primary);
+  font-weight: 800;
 }
 
 .extras-list {
