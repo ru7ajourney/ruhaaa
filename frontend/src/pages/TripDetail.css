@@ -300,125 +300,56 @@
 }
 
 /* ==============================
-   الفعاليات الإضافية
+   الفعاليات الإضافية داخل اليوم
    ============================== */
-/* ==============================
-   كرت الفعاليات الإضافية (مستقل)
-   ============================== */
-.extras-card {
-  margin-top: 32px;
-  background: var(--color-white);
-  border-radius: var(--radius-lg);
-  border: 1.5px solid var(--color-border);
-  box-shadow: var(--shadow-sm);
-  overflow: hidden;
-}
-
-.extras-card-header {
-  padding: 20px 24px 16px;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.extras-card-header h2 {
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: var(--color-secondary);
-  margin: 0 0 4px;
-}
-
-.extras-card-header p {
-  font-size: 0.88rem;
-  color: var(--color-text-light);
-  margin: 0;
-}
-
-.extras-card-list {
-  padding: 16px 24px;
+.day-extras {
+  margin-top: 10px;
   display: flex;
   flex-direction: column;
+  gap: 6px;
+}
+
+.day-extra-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 10px;
-}
-
-.extras-card-total {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 24px;
-  border-top: 1px solid var(--color-border);
+  padding: 8px 12px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 8px;
   background: var(--color-primary-light);
-  font-size: 0.95rem;
-  color: var(--color-text);
+  transition: background 0.2s, border-color 0.2s;
 }
 
-.extras-card-total strong {
-  font-size: 1.1rem;
-  color: var(--color-primary);
-  font-weight: 800;
-}
-
-.extras-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.extra-item {
-  border: 1.5px solid var(--color-border);
-  border-radius: 10px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background: var(--color-bg);
-  transition: border-color 0.2s, background 0.2s;
-}
-
-.extra-item--selected {
+.day-extra-item--selected {
+  background: #fff3e0;
   border-color: var(--color-primary);
-  background: var(--color-primary-light);
 }
 
-.extra-info {
-  flex: 1;
-  cursor: pointer;
-  min-width: 0;
-}
+.day-extra-info { flex: 1; min-width: 0; }
 
-.extra-name {
+.day-extra-name {
   display: block;
-  font-size: 0.88rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--color-secondary);
 }
 
-.extra-desc {
+.day-extra-desc {
   display: block;
   font-size: 0.78rem;
   color: var(--color-text-light);
   margin-top: 2px;
 }
 
-.extra-day-badge {
-  display: inline-block;
-  font-size: 0.72rem;
-  color: var(--color-primary);
-  background: var(--color-primary-light);
-  border-radius: 10px;
-  padding: 1px 7px;
-  margin-top: 4px;
-  cursor: pointer;
-}
-
-.extra-actions {
+.day-extra-actions {
   display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+  align-items: center;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-.extra-price {
+.day-extra-price {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--color-primary);
@@ -438,27 +369,20 @@
   white-space: nowrap;
 }
 
-.extra-toggle-btn:hover {
-  background: var(--color-primary);
-  color: white;
-}
+.extra-toggle-btn:hover { background: var(--color-primary); color: white; }
 
-.extra-toggle-btn--remove {
-  border-color: #dc2626;
-  color: #dc2626;
-}
+.extra-toggle-btn--remove { border-color: #dc2626; color: #dc2626; }
+.extra-toggle-btn--remove:hover { background: #dc2626; color: white; }
 
-.extra-toggle-btn--remove:hover {
-  background: #dc2626;
-  color: white;
-}
-
-/* تظليل اليوم في البرنامج */
-.program-day--highlight {
-  border-color: var(--color-primary) !important;
-  background: var(--color-primary-light) !important;
-  box-shadow: 0 0 0 3px rgba(200, 98, 42, 0.15);
-  transition: all 0.3s;
+/* تلميح في كرت الحجز */
+.booking-extras-hint {
+  font-size: 0.82rem;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  text-align: center;
 }
 
 .booking-dates h4 {

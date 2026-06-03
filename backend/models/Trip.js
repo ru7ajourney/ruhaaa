@@ -10,7 +10,7 @@ const ExtraSchema = new mongoose.Schema({
   title:       { type: String, required: true },
   description: { type: String, default: "" },
   price:       { type: Number, required: true },
-  scheduleDay: { type: Number, default: null }, // رقم اليوم في البرنامج (day.day)
+  scheduleDay: { type: Number, required: true }, // رقم اليوم في البرنامج (day.day)
 });
 
 // ==============================

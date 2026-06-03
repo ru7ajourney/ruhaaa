@@ -507,7 +507,8 @@ const TripForm = () => {
                 الفعاليات الإضافية
                 ============================== */}
                         <div className="form-section">
-                            <h3 className="form-section-title">✨ الفعاليات الإضافية (اختيارية)</h3>
+                            <h3 className="form-section-title">✨ الفعاليات الإضافية</h3>
+                            <p style={{ fontSize: "0.82rem", color: "var(--color-text-light)", margin: "0 0 12px" }}>كل فعالية لازم يكون إلها يوم محدد من البرنامج اليومي</p>
 
                             {(form.extras || []).map((extra, i) => (
                                 <div key={i} className="dynamic-row program-row" style={{ alignItems: "flex-start" }}>
@@ -517,6 +518,7 @@ const TripForm = () => {
                                             value={extra.title}
                                             onChange={(e) => handleExtraChange(i, "title", e.target.value)}
                                             placeholder="اسم الفعالية (مثال: جولة في القارب)"
+                                            required
                                         />
                                         <input
                                             className="form-input"
@@ -529,17 +531,21 @@ const TripForm = () => {
                                             <input
                                                 className="form-input"
                                                 type="number"
+                                                min="0"
                                                 value={extra.price}
                                                 onChange={(e) => handleExtraChange(i, "price", Number(e.target.value))}
-                                                placeholder="السعر"
+                                                placeholder="السعر *"
+                                                required
                                                 style={{ flex: 1 }}
                                             />
                                             <input
                                                 className="form-input"
                                                 type="number"
+                                                min="1"
                                                 value={extra.scheduleDay ?? ""}
                                                 onChange={(e) => handleExtraChange(i, "scheduleDay", e.target.value === "" ? null : Number(e.target.value))}
-                                                placeholder="رقم اليوم (اختياري)"
+                                                placeholder="رقم اليوم *"
+                                                required
                                                 style={{ flex: 1 }}
                                             />
                                         </div>
