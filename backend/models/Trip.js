@@ -4,6 +4,16 @@
 const mongoose = require("mongoose");
 
 // ==============================
+// Schema للفعاليات الإضافية
+// ==============================
+const ExtraSchema = new mongoose.Schema({
+  title:       { type: String, required: true },
+  description: { type: String, default: "" },
+  price:       { type: Number, required: true },
+  scheduleDay: { type: Number, default: null }, // رقم اليوم في البرنامج (day.day)
+});
+
+// ==============================
 // Schema للبرنامج اليومي للرحلة
 // ==============================
 const DaySchema = new mongoose.Schema({
@@ -75,6 +85,7 @@ const TripSchema = new mongoose.Schema(
     },
     images: [String], // روابط صور إضافية
     program: [DaySchema],             // البرنامج اليومي
+    extras: [ExtraSchema],            // الفعاليات الإضافية بتكلفة إضافية
     availableDates: [AvailableDateSchema], // التواريخ المتاحة
     includes: [String],   // ماذا يشمل السعر - مثل ["السكن", "المواصلات"]
     excludes: [String],   // ماذا لا يشمل - مثل ["تذاكر الطيران"]

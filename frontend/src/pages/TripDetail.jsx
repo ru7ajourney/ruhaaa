@@ -1,13 +1,21 @@
 // src/pages/TripDetail.jsx
 // صفحة تفاصيل الرحلة الكاملة
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { tripsAPI } from "../api";
 import "./TripDetail.css";
 
 
-const ProgramAccordion = ({ program, open, onToggle }) => {
+const ProgramAccordion = ({ program, open, onToggle, highlightDay }) => {
+  const dayRefs = useRef({});
+
+  useEffect(() => {
+    if (highlightDay != null && open && dayRefs.current[highlightDay]) {
+      dayRefs.current[highlightDay].scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  }, [highlightDay, open]);
+
   return (
     <section className="detail-section">
       <div className={`program-accordion-header${open ? " program-accordion-open" : ""}`} onClick={onToggle}>
@@ -16,7 +24,11 @@ const ProgramAccordion = ({ program, open, onToggle }) => {
       </div>
       <div className={`program-list${open ? " program-list-open" : ""}`}>
         {program.map((day) => (
-          <div key={day._id} className="program-day">
+          <div
+            key={day._id}
+            ref={(el) => { dayRefs.current[day.day] = el; }}
+            className={`program-day${highlightDay === day.day ? " program-day--highlight" : ""}`}
+          >
             <div className="day-number">يوم {day.day}</div>
             <div className="day-content">
               <h4>{day.title}</h4>
@@ -30,11 +42,13 @@ const ProgramAccordion = ({ program, open, onToggle }) => {
 };
 
 const TripDetail = () => {
-  const { slug } = useParams(); // الـ slug من الرابط
+  const { slug } = useParams();
   const [trip, setTrip] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [programOpen, setProgramOpen] = useState(false);
+  const [selectedExtras, setSelectedExtras] = useState([]);
+  const [highlightDay, setHighlightDay] = useState(null);
 
   useEffect(() => {
     const fetchTrip = async () => {
@@ -53,6 +67,28 @@ const TripDetail = () => {
     };
     fetchTrip();
   }, [slug]);
+
+  const toggleExtra = (extra) => {
+    const isSelected = selectedExtras.some((e) => e._id === extra._id);
+    if (isSelected) {
+      setSelectedExtras((prev) => prev.filter((e) => e._id !== extra._id));
+      setHighlightDay(null);
+    } else {
+      setSelectedExtras((prev) => [...prev, extra]);
+      if (extra.scheduleDay != null) {
+        setProgramOpen(true);
+        setHighlightDay(extra.scheduleDay);
+      }
+    }
+  };
+
+  const extrasTotal = selectedExtras.reduce((sum, e) => sum + (e.price || 0), 0);
+
+  const buildRegisterUrl = () => {
+    const base = `/register?trip=${trip._id}`;
+    if (selectedExtras.length === 0) return base;
+    return `${base}&extras=${selectedExtras.map((e) => e._id).join(",")}`;
+  };
 
   const formatDate = (dateStr) => {
     const d = new Date(dateStr);
@@ -113,7 +149,12 @@ const TripDetail = () => {
 
             {/* البرنامج اليومي */}
             {trip.program?.length > 0 && (
-              <ProgramAccordion program={trip.program} open={programOpen} onToggle={() => setProgramOpen(!programOpen)} />
+              <ProgramAccordion
+                program={trip.program}
+                open={programOpen}
+                onToggle={() => { setProgramOpen(!programOpen); if (programOpen) setHighlightDay(null); }}
+                highlightDay={highlightDay}
+              />
             )}
 
             {/* يشمل / لا يشمل */}
@@ -149,9 +190,57 @@ const TripDetail = () => {
           <aside className={`trip-detail-sidebar${programOpen ? " sidebar-sticky" : ""}`}>
             <div className="booking-card">
               <div className="booking-price">
-                <span className="big-price">{trip.price}</span>
-                <span className="price-unit">{trip.currency} / شخص</span>
+                {extrasTotal > 0 ? (
+                  <>
+                    <span className="big-price">{trip.price + extrasTotal}</span>
+                    <span className="price-unit">{trip.currency} / شخص</span>
+                    <span className="price-base-note">الرحلة الأساسية: {trip.price} {trip.currency}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="big-price">{trip.price}</span>
+                    <span className="price-unit">{trip.currency} / شخص</span>
+                  </>
+                )}
               </div>
+
+              {/* الفعاليات الإضافية */}
+              {trip.extras?.length > 0 && (
+                <div className="extras-section">
+                  <h4 className="extras-title">✨ فعاليات إضافية اختيارية</h4>
+                  <div className="extras-list">
+                    {trip.extras.map((extra) => {
+                      const isSelected = selectedExtras.some((e) => e._id === extra._id);
+                      return (
+                        <div key={extra._id} className={`extra-item${isSelected ? " extra-item--selected" : ""}`}>
+                          <div className="extra-info" onClick={() => {
+                            if (extra.scheduleDay != null) {
+                              setProgramOpen(true);
+                              setHighlightDay(extra.scheduleDay);
+                              document.querySelector(".program-accordion-header")?.scrollIntoView({ behavior: "smooth", block: "start" });
+                            }
+                          }}>
+                            <span className="extra-name">{extra.title}</span>
+                            {extra.description && <span className="extra-desc">{extra.description}</span>}
+                            {extra.scheduleDay != null && (
+                              <span className="extra-day-badge">📅 يوم {extra.scheduleDay}</span>
+                            )}
+                          </div>
+                          <div className="extra-actions">
+                            <span className="extra-price">+{extra.price} {trip.currency}</span>
+                            <button
+                              className={`extra-toggle-btn${isSelected ? " extra-toggle-btn--remove" : ""}`}
+                              onClick={() => toggleExtra(extra)}
+                            >
+                              {isSelected ? "إزالة" : "إضافة"}
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
 
               {/* التواريخ المتاحة */}
@@ -201,7 +290,7 @@ const TripDetail = () => {
 
               {/* زر التسجيل */}
               <Link
-                to={`/register?trip=${trip._id}`}
+                to={buildRegisterUrl()}
                 className="btn btn-primary booking-btn"
               >
                 📝 سجّل في هذه الرحلة

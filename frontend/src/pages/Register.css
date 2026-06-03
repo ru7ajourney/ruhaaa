@@ -342,3 +342,87 @@
     width: 100%;
   }
 }
+
+/* ==============================
+   الإضافات في نموذج التسجيل
+   ============================== */
+.extras-register-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.extras-register-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  background: var(--color-bg);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.extras-register-item--on {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.extras-register-check {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.extras-register-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.extras-register-name {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.extras-register-desc {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+}
+
+.extras-register-day {
+  font-size: 0.75rem;
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.extras-register-price {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.extras-register-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: var(--color-primary-light);
+  border-radius: 8px;
+  border: 1px solid var(--color-accent);
+  font-size: 0.92rem;
+  color: var(--color-text);
+}
+
+.extras-register-total strong {
+  font-size: 1.05rem;
+  color: var(--color-primary);
+}

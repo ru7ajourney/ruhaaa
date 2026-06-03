@@ -146,6 +146,16 @@ const ApplicationSchema = new mongoose.Schema(
       default: "none",
     },
 
+    // الفعاليات الإضافية التي اختارها المتقدم
+    selectedExtras: [
+      {
+        extraId:  { type: mongoose.Schema.Types.ObjectId },
+        title:    { type: String },
+        price:    { type: Number },
+      },
+    ],
+    extrasTotal: { type: Number, default: 0 },
+
     // سبب القرار (مرتبط بتغيير الحالة)
     adminNotes: {
       type: String,

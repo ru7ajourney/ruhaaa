@@ -323,6 +323,23 @@ const AdminApplications = () => {
                   </div>
                 </div>
                 <div className="app-detail-section"><div className="detail-label">تعريف عن نفسه</div><div className="detail-about">{selectedApp.aboutMe}</div></div>
+                {selectedApp.selectedExtras?.length > 0 && (
+                  <div className="app-detail-section">
+                    <div className="detail-label">الفعاليات الإضافية</div>
+                    <div style={{ display: "flex", flexDirection: "column", gap: 4, marginTop: 6 }}>
+                      {selectedApp.selectedExtras.map((e, i) => (
+                        <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", padding: "4px 8px", background: "var(--color-bg)", borderRadius: 6 }}>
+                          <span>{e.title}</span>
+                          <strong style={{ color: "var(--color-primary)" }}>+{e.price}</strong>
+                        </div>
+                      ))}
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "0.88rem", fontWeight: 700, borderTop: "1px solid var(--color-border)", paddingTop: 4, marginTop: 2 }}>
+                        <span>إجمالي الإضافات</span>
+                        <span style={{ color: "var(--color-primary)" }}>{selectedApp.extrasTotal}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {selectedApp.history?.length > 1 && (
                   <div className="app-detail-section">
                     <button className="btn btn-secondary" style={{ width: "100%" }} onClick={() => setHistoryModalOpen(true)}>📋 سجّل الملف</button>

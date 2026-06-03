@@ -84,6 +84,28 @@ const MyApplications = () => {
                     </p>
                     <p className="app-date">تاريخ التقديم: {formatDate(app.createdAt)}</p>
 
+                    {/* تفصيل التكاليف */}
+                    {(app.trip?.price > 0 || app.selectedExtras?.length > 0) && (
+                      <div className="app-cost-breakdown">
+                        <div className="app-cost-row">
+                          <span>الرحلة الأساسية</span>
+                          <span>{app.trip?.price} {app.trip?.currency || "USD"}</span>
+                        </div>
+                        {app.selectedExtras?.map((e, i) => (
+                          <div key={i} className="app-cost-row app-cost-row--extra">
+                            <span>➕ {e.title}</span>
+                            <span>+{e.price} {app.trip?.currency || "USD"}</span>
+                          </div>
+                        ))}
+                        {app.selectedExtras?.length > 0 && (
+                          <div className="app-cost-row app-cost-row--total">
+                            <span>الإجمالي</span>
+                            <strong>{(app.trip?.price || 0) + (app.extrasTotal || 0)} {app.trip?.currency || "USD"}</strong>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
                     {app.adminNotes && (
                       <p className="app-note">💬 {app.adminNotes}</p>
                     )}

@@ -24,6 +24,7 @@ const EMPTY_FORM = {
     includes: [""],
     excludes: [""],
     program: [{ day: 1, title: "", description: "" }],
+    extras: [],
     availableDates: [{ startDate: "", endDate: "", spotsTotal: 8, spotsTaken: 0 }],
 };
 
@@ -53,6 +54,7 @@ const TripForm = () => {
                         program: data.program?.length
                             ? data.program
                             : [{ day: 1, title: "", description: "" }],
+                        extras: data.extras?.length ? data.extras : [],
                         availableDates: data.availableDates?.length
                             ? data.availableDates.map((d) => ({
                                 ...d,
@@ -133,6 +135,31 @@ const TripForm = () => {
     };
 
     // ==============================
+    // تحديث الفعاليات الإضافية
+    // ==============================
+    const handleExtraChange = (index, field, value) => {
+        setForm((prev) => {
+            const newExtras = [...prev.extras];
+            newExtras[index] = { ...newExtras[index], [field]: value };
+            return { ...prev, extras: newExtras };
+        });
+    };
+
+    const addExtra = () => {
+        setForm((prev) => ({
+            ...prev,
+            extras: [...prev.extras, { title: "", description: "", price: "", scheduleDay: "" }],
+        }));
+    };
+
+    const removeExtra = (index) => {
+        setForm((prev) => ({
+            ...prev,
+            extras: prev.extras.filter((_, i) => i !== index),
+        }));
+    };
+
+    // ==============================
     // تحديث التواريخ المتاحة
     // ==============================
     const handleDateChange = (index, field, value) => {
@@ -176,6 +203,7 @@ const TripForm = () => {
                 includes: form.includes.filter((i) => i.trim() !== ""),
                 excludes: form.excludes.filter((i) => i.trim() !== ""),
                 program: form.program.filter((d) => d.title.trim() !== ""),
+                extras: (form.extras || []).filter((e) => e.title?.trim() && e.price !== "" && e.price !== undefined),
                 availableDates: form.availableDates.filter(
                     (d) => d.startDate && d.endDate
                 ),
@@ -472,6 +500,62 @@ const TripForm = () => {
 
                             <button type="button" className="btn-add" onClick={addProgramDay}>
                                 + أضف يوماً
+                            </button>
+                        </div>
+
+                        {/* ==============================
+                الفعاليات الإضافية
+                ============================== */}
+                        <div className="form-section">
+                            <h3 className="form-section-title">✨ الفعاليات الإضافية (اختيارية)</h3>
+
+                            {(form.extras || []).map((extra, i) => (
+                                <div key={i} className="dynamic-row program-row" style={{ alignItems: "flex-start" }}>
+                                    <div className="form-group flex-1">
+                                        <input
+                                            className="form-input"
+                                            value={extra.title}
+                                            onChange={(e) => handleExtraChange(i, "title", e.target.value)}
+                                            placeholder="اسم الفعالية (مثال: جولة في القارب)"
+                                        />
+                                        <input
+                                            className="form-input"
+                                            value={extra.description}
+                                            onChange={(e) => handleExtraChange(i, "description", e.target.value)}
+                                            placeholder="وصف مختصر (اختياري)"
+                                            style={{ marginTop: 8 }}
+                                        />
+                                        <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+                                            <input
+                                                className="form-input"
+                                                type="number"
+                                                value={extra.price}
+                                                onChange={(e) => handleExtraChange(i, "price", Number(e.target.value))}
+                                                placeholder="السعر"
+                                                style={{ flex: 1 }}
+                                            />
+                                            <input
+                                                className="form-input"
+                                                type="number"
+                                                value={extra.scheduleDay ?? ""}
+                                                onChange={(e) => handleExtraChange(i, "scheduleDay", e.target.value === "" ? null : Number(e.target.value))}
+                                                placeholder="رقم اليوم (اختياري)"
+                                                style={{ flex: 1 }}
+                                            />
+                                        </div>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="btn-remove"
+                                        onClick={() => removeExtra(i)}
+                                    >
+                                        ✕
+                                    </button>
+                                </div>
+                            ))}
+
+                            <button type="button" className="btn-add" onClick={addExtra}>
+                                + أضف فعالية
                             </button>
                         </div>
 

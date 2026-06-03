@@ -169,6 +169,7 @@ router.post("/", optionalUser, async (req, res) => {
       preferredDate,
       instagram,
       gender,
+      selectedExtras,
     } = req.body;
 
     // تحقق إذا كان المستخدم محظوراً
@@ -203,6 +204,10 @@ router.post("/", optionalUser, async (req, res) => {
       instagram: instagram || "",
       gender,
       agreedPolicyVersion: latestPolicy?.versionName || "",
+      selectedExtras: Array.isArray(selectedExtras) ? selectedExtras : [],
+      extrasTotal: Array.isArray(selectedExtras)
+        ? selectedExtras.reduce((sum, e) => sum + (e.price || 0), 0)
+        : 0,
       history: [{ status: "pending", reason: "تم إرسال الطلب" }],
     });
 

@@ -292,6 +292,134 @@
   margin-top: 4px;
 }
 
+.price-base-note {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  margin-top: 4px;
+}
+
+/* ==============================
+   الفعاليات الإضافية
+   ============================== */
+.extras-section {
+  border-top: 1px solid var(--color-border);
+  padding-top: 16px;
+  margin-bottom: 16px;
+}
+
+.extras-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-secondary);
+  margin: 0 0 12px;
+}
+
+.extras-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.extra-item {
+  border: 1.5px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  background: var(--color-bg);
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.extra-item--selected {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.extra-info {
+  flex: 1;
+  cursor: pointer;
+  min-width: 0;
+}
+
+.extra-name {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.extra-desc {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--color-text-light);
+  margin-top: 2px;
+}
+
+.extra-day-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  color: var(--color-primary);
+  background: var(--color-primary-light);
+  border-radius: 10px;
+  padding: 1px 7px;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.extra-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.extra-price {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.extra-toggle-btn {
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: inherit;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1.5px solid var(--color-primary);
+  background: transparent;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.extra-toggle-btn:hover {
+  background: var(--color-primary);
+  color: white;
+}
+
+.extra-toggle-btn--remove {
+  border-color: #dc2626;
+  color: #dc2626;
+}
+
+.extra-toggle-btn--remove:hover {
+  background: #dc2626;
+  color: white;
+}
+
+/* تظليل اليوم في البرنامج */
+.program-day--highlight {
+  border-color: var(--color-primary) !important;
+  background: var(--color-primary-light) !important;
+  box-shadow: 0 0 0 3px rgba(200, 98, 42, 0.15);
+  transition: all 0.3s;
+}
+
 .booking-dates h4 {
   font-size: 0.95rem;
   font-weight: 700;
