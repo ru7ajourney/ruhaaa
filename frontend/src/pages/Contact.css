@@ -70,8 +70,7 @@
 
 /* ── الموجة المستقلة ─────────────────────────── */
 .contact-wave {
-  position: absolute;
-  left: 0;
+  position: relative;
   width: 100%;
   z-index: 3;
   line-height: 0;

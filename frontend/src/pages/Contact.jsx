@@ -16,9 +16,8 @@ const floatingIcons = [
   { icon: "🦋", x: "81%", y: "43%", size: "1.8rem", dur: "6s",   delay: "0.3s" },
 ];
 
-/* ── الموجة المستقلة — عدّل X و Y هنا ── */
-const WAVE_X = "0%";   /* إزاحة أفقية  */
-const WAVE_Y = "22%";  /* إزاحة عمودية من أعلى الصفحة */
+/* ── الموجة المستقلة — عدّل WAVE_OFFSET للتحريك عن أسفل الـ hero ── */
+const WAVE_OFFSET = 0; /* px — سالب = أعلى، موجب = أسفل */
 
 const Contact = () => {
   return (
@@ -45,18 +44,18 @@ const Contact = () => {
         ))}
       </div>
 
+      <PageHero title="تواصل معنا" subtitle="كل رحلة تبدأ بسؤال — لا تتردد" icon="💬" waveColor="transparent" />
+
       {/* ── الموجة المستقلة ── */}
       <div
         className="contact-wave"
-        style={{ left: WAVE_X, top: WAVE_Y }}
+        style={{ marginTop: `calc(-92px + ${WAVE_OFFSET}px)` }}
         aria-hidden="true"
       >
         <svg viewBox="0 0 1440 92" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0,46 C200,92 500,0 720,46 C940,92 1240,0 1440,46 L1440,92 L0,92 Z" fill="rgba(255,255,255,0.55)" />
         </svg>
       </div>
-
-      <PageHero title="تواصل معنا" subtitle="كل رحلة تبدأ بسؤال — لا تتردد" icon="💬" waveColor="transparent" />
 
       {/* المحتوى */}
       <div className="container contact-body">
