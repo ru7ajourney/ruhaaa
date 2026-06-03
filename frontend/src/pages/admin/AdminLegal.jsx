@@ -159,11 +159,20 @@ const AdminLegal = () => {
 
         <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "16px 20px", marginBottom: "20px" }}>
           <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "#718096", marginBottom: 10 }}>البنود الحالية ({POLICIES.length})</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {POLICIES.map((p, i) => (
-              <span key={i} style={{ background: "#f7fafc", border: "1px solid #e2e8f0", borderRadius: "6px", padding: "5px 12px", fontSize: "0.82rem", color: "#4a5568", fontWeight: 600 }}>
-                {p.icon} {p.title}
-              </span>
+              <div key={i} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px 14px", background: "#f7fafc" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#1a202c", fontSize: "14px", marginBottom: 6 }}>
+                  <span>{p.icon}</span><span style={{ color: "#c8622a" }}>{i + 1}.</span><span>{p.title}</span>
+                </div>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+                  {p.points.map((point, j) => (
+                    <li key={j} style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.6, display: "flex", gap: 6 }}>
+                      <span style={{ color: "#a0aec0", flexShrink: 0 }}>—</span><span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </div>
@@ -194,11 +203,20 @@ const AdminLegal = () => {
 
         <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "16px 20px", marginBottom: "20px" }}>
           <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "#718096", marginBottom: 10 }}>البنود الحالية ({PRIVACY_POLICY.length})</p>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
             {PRIVACY_POLICY.map((p, i) => (
-              <span key={i} style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "6px", padding: "5px 12px", fontSize: "0.82rem", color: "#1e40af", fontWeight: 600 }}>
-                {p.icon} {p.title}
-              </span>
+              <div key={i} style={{ border: "1px solid #bfdbfe", borderRadius: "8px", padding: "10px 14px", background: "#eff6ff" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#1a202c", fontSize: "14px", marginBottom: 6 }}>
+                  <span>{p.icon}</span><span style={{ color: "#1e40af" }}>{i + 1}.</span><span>{p.title}</span>
+                </div>
+                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+                  {p.points.map((point, j) => (
+                    <li key={j} style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.6, display: "flex", gap: 6 }}>
+                      <span style={{ color: "#93c5fd", flexShrink: 0 }}>—</span><span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             ))}
           </div>
         </div>
