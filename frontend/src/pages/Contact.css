@@ -68,20 +68,6 @@
 
 
 
-/* ── الموجة المستقلة ─────────────────────────── */
-.contact-wave {
-  position: relative;
-  width: 100%;
-  z-index: 3;
-  line-height: 0;
-  pointer-events: none;
-}
-
-.contact-wave svg {
-  width: 100%;
-  height: 92px;
-  display: block;
-}
 
 /* ── المحتوى ─────────────────────────────────── */
 .contact-body {
