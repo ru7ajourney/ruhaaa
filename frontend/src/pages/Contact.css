@@ -14,7 +14,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 0;
+  z-index: 4;
 }
 
 .blob {
@@ -68,10 +68,16 @@
 
 
 
+/* ── الموجة ─────────────────────────────────── */
+.contact-page .page-hero-wave {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
 /* ── المحتوى ─────────────────────────────────── */
 .contact-body {
   position: relative;
-  z-index: 1;
+  z-index: 5;
   padding: 64px 0 56px;
 }
 
