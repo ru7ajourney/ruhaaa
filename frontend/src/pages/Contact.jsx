@@ -8,7 +8,6 @@ const floatingIcons = [
   { icon: "🌴", x: "91%", y: "58%", size: "2.8rem", dur: "9s",   delay: "0.6s" },
   { icon: "🧳", x: "14%", y: "76%", size: "2rem",   dur: "6.5s", delay: "3s"   },
   { icon: "🌊", x: "76%", y: "78%", size: "2.4rem", dur: "7.5s", delay: "1.8s" },
-  { icon: "🌅", x: "48%", y: "6%",  size: "2rem",   dur: "8.5s", delay: "2.5s" },
   { icon: "🗺️", x: "34%", y: "84%", size: "2.1rem", dur: "6s",   delay: "4s"   },
   { icon: "📸", x: "69%", y: "22%", size: "2rem",   dur: "7s",   delay: "3.5s" },
   { icon: "🎒", x: "24%", y: "13%", size: "2.3rem", dur: "9s",   delay: "2.2s" },
