@@ -15,10 +15,12 @@ function generateVersionName() {
   return `${year}v${month}.${day}${hour}.${minute}`;
 }
 
-// GET /api/policy-versions — كل النسخ (بدون المحتوى للتخفيف)
+// GET /api/policy-versions — كل النسخ مقسّمة حسب النوع
 router.get("/", protectSuper, async (req, res) => {
   try {
-    const versions = await PolicyVersion.find({}, "versionName createdAt").sort({ createdAt: -1 });
+    const { type } = req.query;
+    const filter = type ? { type } : {};
+    const versions = await PolicyVersion.find(filter, "versionName type createdAt").sort({ createdAt: -1 });
     res.json(versions);
   } catch (err) {
     res.status(500).json({ message: "خطأ في جلب النسخ", error: err.message });
@@ -39,9 +41,10 @@ router.get("/:id", protectSuper, async (req, res) => {
 // POST /api/policy-versions — حفظ نسخة جديدة
 router.post("/", protectSuper, async (req, res) => {
   try {
-    const { policies } = req.body;
-    const versionName = generateVersionName();
-    const version = await PolicyVersion.create({ versionName, policies });
+    const { policies, type } = req.body;
+    const prefix = type === "privacy" ? "PP" : "GP";
+    const versionName = `${prefix}-${generateVersionName()}`;
+    const version = await PolicyVersion.create({ versionName, type: type || "general", policies });
     res.status(201).json(version);
   } catch (err) {
     if (err.code === 11000) {

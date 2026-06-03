@@ -26,6 +26,7 @@ const Footer = ({ flush }) => {
               <li><Link to="/about">عن رُحى</Link></li>
               <li><Link to="/contact">تواصل معنا</Link></li>
               <li><Link to="/policies">الشروط والسياسات</Link></li>
+              <li><Link to="/privacy-policy">سياسة الخصوصية</Link></li>
             </ul>
           </div>
 

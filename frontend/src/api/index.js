@@ -101,10 +101,10 @@ export const subscribersAPI = {
 // Policy Versions API
 // ==============================
 export const policyVersionsAPI = {
-  getAll:   ()         => api.get("/policy-versions"),
-  getById:  (id)       => api.get(`/policy-versions/${id}`),
-  save:     (policies) => api.post("/policy-versions", { policies }),
-  delete:   (id)       => api.delete(`/policy-versions/${id}`),
+  getAll:        (type)           => api.get("/policy-versions", { params: type ? { type } : {} }),
+  getById:       (id)             => api.get(`/policy-versions/${id}`),
+  save:          (policies, type) => api.post("/policy-versions", { policies, type }),
+  delete:        (id)             => api.delete(`/policy-versions/${id}`),
 };
 
 // ==============================

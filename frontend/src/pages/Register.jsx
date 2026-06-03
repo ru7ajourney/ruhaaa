@@ -7,6 +7,7 @@ import { tripsAPI, applicationsAPI } from "../api";
 import { useUserAuth } from "../context/UserAuthContext";
 import { ARAB_COUNTRIES, OTHER_OPTION } from "../data/arabCountries";
 import PoliciesModal from "../components/PoliciesModal";
+import PrivacyPolicyModal from "../components/PrivacyPolicyModal";
 import AuthModal from "../components/AuthModal";
 import PageHero from "../components/PageHero";
 import useGeo from "../hooks/useGeo";
@@ -76,7 +77,9 @@ const Register = () => {
   const [selectedCountryData, setSelectedCountryData] = useState(null);
   const [selectedExtras, setSelectedExtras] = useState([]);
   const [agreedToPolicies, setAgreedToPolicies] = useState(false);
-  const [showPolicies, setShowPolicies] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy]   = useState(false);
+  const [showPolicies, setShowPolicies]         = useState(false);
+  const [showPrivacy, setShowPrivacy]           = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(true);
   const [error, setError] = useState("");
@@ -178,7 +181,11 @@ const Register = () => {
 
     // تحقق من الموافقة على السياسات
     if (!agreedToPolicies) {
-      setError("يجب الموافقة على سياسات وشروط رُحى للمتابعة");
+      setError("يجب الموافقة على شروط وسياسات رُحى للمتابعة");
+      return;
+    }
+    if (!agreedToPrivacy) {
+      setError("يجب الموافقة على سياسة الخصوصية للمتابعة");
       return;
     }
 
@@ -657,18 +664,30 @@ const Register = () => {
               />
               <span>
                 قرأت وأوافق على{" "}
-                <button
-                  type="button"
-                  className="policies-link"
-                  onClick={() => setShowPolicies(true)}
-                >
-                  سياسات وشروط رُحى
+                <button type="button" className="policies-link" onClick={() => setShowPolicies(true)}>
+                  شروط وسياسات رُحى
                 </button>
               </span>
             </label>
-            {!agreedToPolicies && (
+
+            <label className="policies-checkbox-label" style={{ marginTop: 10 }}>
+              <input
+                type="checkbox"
+                checked={agreedToPrivacy}
+                onChange={(e) => setAgreedToPrivacy(e.target.checked)}
+                className="policies-checkbox"
+              />
+              <span>
+                قرأت وأوافق على{" "}
+                <button type="button" className="policies-link" onClick={() => setShowPrivacy(true)}>
+                  سياسة الخصوصية
+                </button>
+              </span>
+            </label>
+
+            {(!agreedToPolicies || !agreedToPrivacy) && (
               <p className="policies-warning">
-                ⚠️ يجب الموافقة على الشروط قبل إرسال الطلب
+                ⚠️ يجب الموافقة على الشروط وسياسة الخصوصية قبل إرسال الطلب
               </p>
             )}
           </div>
@@ -679,16 +698,14 @@ const Register = () => {
           {/* زر الإرسال */}
           <button
             type="submit"
-            className={`btn btn-primary register-submit-btn ${!agreedToPolicies ? "btn-disabled" : ""}`}
-            disabled={loading || !agreedToPolicies}
+            className={`btn btn-primary register-submit-btn ${(!agreedToPolicies || !agreedToPrivacy) ? "btn-disabled" : ""}`}
+            disabled={loading || !agreedToPolicies || !agreedToPrivacy}
           >
             {loading ? "جاري الإرسال..." : "📩 إرسال الطلب"}
           </button>
 
-          {/* مودال السياسات */}
-          {showPolicies && (
-            <PoliciesModal onClose={() => setShowPolicies(false)} />
-          )}
+          {showPolicies && <PoliciesModal onClose={() => setShowPolicies(false)} />}
+          {showPrivacy  && <PrivacyPolicyModal onClose={() => setShowPrivacy(false)} />}
 
           <p className="register-note">
             بإرسال هذا الطلب أنت لا تدفع أي شيء الآن — سيتواصل معك فريق رُحى لتأكيد تفاصيل الرحلة.

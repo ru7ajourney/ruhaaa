@@ -22,6 +22,7 @@ import TripDetail from "./pages/TripDetail";
 import About from "./pages/About";
 import Register from "./pages/Register";
 import Policies from "./pages/Policies";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import Contact from "./pages/Contact";
 import Gallery from "./pages/Gallery";
 // Admin Pages
@@ -113,6 +114,14 @@ function App() {
             element={
               <PublicLayout>
                 <Policies />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/privacy-policy"
+            element={
+              <PublicLayout>
+                <PrivacyPolicy />
               </PublicLayout>
             }
           />
