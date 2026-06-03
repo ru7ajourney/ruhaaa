@@ -87,6 +87,8 @@ const AdminLegal = () => {
   const [savingPrivacy, setSavingPrivacy]     = useState(false);
   const [selectedGeneral, setSelectedGeneral] = useState(null);
   const [selectedPrivacy, setSelectedPrivacy] = useState(null);
+  const [showGeneralPreview, setShowGeneralPreview] = useState(false);
+  const [showPrivacyPreview, setShowPrivacyPreview] = useState(false);
 
   useEffect(() => {
     Promise.all([
@@ -157,24 +159,32 @@ const AdminLegal = () => {
           ⚠️ اضغط "حفظ نسخة جديدة" كلما عدّلت على ملف <code>policies.js</code> لتوثيق التغييرات.
         </div>
 
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "16px 20px", marginBottom: "20px" }}>
-          <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "#718096", marginBottom: 10 }}>البنود الحالية ({POLICIES.length})</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {POLICIES.map((p, i) => (
-              <div key={i} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px 14px", background: "#f7fafc" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#1a202c", fontSize: "14px", marginBottom: 6 }}>
-                  <span>{p.icon}</span><span style={{ color: "#c8622a" }}>{i + 1}.</span><span>{p.title}</span>
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", marginBottom: "20px", overflow: "hidden" }}>
+          <button
+            onClick={() => setShowGeneralPreview(!showGeneralPreview)}
+            style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 20px", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem", color: "#2d3748" }}
+          >
+            <span>عرض البنود الحالية ({POLICIES.length})</span>
+            <span style={{ transition: "transform 0.2s", transform: showGeneralPreview ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
+          </button>
+          {showGeneralPreview && (
+            <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+              {POLICIES.map((p, i) => (
+                <div key={i} style={{ border: "1px solid #e2e8f0", borderRadius: "8px", padding: "10px 14px", background: "#f7fafc" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#1a202c", fontSize: "14px", marginBottom: 6 }}>
+                    <span>{p.icon}</span><span style={{ color: "#c8622a" }}>{i + 1}.</span><span>{p.title}</span>
+                  </div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+                    {p.points.map((point, j) => (
+                      <li key={j} style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.6, display: "flex", gap: 6 }}>
+                        <span style={{ color: "#a0aec0", flexShrink: 0 }}>—</span><span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
-                  {p.points.map((point, j) => (
-                    <li key={j} style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.6, display: "flex", gap: 6 }}>
-                      <span style={{ color: "#a0aec0", flexShrink: 0 }}>—</span><span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <VersionsTable
@@ -201,24 +211,32 @@ const AdminLegal = () => {
           ℹ️ اضغط "حفظ نسخة جديدة" كلما عدّلت على ملف <code>privacyPolicy.js</code> لتوثيق التغييرات.
         </div>
 
-        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "16px 20px", marginBottom: "20px" }}>
-          <p style={{ fontSize: "0.85rem", fontWeight: 700, color: "#718096", marginBottom: 10 }}>البنود الحالية ({PRIVACY_POLICY.length})</p>
-          <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-            {PRIVACY_POLICY.map((p, i) => (
-              <div key={i} style={{ border: "1px solid #bfdbfe", borderRadius: "8px", padding: "10px 14px", background: "#eff6ff" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#1a202c", fontSize: "14px", marginBottom: 6 }}>
-                  <span>{p.icon}</span><span style={{ color: "#1e40af" }}>{i + 1}.</span><span>{p.title}</span>
+        <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: "10px", marginBottom: "20px", overflow: "hidden" }}>
+          <button
+            onClick={() => setShowPrivacyPreview(!showPrivacyPreview)}
+            style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 20px", background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem", color: "#2d3748" }}
+          >
+            <span>عرض البنود الحالية ({PRIVACY_POLICY.length})</span>
+            <span style={{ transition: "transform 0.2s", transform: showPrivacyPreview ? "rotate(180deg)" : "rotate(0deg)" }}>▼</span>
+          </button>
+          {showPrivacyPreview && (
+            <div style={{ padding: "0 20px 16px", display: "flex", flexDirection: "column", gap: "10px" }}>
+              {PRIVACY_POLICY.map((p, i) => (
+                <div key={i} style={{ border: "1px solid #bfdbfe", borderRadius: "8px", padding: "10px 14px", background: "#eff6ff" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px", fontWeight: 700, color: "#1a202c", fontSize: "14px", marginBottom: 6 }}>
+                    <span>{p.icon}</span><span style={{ color: "#1e40af" }}>{i + 1}.</span><span>{p.title}</span>
+                  </div>
+                  <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
+                    {p.points.map((point, j) => (
+                      <li key={j} style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.6, display: "flex", gap: 6 }}>
+                        <span style={{ color: "#93c5fd", flexShrink: 0 }}>—</span><span>{point}</span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <ul style={{ margin: 0, padding: 0, listStyle: "none", display: "flex", flexDirection: "column", gap: 4 }}>
-                  {p.points.map((point, j) => (
-                    <li key={j} style={{ fontSize: "13px", color: "#4a5568", lineHeight: 1.6, display: "flex", gap: 6 }}>
-                      <span style={{ color: "#93c5fd", flexShrink: 0 }}>—</span><span>{point}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <VersionsTable
