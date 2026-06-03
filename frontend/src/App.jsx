@@ -23,6 +23,7 @@ import About from "./pages/About";
 import Register from "./pages/Register";
 import Policies from "./pages/Policies";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import Careers from "./pages/Careers";
 import Contact from "./pages/Contact";
 import Gallery from "./pages/Gallery";
 // Admin Pages
@@ -122,6 +123,14 @@ function App() {
             element={
               <PublicLayout>
                 <PrivacyPolicy />
+              </PublicLayout>
+            }
+          />
+          <Route
+            path="/careers"
+            element={
+              <PublicLayout>
+                <Careers />
               </PublicLayout>
             }
           />

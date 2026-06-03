@@ -148,4 +148,11 @@ export const adminsAPI = {
   delete:  (id)          => api.delete(`/admins/${id}`),
 };
 
+export const jobApplicationsAPI = {
+  submit:       (data)      => api.post("/job-applications", data),
+  getAll:       ()          => api.get("/job-applications"),
+  updateStatus: (id, status) => api.put(`/job-applications/${id}/status`, { status }),
+  delete:       (id)        => api.delete(`/job-applications/${id}`),
+};
+
 export default api;
