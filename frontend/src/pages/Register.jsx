@@ -43,7 +43,7 @@ const Register = () => {
 
   const [trip, setTrip] = useState(null);
   const [trips, setTrips] = useState([]); // قائمة الرحلات للاختيار
-  const [form, setForm] = useState({ ...EMPTY_FORM, tripId: tripId || "", email: loggedInUser?.email || "" });
+  const [form, setForm] = useState({ ...EMPTY_FORM, tripId: tripId || "", email: loggedInUser?.email || "", phone: loggedInUser?.phone || "" });
   const [selectedCountryData, setSelectedCountryData] = useState(null);
   const [agreedToPolicies, setAgreedToPolicies] = useState(false);
   const [showPolicies, setShowPolicies] = useState(false);
@@ -52,11 +52,14 @@ const Register = () => {
   const [error, setError] = useState("");
   const [submitted, setSubmitted] = useState(false);
 
-  // عند تسجيل الدخول عبر المودال — اmlأ الإيميل تلقائياً
+  // عند تسجيل الدخول — اmlأ الإيميل والهاتف تلقائياً
   useEffect(() => {
-    if (loggedInUser?.email) {
-      setForm((prev) => ({ ...prev, email: loggedInUser.email }));
-    }
+    if (!loggedInUser) return;
+    setForm((prev) => ({
+      ...prev,
+      ...(loggedInUser.email && { email: loggedInUser.email }),
+      ...(loggedInUser.phone && { phone: loggedInUser.phone }),
+    }));
   }, [loggedInUser]);
 
   // جلب الرحلات المتاحة
