@@ -76,8 +76,6 @@
   z-index: 3;
   line-height: 0;
   pointer-events: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
 }
 
 .contact-wave svg {
