@@ -4,15 +4,15 @@ import "./Contact.css";
 const floatingIcons = [
   { icon: "✈️", x: "6%",  y: "16%", size: "2.6rem", dur: "6s",   delay: "0s"   },
   { icon: "🌍", x: "87%", y: "10%", size: "3rem",   dur: "8s",   delay: "1.2s" },
-  { icon: "🏔️", x: "4%",  y: "54%", size: "2.2rem", dur: "7s",   delay: "2s"   },
-  { icon: "🌴", x: "91%", y: "58%", size: "2.8rem", dur: "9s",   delay: "0.6s" },
-  { icon: "🧳", x: "14%", y: "76%", size: "2rem",   dur: "6.5s", delay: "3s"   },
-  { icon: "🌊", x: "76%", y: "78%", size: "2.4rem", dur: "7.5s", delay: "1.8s" },
-  { icon: "🗺️", x: "34%", y: "84%", size: "2.1rem", dur: "6s",   delay: "4s"   },
-  { icon: "📸", x: "69%", y: "22%", size: "2rem",   dur: "7s",   delay: "3.5s" },
-  { icon: "🎒", x: "24%", y: "13%", size: "2.3rem", dur: "9s",   delay: "2.2s" },
-  { icon: "⛵", x: "59%", y: "73%", size: "2rem",   dur: "7s",   delay: "1s"   },
-  { icon: "🦋", x: "81%", y: "43%", size: "1.8rem", dur: "6s",   delay: "0.3s" },
+  { icon: "🏔️", x: "4%",  y: "54%", size: "2.2rem", dur: "7s",   delay: "2s",   hideOnMobile: true },
+  { icon: "🌴", x: "91%", y: "58%", size: "2.8rem", dur: "9s",   delay: "0.6s", hideOnMobile: true },
+  { icon: "🧳", x: "14%", y: "76%", size: "2rem",   dur: "6.5s", delay: "3s",   hideOnMobile: true },
+  { icon: "🌊", x: "76%", y: "78%", size: "2.4rem", dur: "7.5s", delay: "1.8s", hideOnMobile: true },
+  { icon: "🗺️", x: "34%", y: "84%", size: "2.1rem", dur: "6s",   delay: "4s",   hideOnMobile: true },
+  { icon: "📸", x: "69%", y: "22%", size: "2rem",   dur: "7s",   delay: "3.5s", hideOnMobile: true },
+  { icon: "🎒", x: "24%", y: "13%", size: "2.3rem", dur: "9s",   delay: "2.2s", hideOnMobile: true },
+  { icon: "⛵", x: "59%", y: "73%", size: "2rem",   dur: "7s",   delay: "1s",   hideOnMobile: true },
+  { icon: "🦋", x: "81%", y: "43%", size: "1.8rem", dur: "6s",   delay: "0.3s", hideOnMobile: true },
 ];
 
 const Contact = () => {
@@ -26,7 +26,7 @@ const Contact = () => {
         {floatingIcons.map((item, i) => (
           <span
             key={i}
-            className="floating-icon"
+            className={`floating-icon${item.hideOnMobile ? " floating-icon--mobile-hide" : ""}`}
             style={{
               left: item.x,
               top: item.y,

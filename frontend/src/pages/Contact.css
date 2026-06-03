@@ -221,7 +221,8 @@
 
   .contact-header h1 { font-size: 1.8rem; }
   .contact-quote p   { font-size: 1.1rem; }
-  .floating-icon     { opacity: 0.3; }
+  .floating-icon                  { opacity: 0.3; }
+  .floating-icon--mobile-hide    { display: none; }
 
   .contact-footer-pad { display: none; }
 
