@@ -79,4 +79,13 @@ app.use((err, req, res, next) => {
 // ==============================
 app.listen(PORT, () => {
   console.log(`🚀 Ruha Server running on http://localhost:${PORT}`);
+
+  // keep-alive ping every 14 minutes to prevent Render free tier sleep
+  if (process.env.RENDER_EXTERNAL_URL) {
+    setInterval(() => {
+      fetch(`${process.env.RENDER_EXTERNAL_URL}/`)
+        .then(() => console.log("keep-alive ping sent"))
+        .catch(() => {});
+    }, 14 * 60 * 1000);
+  }
 });
