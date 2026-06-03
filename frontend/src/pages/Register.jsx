@@ -9,7 +9,34 @@ import { ARAB_COUNTRIES, OTHER_OPTION } from "../data/arabCountries";
 import PoliciesModal from "../components/PoliciesModal";
 import AuthModal from "../components/AuthModal";
 import PageHero from "../components/PageHero";
+import useGeo from "../hooks/useGeo";
 import "./Register.css";
+
+const GEO_TO_COUNTRY = {
+  PS: "فلسطين",
+  IL: "الداخل الفلسطيني (48)",
+  JO: "الأردن",
+  LB: "لبنان",
+  SY: "سوريا",
+  EG: "مصر",
+  IQ: "العراق",
+  SA: "السعودية",
+  AE: "الإمارات",
+  KW: "الكويت",
+  QA: "قطر",
+  BH: "البحرين",
+  OM: "عُمان",
+  YE: "اليمن",
+  LY: "ليبيا",
+  TN: "تونس",
+  DZ: "الجزائر",
+  MA: "المغرب",
+  MR: "موريتانيا",
+  SD: "السودان",
+  SO: "الصومال",
+  DJ: "جيبوتي",
+  KM: "جزر القمر",
+};
 
 const NOT_SURE = "غير محدد";
 
@@ -41,6 +68,7 @@ const Register = () => {
   const navigate = useNavigate();
   const { user: loggedInUser, loading: authLoading } = useUserAuth();
 
+  const geo = useGeo();
   const [trip, setTrip] = useState(null);
   const [trips, setTrips] = useState([]); // قائمة الرحلات للاختيار
   const [form, setForm] = useState({ ...EMPTY_FORM, tripId: tripId || "", email: loggedInUser?.email || "", phone: loggedInUser?.phone || "" });
@@ -61,6 +89,16 @@ const Register = () => {
       ...(loggedInUser.phone && { phone: loggedInUser.phone }),
     }));
   }, [loggedInUser]);
+
+  // اختيار البلد تلقائياً بناءً على الـ IP
+  useEffect(() => {
+    if (!geo?.country || form.country) return;
+    const countryName = GEO_TO_COUNTRY[geo.country];
+    if (!countryName) return;
+    const found = ARAB_COUNTRIES.find((c) => c.name === countryName);
+    setForm((prev) => ({ ...prev, country: countryName }));
+    setSelectedCountryData(found || null);
+  }, [geo]);
 
   // جلب الرحلات المتاحة
   useEffect(() => {
