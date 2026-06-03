@@ -153,7 +153,7 @@ const optionalUser = async (req, res, next) => {
   next();
 };
 
-router.post("/", optionalUser, async (req, res) => {
+router.post("/", protectUser, async (req, res) => {
   try {
     const {
       tripId,

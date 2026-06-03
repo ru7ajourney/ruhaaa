@@ -171,6 +171,11 @@ const Register = () => {
     e.preventDefault();
     setError("");
 
+    if (!loggedInUser) {
+      setError("يجب تسجيل الدخول أولاً للتسجيل في رحلة");
+      return;
+    }
+
     // تحقق من الموافقة على السياسات
     if (!agreedToPolicies) {
       setError("يجب الموافقة على سياسات وشروط رُحى للمتابعة");
