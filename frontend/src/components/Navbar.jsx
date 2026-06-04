@@ -87,7 +87,6 @@ const Navbar = () => {
           <li><Link to="/about" className={isActive("/about") ? "active" : ""}>عن رُحى</Link></li>
           <li><Link to="/gallery" className={isActive("/gallery") ? "active" : ""}>المعرض</Link></li>
           <li><Link to="/contact" className={isActive("/contact") ? "active" : ""}>تواصل معنا</Link></li>
-          <li><Link to="/careers" className={isActive("/careers") ? "active" : ""}>انضم للفريق</Link></li>
         </ul>
 
         {/* زر حسابي */}
@@ -140,7 +139,6 @@ const Navbar = () => {
             <li><Link to="/about" onClick={() => setMenuOpen(false)}>عن رُحى</Link></li>
             <li><Link to="/gallery" onClick={() => setMenuOpen(false)}>المعرض</Link></li>
             <li><Link to="/contact" onClick={() => setMenuOpen(false)}>تواصل معنا</Link></li>
-            <li><Link to="/careers" onClick={() => setMenuOpen(false)}>انضم للفريق</Link></li>
             {user ? (
               <>
                 <li><Link to="/my-profile" onClick={() => setMenuOpen(false)}>👤 حسابي</Link></li>
