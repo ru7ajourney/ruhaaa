@@ -4,7 +4,7 @@ import { galleryAPI } from "../api";
 import { getCropImgStyle } from "../utils/cropStyle";
 import "./Gallery.css";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 8;
 
 const SPEED     = 0.5;
 const STRIDE_LG = 420;
