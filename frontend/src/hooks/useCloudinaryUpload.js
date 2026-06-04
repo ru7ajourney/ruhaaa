@@ -12,6 +12,12 @@ export default function useCloudinaryUpload() {
   const upload = (file, { folder = "ruha" } = {}) => {
     return new Promise((resolve, reject) => {
       if (!file) { reject(new Error("لم يتم اختيار ملف")); return; }
+      if (!CLOUD_NAME || !UPLOAD_PRESET) {
+        const msg = "إعدادات Cloudinary غير مضبوطة — تأكد من متغيرات البيئة في Vercel";
+        setError(msg);
+        reject(new Error(msg));
+        return;
+      }
 
       setUploading(true);
       setProgress(0);
