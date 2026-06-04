@@ -17,6 +17,7 @@ const userRoutes = require("./routes/users");
 const adminsRoutes = require("./routes/admins");
 const geoRoutes = require("./routes/geo");
 const jobApplicationsRoutes = require("./routes/jobApplications");
+const uploadRoutes          = require("./routes/upload");
 
 const path = require("path");
 const app = express();
@@ -62,6 +63,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/admins", adminsRoutes);
 app.use("/api/geo", geoRoutes);
 app.use("/api/job-applications", jobApplicationsRoutes);
+app.use("/api/upload",          uploadRoutes);
 
 // مسار للتأكد من تشغيل السيرفر
 app.get("/", (req, res) => {

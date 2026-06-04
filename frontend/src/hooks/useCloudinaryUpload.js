@@ -1,9 +1,6 @@
 import { useState } from "react";
 
-const CLOUD_NAME    = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
-const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
-
-const UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
+const API_BASE = (import.meta.env.VITE_API_URL || "") + "/api";
 
 export default function useCloudinaryUpload() {
   const [uploading, setUploading] = useState(false);
@@ -13,19 +10,16 @@ export default function useCloudinaryUpload() {
   const upload = (file, { folder = "ruha" } = {}) => {
     return new Promise((resolve, reject) => {
       if (!file) { reject(new Error("لم يتم اختيار ملف")); return; }
-      if (!CLOUD_NAME || !UPLOAD_PRESET) {
-        reject(new Error("VITE_CLOUDINARY_CLOUD_NAME و VITE_CLOUDINARY_UPLOAD_PRESET غير مضبوطين"));
-        return;
-      }
 
       setUploading(true);
       setProgress(0);
       setError("");
 
       const formData = new FormData();
-      formData.append("file",           file);
-      formData.append("upload_preset",  UPLOAD_PRESET);
-      formData.append("folder",         folder);
+      formData.append("file",   file);
+      formData.append("folder", folder);
+
+      const token = localStorage.getItem("ruha_user_token");
 
       const xhr = new XMLHttpRequest();
 
@@ -38,9 +32,11 @@ export default function useCloudinaryUpload() {
         if (xhr.status === 200) {
           const data = JSON.parse(xhr.responseText);
           setProgress(100);
-          resolve(data.secure_url);
+          resolve(data.url);
         } else {
-          const msg = JSON.parse(xhr.responseText)?.error?.message || "فشل رفع الصورة";
+          const msg = (() => {
+            try { return JSON.parse(xhr.responseText)?.message; } catch { return null; }
+          })() || "فشل رفع الصورة";
           setError(msg);
           reject(new Error(msg));
         }
@@ -53,7 +49,8 @@ export default function useCloudinaryUpload() {
         reject(new Error(msg));
       });
 
-      xhr.open("POST", UPLOAD_URL);
+      xhr.open("POST", `${API_BASE}/upload`);
+      if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
       xhr.send(formData);
     });
   };
