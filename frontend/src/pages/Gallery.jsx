@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Link } from "react-router-dom";
 import { galleryAPI } from "../api";
 import { getCropImgStyle } from "../utils/cropStyle";
 import "./Gallery.css";
+
+const PAGE_SIZE = 20;
 
 const SPEED     = 0.5;
 const STRIDE_LG = 420;
@@ -20,8 +22,10 @@ const PARTICLES = [
 ];
 
 export default function Gallery() {
-  const [photos, setPhotos]   = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [photos, setPhotos]     = useState([]);
+  const [loading, setLoading]   = useState(true);
+  const [visible, setVisible]   = useState(PAGE_SIZE);
+  const [lightbox, setLightbox] = useState(null);
 
   const trackRef   = useRef(null);
   const vpRef      = useRef(null);
@@ -234,6 +238,59 @@ export default function Gallery() {
           ))}
         </div>
       </div>
+
+      {/* ── Grid ── */}
+      <section className="gp-grid-section">
+        <div className="container">
+          <h2 className="gp-grid-title">جميع الصور</h2>
+          <div className="gp-grid">
+            {photos.slice(0, visible).map((photo, i) => (
+              <div
+                key={photo._id}
+                className="gp-grid-item"
+                onClick={() => setLightbox(photo)}
+              >
+                <img
+                  src={photo.imageUrl}
+                  alt={photo.title || "صورة من رحلة"}
+                  referrerPolicy="no-referrer"
+                  style={getCropImgStyle(photo.cropArea)}
+                  draggable={false}
+                />
+                {photo.title && (
+                  <div className="gp-grid-item__cap">{photo.title}</div>
+                )}
+              </div>
+            ))}
+          </div>
+          {visible < photos.length && (
+            <div className="gp-grid-more">
+              <button
+                className="btn btn-outline gp-grid-more-btn"
+                onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              >
+                عرض المزيد ({Math.min(PAGE_SIZE, photos.length - visible)} صورة أخرى)
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── Lightbox ── */}
+      {lightbox && (
+        <div className="gp-lightbox" onClick={() => setLightbox(null)}>
+          <button className="gp-lightbox-close" onClick={() => setLightbox(null)}>✕</button>
+          <div className="gp-lightbox-img-wrap" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={lightbox.imageUrl}
+              alt={lightbox.title || ""}
+              referrerPolicy="no-referrer"
+              draggable={false}
+            />
+            {lightbox.title && <div className="gp-lightbox-cap">{lightbox.title}</div>}
+          </div>
+        </div>
+      )}
 
       {/* ── Quote ── */}
       <section className="gp-quote">
