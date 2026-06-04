@@ -1,6 +1,8 @@
 import { useState } from "react";
 
-const API_BASE = (import.meta.env.VITE_API_URL || "") + "/api";
+const CLOUD_NAME    = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
+const UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const UPLOAD_URL    = `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`;
 
 export default function useCloudinaryUpload() {
   const [uploading, setUploading] = useState(false);
@@ -16,10 +18,9 @@ export default function useCloudinaryUpload() {
       setError("");
 
       const formData = new FormData();
-      formData.append("file",   file);
-      formData.append("folder", folder);
-
-      const token = localStorage.getItem("ruha_user_token");
+      formData.append("file",           file);
+      formData.append("upload_preset",  UPLOAD_PRESET);
+      formData.append("folder",         folder);
 
       const xhr = new XMLHttpRequest();
 
@@ -30,12 +31,11 @@ export default function useCloudinaryUpload() {
       xhr.addEventListener("load", () => {
         setUploading(false);
         if (xhr.status === 200) {
-          const data = JSON.parse(xhr.responseText);
           setProgress(100);
-          resolve(data.url);
+          resolve(JSON.parse(xhr.responseText).secure_url);
         } else {
           const msg = (() => {
-            try { return JSON.parse(xhr.responseText)?.message; } catch { return null; }
+            try { return JSON.parse(xhr.responseText)?.error?.message; } catch { return null; }
           })() || "فشل رفع الصورة";
           setError(msg);
           reject(new Error(msg));
@@ -49,8 +49,7 @@ export default function useCloudinaryUpload() {
         reject(new Error(msg));
       });
 
-      xhr.open("POST", `${API_BASE}/upload`);
-      if (token) xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+      xhr.open("POST", UPLOAD_URL);
       xhr.send(formData);
     });
   };
