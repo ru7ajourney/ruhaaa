@@ -213,7 +213,7 @@ const notifyAdminFullPayment = async ({ fullName, email, tripTitle, totalPaid, c
 
 const sendOtpEmail = async (email, otp, fullName) => {
   const year = new Date().getFullYear();
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
     to: email,
     subject: `${otp} — كود تفعيل حسابك في رُحى`,
@@ -315,11 +315,15 @@ const sendOtpEmail = async (email, otp, fullName) => {
 </body>
 </html>`,
   });
+  if (error) {
+    console.error("Resend error (sendOtpEmail):", error);
+    throw new Error(error.message || "فشل إرسال الإيميل");
+  }
 };
 
 const sendResetEmail = async (email, otp, fullName) => {
   const year = new Date().getFullYear();
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev",
     to: email,
     subject: `${otp} — كود إعادة تعيين كلمة المرور في رُحى`,
@@ -399,6 +403,10 @@ const sendResetEmail = async (email, otp, fullName) => {
 </body>
 </html>`,
   });
+  if (error) {
+    console.error("Resend error (sendResetEmail):", error);
+    throw new Error(error.message || "فشل إرسال الإيميل");
+  }
 };
 
 const generateToken = (id) =>

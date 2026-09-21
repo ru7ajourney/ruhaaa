@@ -1,0 +1,137 @@
+RUHA (رُحى) — PROJECT OVERVIEW / REFRESHER
+==========================================
+Cultural Travel & Volunteering website.
+Last commit before this note: June 4, 2026.
+
+
+1. WHAT THE PROJECT IS
+----------------------
+Monorepo with two apps:
+
+  Frontend  -> frontend/   React 18 + Vite, React Router, Axios
+               Runs on VERCEL (frontend/vercel.json, builds to dist/)
+
+  Backend   -> backend/    Node / Express + Mongoose
+               Runs on RENDER (free tier; server.js self-pings every 14 min
+               so the service does not sleep)
+
+GitHub repo : https://github.com/ru7ajourney/ruhaaa   (branch: main, user: ru7ajourney)
+
+
+2. MAIN FEATURES
+----------------
+Public pages:
+  Home, About, Trips, TripDetail, Register (trip application with optional
+  priced extras), Checkout, Gallery (slideshow + grid + lightbox), Careers
+  (job applications), Contact, Policies, Privacy Policy, MyApplications,
+  UserProfile.
+
+Two separate auth systems:
+  * Users  -> localStorage key "ruha_user_token", UserAuthContext
+              Email/password, Google login, phone OTP via WhatsApp.
+  * Admins -> localStorage key "ruha_token", AuthContext
+              Admin panel in frontend/src/pages/admin/
+              Roles include SUPER ADMIN (SuperRoute.jsx, scripts/setSuperAdmin.js)
+              Sections: Dashboard, Trips (form + calculator + stats),
+              Applications, Applicants, Gallery, Legal (policy versions),
+              Subscribers, Users, Admin management.
+
+Backend API routes (/api/...):
+  auth, trips, applications, gallery, subscribers, policy-versions,
+  users, admins, geo, job-applications
+
+Image uploads:
+  Go DIRECTLY browser -> Cloudinary (unsigned upload preset) using the
+  useCloudinaryUpload hook + ImageUploader component.
+  The backend upload route was removed.
+
+Seed / utility scripts (backend/scripts/ and backend/):
+  seed.js, createAdmin.js, setSuperAdmin.js, seedGallery.js,
+  seedFranceTrip.js, listAdmins.js
+
+Local development:
+  Run "npm run dev" in both frontend/ and backend/.
+  Vite proxies /api -> http://localhost:5000
+  Backend port: 5000 (default)
+
+
+3. THIRD-PARTY SERVICES
+-----------------------
+Hosting / infrastructure
+  1. Vercel         - hosts the frontend. VITE_* env vars are set here.
+  2. Render         - hosts the backend. All backend secrets are set here.
+  3. GitHub         - source code repo (ru7ajourney/ruhaaa).
+  4. MongoDB Atlas  - database (MONGODB_URI).
+
+Media
+  5. Cloudinary     - image storage (cloud name: du3swcegt).
+                      Frontend needs VITE_CLOUDINARY_CLOUD_NAME and
+                      VITE_CLOUDINARY_UPLOAD_PRESET.
+
+Payments
+  6. PayPal (+ Google Pay button through PayPal)
+                    - client ID is hardcoded in frontend/src/App.jsx.
+                      Backend uses PAYPAL_CLIENT_ID, PAYPAL_SECRET,
+                      PAYPAL_BASE_URL (sandbox vs live is decided by this URL).
+
+Auth / messaging
+  7. Google OAuth (Google Cloud Console)
+                    - "Sign in with Google", client ID in App.jsx.
+  8. Resend         - transactional emails (application confirmations,
+                      job applications, user emails).
+                      RESEND_API_KEY, RESEND_FROM_EMAIL.
+  9. Twilio         - WhatsApp OTP for phone verification.
+                      TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_WHATSAPP_FROM.
+
+Free public APIs (no account needed)
+ 10. ip-api.com     - backend /api/geo, IP geolocation
+     ipwho.is       - frontend IP geolocation (auto-select country on Register)
+ 11. flagcdn.com    - country flag images
+ 12. Google Fonts   - fonts
+     Unsplash       - placeholder images
+
+Social links used in the site
+  Instagram: ruha_journey
+  TikTok
+  WhatsApp: wa.me/972504933918
+
+
+4. ENVIRONMENT VARIABLES
+------------------------
+Frontend (set on Vercel):
+  VITE_API_URL
+  VITE_CLOUDINARY_CLOUD_NAME
+  VITE_CLOUDINARY_UPLOAD_PRESET
+
+Backend (set on Render):
+  MONGODB_URI
+  JWT_SECRET
+  JWT_EXPIRES_IN
+  ADMIN_JWT_SECRET
+  ADMIN_USERNAME
+  ADMIN_EMAIL
+  ADMIN_PASSWORD
+  ADMIN_EMAIL_NOTIFY
+  FRONTEND_URL          (comma-separated allowed CORS origins;
+                         any https://*.vercel.app is also allowed automatically)
+  PAYPAL_CLIENT_ID
+  PAYPAL_SECRET
+  PAYPAL_BASE_URL
+  RESEND_API_KEY
+  RESEND_FROM_EMAIL
+  TWILIO_ACCOUNT_SID
+  TWILIO_AUTH_TOKEN
+  TWILIO_WHATSAPP_FROM
+  RENDER_EXTERNAL_URL   (enables the keep-alive ping)
+  PORT
+
+Local .env files are gitignored (.env, .env.local).
+
+
+5. THINGS TO KEEP IN MIND
+-------------------------
+- Leftover temporary route marked "delete after use":
+    POST /api/applications/migrate/paypal-payments
+    in backend/routes/applications.js (around line 509)
+- backend/node_modules/.package-lock.json shows as modified in git; it is
+  just noise, safe to ignore.

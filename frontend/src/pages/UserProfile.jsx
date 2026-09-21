@@ -110,7 +110,7 @@ const EmailSection = ({ user, onUpdate }) => {
   const verify = async () => {
     setError(""); setLoading(true);
     try {
-      const { data } = await userAPI.verifyEmail({ otp });
+      const { data } = await userAPI.verifyProfileEmail({ otp });
       onUpdate(data.user);
       setStep("view");
       setEmail(""); setOtp("");

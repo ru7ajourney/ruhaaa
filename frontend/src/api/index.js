@@ -135,7 +135,7 @@ export const userAPI = {
   requestPhone:      (data) => userApi.post("/users/profile/request-phone",  data),
   verifyPhone:       (data) => userApi.post("/users/profile/verify-phone",   data),
   requestEmail:      (data) => userApi.post("/users/profile/request-email",  data),
-  verifyEmail:       (data) => userApi.post("/users/profile/verify-email",   data),
+  verifyProfileEmail: (data) => userApi.post("/users/profile/verify-email",  data),
 };
 
 // ==============================
